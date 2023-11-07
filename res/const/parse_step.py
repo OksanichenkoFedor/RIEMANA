@@ -16,5 +16,8 @@ CORRECT_ORDER = [
     "PLANE",
     "VECTOR",
     "LINE",
+    "VERTEX_POINT",
+    "B_SPLINE_CURVE_WITH_KNOTS",
     "CIRCLE",
+    #"EDGE_CURVE",
 ]

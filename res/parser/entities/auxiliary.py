@@ -4,6 +4,16 @@ from res.parser.entities.entity import Entity
 from res.parser.entities.basic import CartesianPoint, Direction
 
 
+class Curve(Entity):
+    def __init__(self, id):
+        super(Curve, self).__init__(id)
+
+
+class Edge(Entity):
+    def __init__(self, id):
+        super(Edge, self).__init__(id)
+
+
 class Axis2Placement3D(Entity):
     def __init__(self, id, params, data):
         super(Axis2Placement3D, self).__init__(id)
@@ -19,11 +29,11 @@ class Axis2Placement3D(Entity):
         if type(self.axis2) != Direction:
             raise ValueError('Expected Direction, got ', type(self.axis2))
 
-
     def check_orthgonality(self):
-        dot = self.axis1.x*self.axis2.x+self.axis1.y*self.axis2.y+self.axis1.z*self.axis2.z
-        if dot>0.01:
-            print("Not orthogonal: ",dot)
+        dot = self.axis1.x * self.axis2.x + self.axis1.y * self.axis2.y + self.axis1.z * self.axis2.z
+        if dot > 0.01:
+            print("Not orthogonal: ", dot)
+
 
 class Plane(Entity):
     def __init__(self, id, params, data):
@@ -43,15 +53,14 @@ class Vector(Entity):
         params = params.split(",")
         self.direction = data[int(params[0])]
         self.length = float(params[1])
-
         if type(self.direction) != Direction:
             raise ValueError('Expected Direction, got ', type(self.direction))
         self.vec_coord = self.direction.vector
 
-class Line(Entity):
+
+class Line(Curve):
     def __init__(self, id, params, data):
         super(Line, self).__init__(id)
-        print("Line: ", params)
         params = params.split(",")
         self.point = data[int(params[0])]
         self.vector = data[int(params[1])]
@@ -61,4 +70,12 @@ class Line(Entity):
             raise ValueError('Expected Direction, got ', type(self.vector))
         self.start_coord = self.point.coord
         self.vec_coord = self.vector.vec_coord
-        print("Line: ", self.start_coord, self.vec_coord)
+
+
+class VertexPoint(Entity):
+    def __init__(self, id, params, data):
+        super(VertexPoint, self).__init__(id)
+        self.point = data[int(params)]
+        if type(self.point) != CartesianPoint:
+            raise ValueError('Expected CartesianPoint, got ', type(self.point))
+        self.coord = self.point.coord

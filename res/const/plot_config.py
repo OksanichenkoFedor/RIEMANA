@@ -1,3 +1,4 @@
 PLOT_ORDER = [
     "CIRCLE",
+    "B_SPLINE_CURVE_WITH_KNOTS",
 ]

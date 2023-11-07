@@ -18,7 +18,7 @@ class PlotFrame(tk.Frame):
         self.initUI()
 
     def initUI(self):
-        self.f = Figure(figsize=plt.figaspect(0.5))  # , dpi=100, tight_layout=True)
+        self.f = Figure(figsize=(10, 10), dpi=100, tight_layout=True)
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=0, columnspan=2)
@@ -46,16 +46,21 @@ class PlotFrame(tk.Frame):
         self.ax.set_zlabel('z')
 
         for curr_type in PLOT_ORDER:
-            for id in self.master.parser.path_to_entities[curr_type]:
-                curr_min, curr_max = self.master.parser.data[id].draw(self.ax)
-                new_min = np.concatenate((config.min_coord, curr_min), axis=1)
-                config.min_coord = np.min(new_min, axis=1).reshape((3, 1))
-                new_max = np.concatenate((config.max_coord, curr_max), axis=1)
-                config.max_coord = np.max(new_max, axis=1).reshape((3, 1))
+            if curr_type in self.master.parser.path_to_entities:
+                for id in self.master.parser.path_to_entities[curr_type]:
+                    curr_min, curr_max = self.master.parser.data[id].draw(self.ax)
+                    new_min = np.concatenate((config.min_coord, curr_min), axis=1)
+                    config.min_coord = np.min(new_min, axis=1).reshape((3, 1))
+                    new_max = np.concatenate((config.max_coord, curr_max), axis=1)
+                    config.max_coord = np.max(new_max, axis=1).reshape((3, 1))
 
         self.ax.set_xlim(config.min_coord[0, 0], config.max_coord[0, 0])
         self.ax.set_ylim(config.min_coord[1, 0], config.max_coord[1, 0])
         self.ax.set_zlim(config.min_coord[2, 0], config.max_coord[2, 0])
+
+        #self.ax.set_xlim(np.min(config.min_coord), np.max(config.max_coord))
+        #self.ax.set_ylim(np.min(config.min_coord), np.max(config.max_coord))
+        #self.ax.set_zlim(np.min(config.min_coord), np.max(config.max_coord))
 
         self.canvas.draw()
 

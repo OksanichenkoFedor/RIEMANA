@@ -1,6 +1,6 @@
 from res.parser.entities.basic import CartesianPoint, Direction
-from res.parser.entities.auxiliary import Axis2Placement3D, Plane, Vector, Line
-from res.parser.entities.complex import Circle
+from res.parser.entities.auxiliary import Axis2Placement3D, Plane, Vector, Line, VertexPoint
+from res.parser.entities.complex import Circle, EntityEdge, BSplineCurveWithKnots
 
 def entity_factory(type, id, params, data):
     if type == "CARTESIAN_POINT":
@@ -17,6 +17,12 @@ def entity_factory(type, id, params, data):
         return Vector(id, params, data)
     if type == "LINE":
         return Line(id, params, data)
+    if type == "VERTEX_POINT":
+        return VertexPoint(id, params, data)
+    if type == "EDGE_CURVE":
+        return EntityEdge(id, params, data)
+    if type == "B_SPLINE_CURVE_WITH_KNOTS":
+        return BSplineCurveWithKnots(id, params, data)
 
-    print("Unknown type: ",type)
+    print("Unknown type: ", type)
 
