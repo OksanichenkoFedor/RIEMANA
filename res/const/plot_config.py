@@ -1,0 +1,3 @@
+PLOT_ORDER = [
+    "CIRCLE",
+]
