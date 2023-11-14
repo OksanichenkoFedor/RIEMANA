@@ -57,5 +57,5 @@ class Surface(Entity):
 class Drawable(ABC):
 
     @abstractmethod
-    def draw(self, axis):
+    def draw(self, axis, color, is_plotting):
         return np.array([0, 0, 0]).reshape((3, 1)), np.array([0, 0, 0]).reshape((3, 1))

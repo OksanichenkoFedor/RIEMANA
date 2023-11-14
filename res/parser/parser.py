@@ -1,5 +1,9 @@
 from res.const.parse_step import BAD_NAMES, CORRECT_ORDER
 from res.parser.entities.factory import entity_factory
+
+import res.config as config
+
+from res.const.plot_config import PLOT_ORDER
 class Parser:
     def __init__(self,filename):
         self.filename = filename
@@ -64,7 +68,12 @@ class Parser:
                 del self.objects[curr_type]
         for key in self.objects:
             print(key, len(self.objects[key].keys()))
-        #return 0
+        num_entities = 0
+        for curr_type in PLOT_ORDER:
+            if curr_type in self.path_to_entities:
+                num_entities+=len(self.path_to_entities[curr_type])
+        print("Number of entities to draw: ", num_entities)
+        config.max_num_entity = num_entities
 
 
 

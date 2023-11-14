@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib.patches import Circle as CirclePlot
 from matplotlib.patches import Polygon, Arc
 
-from res.parser.entities.ancestors import Curve, Edge, Drawable, Entity
+from res.parser.entities.ancestors import Curve, Edge, Drawable, Entity, Surface
 from res.frontend.draw_3d import pathpatch_2d_to_3d
 from res.parser.entities.auxiliary import Axis2Placement3D, EdgeCurve
 from res.parser.entities.basic import CartesianPoint
@@ -25,13 +25,13 @@ class Circle(Curve, Drawable):
         self.x = self.placement.axis2.vector
         self.y = np.cross(self.z, self.x)
 
-    def draw(self, axis):
-        self.circ = CirclePlot((0, 0), self.R, color="g", fill=True)
-        self.gran = CirclePlot((0, 0), self.R, color="k", fill=False, linewidth=0.5)
-        axis.add_patch(self.circ)
-        axis.add_patch(self.gran)
-        pathpatch_2d_to_3d(self.circ, centre_vector=self.start_coord, normal=self.z)
-        pathpatch_2d_to_3d(self.gran, centre_vector=self.start_coord, normal=self.z)
+    def draw(self, axis, color, is_plotting):
+        if color is None:
+            color = "g"
+        if is_plotting:
+            self.circ = CirclePlot((0, 0), self.R, color=color, fill=True)
+            axis.add_patch(self.circ)
+            pathpatch_2d_to_3d(self.circ, centre_vector=self.start_coord, normal=self.z)
         delta = np.array([0, 0, 0])
         delta[0] = self.R * np.linalg.norm(np.cross(self.z, np.array([1.0, 0.0, 0.0])))
         delta[1] = self.R * np.linalg.norm(np.cross(self.z, np.array([0.0, 1.0, 0.0])))
@@ -55,12 +55,14 @@ class Circle(Curve, Drawable):
         delta[1] = self.R * np.linalg.norm(np.cross(self.z, np.array([0.0, 1.0, 0.0])))
         delta[2] = self.R * np.linalg.norm(np.cross(self.z, np.array([0.0, 0.0, 1.0])))
 
-        def draw_function(axis):
-            # arc = Arc((0, 0), width=2 * self.R, height=2 * self.R, theta1=start_angle, theta2=end_angle,
-            #          color="b")
-            #          #color=tuple(np.random.random((3,))))
-            # axis.add_patch(arc)
-            # pathpatch_2d_to_3d(arc, centre_vector=self.start_coord, normal=self.z)
+        def draw_function(axis, color, is_plotting):
+            if color is None:
+                color = "b"
+            if is_plotting:
+                arc = Arc((0, 0), width=2 * self.R, height=2 * self.R, theta1=start_angle, theta2=end_angle,
+                          color=color)
+                axis.add_patch(arc)
+                pathpatch_2d_to_3d(arc, centre_vector=self.start_coord, normal=self.z)
             return (self.start_coord - delta).reshape((3, 1)), (self.start_coord + delta).reshape((3, 1))
 
         return draw_function
@@ -125,12 +127,15 @@ class BSplineCurveWithKnots(Curve, Drawable):
             if type(self.points[i]) != CartesianPoint:
                 raise ValueError('Expected CartesianPoint, got ', type(self.points[i]))
 
-    def draw(self, axis):
+    def draw(self, axis, color, is_plotting):
+        if color is None:
+            color = "r"
         coords = np.array(self.coords)
-        axis.plot(list(coords[:-1, 0]) + list(coords[1:, 0]),
-                  list(coords[:-1, 1]) + list(coords[1:, 1]),
-                  list(coords[:-1, 2]) + list(coords[1:, 2]),
-                  color="r")
+        if is_plotting:
+            axis.plot(list(coords[:-1, 0]) + list(coords[1:, 0]),
+                      list(coords[:-1, 1]) + list(coords[1:, 1]),
+                      list(coords[:-1, 2]) + list(coords[1:, 2]),
+                      color=color)
         return (np.min(coords, axis=0)).reshape((3, 1)), (np.max(coords, axis=0)).reshape((3, 1))
 
     def generate_draw_function(self, start_point, end_point):
@@ -152,11 +157,14 @@ class BSplineCurveWithKnots(Curve, Drawable):
             coords[0] = start_point.coord
             coords[-1] = end_point.coord
 
-            def draw_function(axis):
-                axis.plot(list(coords[:-1, 0]) + list(coords[1:, 0]),
-                          list(coords[:-1, 1]) + list(coords[1:, 1]),
-                          list(coords[:-1, 2]) + list(coords[1:, 2]),
-                          color=(0.3, 0, 0.7))
+            def draw_function(axis, color, is_plotting):
+                if color is None:
+                    color = (0.3, 0, 0.7)
+                if is_plotting:
+                    axis.plot(list(coords[:-1, 0]) + list(coords[1:, 0]),
+                              list(coords[:-1, 1]) + list(coords[1:, 1]),
+                              list(coords[:-1, 2]) + list(coords[1:, 2]),
+                              color=color)
                 return (np.min(coords, axis=0)).reshape((3, 1)), (np.max(coords, axis=0)).reshape((3, 1))
 
             return draw_function
@@ -167,11 +175,14 @@ class BSplineCurveWithKnots(Curve, Drawable):
             coords[-1] = start_point.coord
             coords = coords[::-1, :]
 
-            def draw_function(axis):
-                axis.plot(list(coords[:-1, 0]) + list(coords[1:, 0]),
-                          list(coords[:-1, 1]) + list(coords[1:, 1]),
-                          list(coords[:-1, 2]) + list(coords[1:, 2]),
-                          color=(0.7, 0, 0.3))
+            def draw_function(axis, color, is_plotting):
+                if color is None:
+                    color = (0.7, 0, 0.3)
+                if is_plotting:
+                    axis.plot(list(coords[:-1, 0]) + list(coords[1:, 0]),
+                              list(coords[:-1, 1]) + list(coords[1:, 1]),
+                              list(coords[:-1, 2]) + list(coords[1:, 2]),
+                              color=color)
                 return np.array([0, 0, 0]).reshape(3, 1), np.array([0, 0, 0]).reshape(3, 1)
 
             return draw_function
@@ -205,11 +216,11 @@ class OrientedEdge(Edge, Drawable):
     def generate_draw_function(self):
         self.draw = self.edge.generate_draw_function()
 
-    def draw(self, axis):
+    def draw(self, axis, color, is_plotting):
         pass
 
 
-class EdgeLoop(Entity):
+class EdgeLoop(Entity, Drawable):
 
     def extract_data(self, params, data):
         params = np.array(params[1:-1].split(",")).astype("int")
@@ -217,11 +228,64 @@ class EdgeLoop(Entity):
         for i in range(len(params)):
             new_edge = data[params[i]]
             self.oriented_edges.append(new_edge)
+        self.color = tuple(np.random.random(3))
 
     def check_data(self):
         for edge in self.oriented_edges:
             if not isinstance(edge, OrientedEdge):
                 raise ValueError('Expected OrientedEdge, got ', type(edge))
-        #print("EdgeLoop", len(self.oriented_edges))
+
+    def draw(self, axis, color, is_plotting):
+        if color is None:
+            color = self.color
+        min_coord = np.array([0, 0, 0]).reshape(3, 1)
+        max_coord = np.array([0, 0, 0]).reshape(3, 1)
+        for edge in self.oriented_edges:
+            curr_min, curr_max = edge.draw(axis, color, is_plotting)
+            new_min = np.concatenate((min_coord, curr_min), axis=1)
+            min_coord = np.min(new_min, axis=1).reshape((3, 1))
+            new_max = np.concatenate((max_coord, curr_max), axis=1)
+            max_coord = np.max(new_max, axis=1).reshape((3, 1))
+        return min_coord, max_coord
 
 
+class FaceBound(Entity):
+    def extract_data(self, params, data):
+        params = params.split(",")
+        self.loop = data[int(params[0])]
+        if params[-1][1] == "T":
+            self.orientation = 1
+        elif params[-1][1] == "F":
+            self.orientation = -1
+        else:
+            raise ValueError('Incorrect orientation: ', self.id)
+        #print("FaceBound: ", bool(self.orientation), len(self.loop.oriented_edges))
+
+    def check_data(self):
+        if not isinstance(self.loop, EdgeLoop):
+            raise ValueError('Expected EdgeLoop, got ', type(self.loop))
+
+
+class AdvancedFace(Entity):
+    def extract_data(self, params, data):
+        params = params[1:].split(")")
+        list_fb = np.array(params[0].split(",")).astype(int)
+        self.face_bounds = []
+        for i in range(len(list_fb)):
+            self.face_bounds.append(data[list_fb[i]])
+        params = params[1].split(",")
+        if params[-1][1] == "T":
+            self.orientation = 1
+        elif params[-1][1] == "F":
+            self.orientation = -1
+        else:
+            raise ValueError('Incorrect orientation: ', self.id)
+        self.surface = data[int(params[1])]
+        print("AdvancedFace: ", list_fb, type(self.surface), bool(self.orientation))
+
+    def check_data(self):
+        if not isinstance(self.surface, Surface):
+            raise ValueError('Expected Surface, got ', type(self.surface))
+        for fb in self.face_bounds:
+            if not isinstance(fb, FaceBound):
+                raise ValueError('Expected FaceBound, got ', type(fb))

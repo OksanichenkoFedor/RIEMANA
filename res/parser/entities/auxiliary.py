@@ -1,6 +1,6 @@
 import numpy as np
 
-from res.parser.entities.ancestors import Entity, Curve, Edge
+from res.parser.entities.ancestors import Entity, Curve, Edge, Surface
 from res.parser.entities.basic import CartesianPoint, Direction
 
 
@@ -26,7 +26,7 @@ class Axis2Placement3D(Entity):
             print("Not orthogonal: ", dot)
 
 
-class Plane(Entity):
+class Plane(Surface):
 
     def extract_data(self, params, data):
         self.placement = data[int(params)]
@@ -74,8 +74,11 @@ class Line(Curve):
         x = [start_point.coord[0], end_point.coord[0]]
         y = [start_point.coord[1], end_point.coord[1]]
         z = [start_point.coord[2], end_point.coord[2]]
-        def draw_function(axis):
-            axis.plot(x, y, z, color="g")
+        def draw_function(axis, color, is_plotting):
+            if color is None:
+                color="g"
+            if is_plotting:
+                axis.plot(x, y, z, color=color)
             return np.array([np.min(x), np.min(y), np.min(z)]).reshape((3, 1)), np.array(
                 [np.max(x), np.max(y), np.max(z)]).reshape((3, 1))
         return draw_function

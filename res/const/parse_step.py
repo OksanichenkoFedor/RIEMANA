@@ -25,4 +25,6 @@ CORRECT_ORDER = [
     "EDGE_CURVE",
     "ORIENTED_EDGE",
     "EDGE_LOOP",
+    "FACE_BOUND",
+    "ADVANCED_FACE",
 ]

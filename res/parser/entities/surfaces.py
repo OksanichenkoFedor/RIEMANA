@@ -29,7 +29,9 @@ class ConicalSurface(Surface, Drawable):
         if type(self.placement) != Axis2Placement3D:
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
-    def draw(self, axis):
+    def draw(self, axis, color, is_plotting):
+        if color is None:
+            color = "g"
         u, v = np.mgrid[0:NUMBER_OF_CON_SURFACE_POINTS, 0:NUMBER_OF_CON_SURFACE_POINTS] * (
                 1.0 / NUMBER_OF_CON_SURFACE_POINTS)
         u = u * 2 * (np.pi * (NUMBER_OF_CON_SURFACE_POINTS + 2) / NUMBER_OF_CON_SURFACE_POINTS)
@@ -44,7 +46,8 @@ class ConicalSurface(Surface, Drawable):
                 np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + v * \
             self.z[2]
         if not self.incorr:
-            axis.plot_surface(x, y, z, rstride=1, cstride=1)
+            if is_plotting:
+                axis.plot_surface(x, y, z, rstride=1, cstride=1, color=color)
             return np.array([np.min(x), np.min(y), np.min(z)]).reshape((3, 1)), \
                    np.array([np.max(x), np.max(y), np.max(z)]).reshape((3, 1))
         else:
@@ -69,7 +72,9 @@ class CylindricalSurface(Surface, Drawable):
         if type(self.placement) != Axis2Placement3D:
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
-    def draw(self, axis):
+    def draw(self, axis, color, is_plotting):
+        if color is None:
+            color = "g"
         u, v = np.mgrid[0:NUMBER_OF_CYL_SURFACE_POINTS, 0:NUMBER_OF_CYL_SURFACE_POINTS] * (
                 1.0 / NUMBER_OF_CYL_SURFACE_POINTS)
         u = u * 2 * (np.pi * (NUMBER_OF_CYL_SURFACE_POINTS + 2) / NUMBER_OF_CYL_SURFACE_POINTS)
@@ -83,7 +88,8 @@ class CylindricalSurface(Surface, Drawable):
         z = self.start_coord[2] + (self.radius) * (
                 np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + v * \
             self.z[2]
-        axis.plot_surface(x, y, z, rstride=1, cstride=1)
+        if is_plotting:
+            axis.plot_surface(x, y, z, rstride=1, cstride=1, color=color)
 
         return np.array([np.min(x), np.min(y), np.min(z)]).reshape((3, 1)), \
                np.array([np.max(x), np.max(y), np.max(z)]).reshape((3, 1))
@@ -108,7 +114,9 @@ class ToroidalSurface(Surface, Drawable):
         if type(self.placement) != Axis2Placement3D:
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
-    def draw(self, axis):
+    def draw(self, axis, color, is_plotting):
+        if color is None:
+            color = "g"
         u, v = np.mgrid[0:NUMBER_OF_TOR_SURFACE_POINTS,
                0: NUMBER_OF_TOR_SURFACE_POINTS] * (1.0 / NUMBER_OF_TOR_SURFACE_POINTS)
         u = u * 2 * (np.pi * (NUMBER_OF_TOR_SURFACE_POINTS + 2) / NUMBER_OF_TOR_SURFACE_POINTS)
@@ -119,7 +127,7 @@ class ToroidalSurface(Surface, Drawable):
                 np.cos(u) * self.x[1] + np.sin(u) * self.y[1]) + self.minor_radius * self.z[1] * np.sin(v)
         z = self.start_coord[2] + (self.major_radius + self.minor_radius * np.cos(v)) * (
                 np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + self.minor_radius * self.z[2] * np.sin(v)
-
-        axis.plot_surface(x, y, z, rstride=1, cstride=1)
+        if is_plotting:
+            axis.plot_surface(x, y, z, rstride=1, cstride=1)
         return np.array([np.min(x), np.min(y), np.min(z)]).reshape((3, 1)), \
                np.array([np.max(x), np.max(y), np.max(z)]).reshape((3, 1))
