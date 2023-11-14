@@ -48,12 +48,12 @@ class Parser:
     def parsing(self):
         self.data = {}
         self.path_to_entities = {}
-        for key in self.objects:
-            print("---")
-            print(key + ":")
-            print("---")
-            for id in self.objects[key]:
-                print(id, self.objects[key][id])
+        #for key in self.objects:
+        #    print("---")
+        #    print(key + ":")
+        #    print("---")
+        #    for id in self.objects[key]:
+        #        print(id, self.objects[key][id])
         print()
         for curr_type in CORRECT_ORDER:
             if curr_type in self.objects:
