@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib.patches import Circle as CirclePlot
 from matplotlib.patches import Polygon, Arc
 
-from res.parser.entities.ancestors import Curve, Edge, Drawable
+from res.parser.entities.ancestors import Curve, Edge, Drawable, Entity
 from res.frontend.draw_3d import pathpatch_2d_to_3d
 from res.parser.entities.auxiliary import Axis2Placement3D, EdgeCurve
 from res.parser.entities.basic import CartesianPoint
@@ -56,11 +56,11 @@ class Circle(Curve, Drawable):
         delta[2] = self.R * np.linalg.norm(np.cross(self.z, np.array([0.0, 0.0, 1.0])))
 
         def draw_function(axis):
-            #arc = Arc((0, 0), width=2 * self.R, height=2 * self.R, theta1=start_angle, theta2=end_angle,
+            # arc = Arc((0, 0), width=2 * self.R, height=2 * self.R, theta1=start_angle, theta2=end_angle,
             #          color="b")
             #          #color=tuple(np.random.random((3,))))
-            #axis.add_patch(arc)
-            #pathpatch_2d_to_3d(arc, centre_vector=self.start_coord, normal=self.z)
+            # axis.add_patch(arc)
+            # pathpatch_2d_to_3d(arc, centre_vector=self.start_coord, normal=self.z)
             return (self.start_coord - delta).reshape((3, 1)), (self.start_coord + delta).reshape((3, 1))
 
         return draw_function
@@ -109,7 +109,6 @@ class BSplineCurveWithKnots(Curve, Drawable):
         for i in range(self.N):
             self.points.append(data[self.control_points_list[i]])
             self.coords.append(self.points[-1].coord)
-        coords = np.array(self.coords)
 
     def check_data(self):
         if len(self.knot_multiplicities) != self.N - 2:
@@ -135,22 +134,17 @@ class BSplineCurveWithKnots(Curve, Drawable):
         return (np.min(coords, axis=0)).reshape((3, 1)), (np.max(coords, axis=0)).reshape((3, 1))
 
     def generate_draw_function(self, start_point, end_point):
-        # print("Нереализовано BSplineCurveWithKnots")
         coords = np.array(self.coords)
-        # print(coords.shape)
-
         C = coords - start_point.coord
         C = np.sum(C * C, axis=1)
         start_second, start_first = np.argsort(C)[-2:]
         start_second, start_first = np.max((start_second, start_first)), np.min((start_second, start_first))
-        # print(start_first, start_second)
         if np.abs(start_first - start_second) > 1:
             raise ValueError('Not near points in OrientedEdge, id: ', start_point.id)
         C = coords - end_point.coord
         C = np.sum(C * C, axis=1)
         end_second, end_first = np.argsort(C)[-2:]
         end_second, end_first = np.max((end_second, end_first)), np.min((end_second, end_first))
-        # print(end_first, end_second)
         if np.abs(end_first - end_second) > 1:
             raise ValueError('Not near points in OrientedEdge, id: ', end_point.id)
         if end_first > start_second:
@@ -172,7 +166,7 @@ class BSplineCurveWithKnots(Curve, Drawable):
             coords[0] = end_point.coord
             coords[-1] = start_point.coord
             coords = coords[::-1, :]
-            print(coords.shape)
+
             def draw_function(axis):
                 axis.plot(list(coords[:-1, 0]) + list(coords[1:, 0]),
                           list(coords[:-1, 1]) + list(coords[1:, 1]),
@@ -213,3 +207,21 @@ class OrientedEdge(Edge, Drawable):
 
     def draw(self, axis):
         pass
+
+
+class EdgeLoop(Entity):
+
+    def extract_data(self, params, data):
+        params = np.array(params[1:-1].split(",")).astype("int")
+        self.oriented_edges = []
+        for i in range(len(params)):
+            new_edge = data[params[i]]
+            self.oriented_edges.append(new_edge)
+
+    def check_data(self):
+        for edge in self.oriented_edges:
+            if not isinstance(edge, OrientedEdge):
+                raise ValueError('Expected OrientedEdge, got ', type(edge))
+        #print("EdgeLoop", len(self.oriented_edges))
+
+

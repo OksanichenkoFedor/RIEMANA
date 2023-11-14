@@ -1,6 +1,6 @@
 from res.parser.entities.basic import CartesianPoint, Direction
 from res.parser.entities.auxiliary import Axis2Placement3D, Plane, Vector, Line, VertexPoint, EdgeCurve
-from res.parser.entities.complex import Circle, BSplineCurveWithKnots, OrientedEdge
+from res.parser.entities.complex import Circle, BSplineCurveWithKnots, OrientedEdge, EdgeLoop
 from res.parser.entities.surfaces import ConicalSurface, CylindricalSurface, ToroidalSurface
 
 def entity_factory(type, id, params, data):
@@ -32,6 +32,8 @@ def entity_factory(type, id, params, data):
         return EdgeCurve(id, params, data)
     if type == "ORIENTED_EDGE":
         return OrientedEdge(id, params, data)
+    if type =="EDGE_LOOP":
+        return EdgeLoop(id, params, data)
 
 
     print("Unknown type: ", type)
