@@ -20,7 +20,7 @@ class PlotFrame(tk.Frame):
         self.initUI()
 
     def initUI(self):
-        self.f = Figure(figsize=(7, 7), dpi=100, tight_layout=True)
+        self.f = Figure(figsize=(13, 13), dpi=100, tight_layout=True)
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=0, columnspan=2)

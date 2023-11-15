@@ -1,7 +1,9 @@
 from res.parser.entities.basic import CartesianPoint, Direction
-from res.parser.entities.auxiliary import Axis2Placement3D, Plane, Vector, Line, VertexPoint, EdgeCurve
-from res.parser.entities.complex import Circle, BSplineCurveWithKnots, OrientedEdge, EdgeLoop, FaceBound, AdvancedFace
-from res.parser.entities.surfaces import ConicalSurface, CylindricalSurface, ToroidalSurface
+from res.parser.entities.auxiliary import Axis2Placement3D, Vector, VertexPoint
+from res.parser.entities.faces import FaceBound, AdvancedFace
+from res.parser.entities.surfaces import Plane, ConicalSurface, CylindricalSurface, ToroidalSurface
+from res.parser.entities.curves import Circle, BSplineCurveWithKnots, Line
+from res.parser.entities.edges import OrientedEdge, EdgeLoop, EdgeCurve
 
 def entity_factory(type, id, params, data):
     if type == "CARTESIAN_POINT":

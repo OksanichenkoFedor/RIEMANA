@@ -6,7 +6,43 @@ from res.const.plot_config import NUMBER_OF_CON_SURFACE_POINTS, NUMBER_OF_CYL_SU
     NUMBER_OF_TOR_SURFACE_POINTS
 
 
-class ConicalSurface(Surface, Drawable):
+class Plane(Surface):
+
+    def extract_data(self, params, data):
+        self.placement = data[int(params)]
+
+    def check_data(self):
+        if type(self.placement) != Axis2Placement3D:
+            raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
+        self.start_coord = self.placement.point.coord
+        self.z = self.placement.axis1.vector
+        self.x = self.placement.axis2.vector
+        self.y = np.cross(self.z, self.x)
+        self.T = np.concatenate((self.x.reshape((3,1)),self.y.reshape((3,1)),self.z.reshape((3,1))),axis=1).T
+
+
+    def coordinates_transposition(self, coords):
+        print("Начали переводить на плоскость")
+        delta = (coords - self.start_coord.reshape((3,1)).repeat(coords.shape[1],axis=1))
+        inside_coord = self.T@delta
+        return inside_coord[:-1,:].T
+
+    def give_3d_meshgrid(self, boundary_coords):
+        meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
+        if meshgrid_2d is None:
+            print("Возврат сетки не реализован - плоскость")
+            return None
+        u, v = meshgrid_2d
+        x = self.start_coord[0] + u*self.x[0]+v*self.y[0]
+        y = self.start_coord[1] + u*self.x[1]+v*self.y[1]
+        z = self.start_coord[2] + u*self.x[2]+v*self.y[2]
+        #print(x.shape,y.shape,z.shape)
+        return (x,y,z)
+
+
+
+
+class ConicalSurface(Surface):
 
     def extract_data(self, line, data):
         pass
@@ -28,6 +64,28 @@ class ConicalSurface(Surface, Drawable):
     def check_data(self):
         if type(self.placement) != Axis2Placement3D:
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
+
+    def coordinates_transposition(self, coords):
+        print("Перевод координат не реализован - конус")
+        return None
+
+    def give_3d_meshgrid(self, boundary_coords):
+        meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
+        if meshgrid_2d is None:
+            print("Возврат сетки не реализован - конус")
+            return None
+        u, v = meshgrid_2d
+        x = self.start_coord[0] + (self.radius + v * np.tan(self.angle)) * (
+                np.cos(u) * self.x[0] + np.sin(u) * self.y[0]) + v * \
+            self.z[0]
+        y = self.start_coord[1] + (self.radius + v * np.tan(self.angle)) * (
+                np.cos(u) * self.x[1] + np.sin(u) * self.y[1]) + v * \
+            self.z[1]
+        z = self.start_coord[2] + (self.radius + v * np.tan(self.angle)) * (
+                np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + v * \
+            self.z[2]
+        return (x, y, z)
+
 
     def draw(self, axis, color, is_plotting):
         if color is None:
@@ -54,7 +112,7 @@ class ConicalSurface(Surface, Drawable):
             return np.array([0, 0, 0]).reshape((3, 1)), np.array([0, 0, 0]).reshape((3, 1))
 
 
-class CylindricalSurface(Surface, Drawable):
+class CylindricalSurface(Surface):
 
     def extract_data(self, line, data):
         pass
@@ -71,6 +129,27 @@ class CylindricalSurface(Surface, Drawable):
     def check_data(self):
         if type(self.placement) != Axis2Placement3D:
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
+
+    def coordinates_transposition(self, coords):
+        print("Перевод координат не реализован - цилиндр")
+        return None
+
+    def give_3d_meshgrid(self, boundary_coords):
+        meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
+        if meshgrid_2d is None:
+            print("Возврат сетки не реализован - цилиндр")
+            return None
+        u, v = meshgrid_2d
+        x = self.start_coord[0] + (self.radius) * (
+                np.cos(u) * self.x[0] + np.sin(u) * self.y[0]) + v * \
+            self.z[0]
+        y = self.start_coord[1] + (self.radius) * (
+                np.cos(u) * self.x[1] + np.sin(u) * self.y[1]) + v * \
+            self.z[1]
+        z = self.start_coord[2] + (self.radius) * (
+                np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + v * \
+            self.z[2]
+        return (x, y, z)
 
     def draw(self, axis, color, is_plotting):
         if color is None:
@@ -95,7 +174,7 @@ class CylindricalSurface(Surface, Drawable):
                np.array([np.max(x), np.max(y), np.max(z)]).reshape((3, 1))
 
 
-class ToroidalSurface(Surface, Drawable):
+class ToroidalSurface(Surface):
 
     def extract_data(self, line, data):
         pass
@@ -108,11 +187,30 @@ class ToroidalSurface(Surface, Drawable):
         self.z = self.placement.axis1.vector
         self.x = self.placement.axis2.vector
         self.y = np.cross(self.z, self.x)
-        #print("TorSurf: ", int(params[0]), self.major_radius, self.minor_radius, self.start_coord)
+        # print("TorSurf: ", int(params[0]), self.major_radius, self.minor_radius, self.start_coord)
 
     def check_data(self):
         if type(self.placement) != Axis2Placement3D:
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
+
+
+    def coordinates_transposition(self, coords):
+        print("Перевод координат не реализован - тор")
+        return None
+
+    def give_3d_meshgrid(self, boundary_coords):
+        meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
+        if meshgrid_2d is None:
+            print("Возврат сетки не реализован - тор")
+            return None
+        u, v = meshgrid_2d
+        x = self.start_coord[0] + (self.major_radius + self.minor_radius * np.cos(v)) * (
+                np.cos(u) * self.x[0] + np.sin(u) * self.y[0]) + self.minor_radius * self.z[0] * np.sin(v)
+        y = self.start_coord[1] + (self.major_radius + self.minor_radius * np.cos(v)) * (
+                np.cos(u) * self.x[1] + np.sin(u) * self.y[1]) + self.minor_radius * self.z[1] * np.sin(v)
+        z = self.start_coord[2] + (self.major_radius + self.minor_radius * np.cos(v)) * (
+                np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + self.minor_radius * self.z[2] * np.sin(v)
+        return (x,y,z)
 
     def draw(self, axis, color, is_plotting):
         if color is None:

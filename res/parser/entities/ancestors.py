@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
+from res.frontend.draw_2d import draw_contur
+
 
 class Entity(ABC):
     def __init__(self, id, params, data):
@@ -57,6 +59,22 @@ class Surface(Entity):
     def check_data(self):
         pass
 
+    @abstractmethod
+    def coordinates_transposition(self, coords):
+        pass
+
+    def give_2d_meshgrid(self, boundary_coords):
+        points = self.coordinates_transposition(boundary_coords)
+        if points is None:
+            print("give_2d_meshgrid: Получили пустоту!")
+            return None
+        good_x, good_y = draw_contur(points)
+
+        return good_x, good_y
+
+    @abstractmethod
+    def give_3d_meshgrid(self, boundary_coords):
+        pass
 
 class Drawable(ABC):
 
