@@ -10,3 +10,5 @@ max_num_entity = 0
 is_plotting = False
 plot_all_drawable = False
 
+elem_on_edge = 50
+

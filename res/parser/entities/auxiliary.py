@@ -1,4 +1,6 @@
 import numpy as np
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
+import matplotlib.pyplot as plt
 
 from res.parser.entities.ancestors import Entity, Curve, Edge, Surface
 from res.parser.entities.basic import CartesianPoint, Direction
@@ -69,19 +71,57 @@ class Line(Curve):
         self.vec_coord = self.vector.vec_coord
 
     def generate_draw_function(self, start_point, end_point):
-        id_1 = start_point.id
-        id_2 = end_point.id
+        #id_1 = start_point.id
+        #id_2 = end_point.id
         x = [start_point.coord[0], end_point.coord[0]]
         y = [start_point.coord[1], end_point.coord[1]]
         z = [start_point.coord[2], end_point.coord[2]]
+        coords = self.give_coords(10, start_point.coord, end_point.coord, True)
+        #print(coords.T)
+
         def draw_function(axis, color, is_plotting):
             if color is None:
-                color="g"
+                color = "g"
             if is_plotting:
                 axis.plot(x, y, z, color=color)
+
+            if is_plotting:
+                pass
+                #for i in range(coords.shape[1] - 1):
+                #    axis.plot([coords[0, i], coords[0, i + 1]],
+                #              [coords[1, i], coords[1, i + 1]],
+                #              [coords[2, i], coords[2, i + 1]], color="k")
+                #xyz = coords.T
+                #xyz = xyz.reshape(-1, 1, 3)
+                #segments = np.hstack([xyz[:-1], xyz[1:]])
+                #colors = np.arange(0, 1, 1 / xyz.shape[0])
+                #coll = Line3DCollection(segments, cmap=plt.cm.plasma)
+                #coll.set_array(colors)
+                #axis.add_collection(coll)
+
+
             return np.array([np.min(x), np.min(y), np.min(z)]).reshape((3, 1)), np.array(
                 [np.max(x), np.max(y), np.max(z)]).reshape((3, 1))
+
+
+
         return draw_function
+
+    def give_coords(self, number_points, start_coord, end_coord, orientation):
+        print("Ориентация необработана у прямой")
+        if np.max(np.abs(np.cross(start_coord-self.start_coord, self.vec_coord)))>0.001:
+            print("Ахтунг!!!")
+        if np.max(np.abs(np.cross(end_coord-self.start_coord, self.vec_coord)))>0.001:
+            print("Ахтунг!!!")
+        start_coord = start_coord.reshape((3, 1)).repeat(number_points, axis=1)
+        end_coord = end_coord.reshape((3, 1)).repeat(number_points, axis=1)
+        mult = np.arange(0, 1, 1 / number_points).reshape((1, number_points)).repeat(3, axis=0)
+        #print("give_coords, line: ", number_points, start_coord.shape, end_coord.shape, mult.shape)
+        coords = start_coord + (end_coord - start_coord) * mult
+        if bool(orientation)==False:
+            print("FFFFFFFFFFFFFF", coords.shape)
+            coords = coords[:,::-1]
+        return coords
 
 
 class VertexPoint(Entity):
@@ -104,9 +144,9 @@ class EdgeCurve(Edge):
         self.end = data[int(params[1])]
         self.curve = data[int(params[2])]
         if params[-1][1] == "T":
-            self.orientation = 1
+            self.orientation = True
         elif params[-1][1] == "F":
-            self.orientation = -1
+            self.orientation = False
         else:
             raise ValueError('Incorrect orientation: ', type(self.start))
 
@@ -127,4 +167,5 @@ class EdgeCurve(Edge):
             end_point = self.end
         return self.curve.generate_draw_function(start_point, end_point)
 
-
+    def give_coords(self, number_points, orientation):
+        return self.curve.give_coords(number_points, self.start_coord, self.end_coord, orientation)

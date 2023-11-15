@@ -31,6 +31,10 @@ class Curve(Entity):
     def generate_draw_function(self, start_point, end_point):
         pass
 
+    @abstractmethod
+    def give_coords(self, number_points, start_coord, end_coord, orientation):
+        pass
+
 
 class Edge(Entity):
 
