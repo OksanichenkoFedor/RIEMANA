@@ -1,7 +1,8 @@
 import numpy as np
 
-from res.parser.entities.ancestors import Surface, Drawable
+from res.parser.entities.ancestors import Surface
 from res.parser.entities.auxiliary import Axis2Placement3D
+from res.frontend.draw_2d import give_angle
 from res.const.plot_config import NUMBER_OF_CON_SURFACE_POINTS, NUMBER_OF_CYL_SURFACE_POINTS, \
     NUMBER_OF_TOR_SURFACE_POINTS
 
@@ -18,28 +19,25 @@ class Plane(Surface):
         self.z = self.placement.axis1.vector
         self.x = self.placement.axis2.vector
         self.y = np.cross(self.z, self.x)
-        self.T = np.concatenate((self.x.reshape((3,1)),self.y.reshape((3,1)),self.z.reshape((3,1))),axis=1).T
-
+        self.T = np.concatenate((self.x.reshape((3, 1)), self.y.reshape((3, 1)), self.z.reshape((3, 1))), axis=1).T
 
     def coordinates_transposition(self, coords):
-        print("Начали переводить на плоскость")
-        delta = (coords - self.start_coord.reshape((3,1)).repeat(coords.shape[1],axis=1))
-        inside_coord = self.T@delta
-        return inside_coord[:-1,:].T
+        #print("Начали переводить на плоскость")
+        delta = (coords - self.start_coord.reshape((3, 1)).repeat(coords.shape[1], axis=1))
+        inside_coord = self.T @ delta
+        return inside_coord[:-1, :].T,"pln"
 
     def give_3d_meshgrid(self, boundary_coords):
         meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
         if meshgrid_2d is None:
             print("Возврат сетки не реализован - плоскость")
             return None
-        u, v = meshgrid_2d
-        x = self.start_coord[0] + u*self.x[0]+v*self.y[0]
-        y = self.start_coord[1] + u*self.x[1]+v*self.y[1]
-        z = self.start_coord[2] + u*self.x[2]+v*self.y[2]
-        #print(x.shape,y.shape,z.shape)
-        return (x,y,z)
-
-
+        u, v, path = meshgrid_2d
+        x = self.start_coord[0] + u * self.x[0] + v * self.y[0]
+        y = self.start_coord[1] + u * self.x[1] + v * self.y[1]
+        z = self.start_coord[2] + u * self.x[2] + v * self.y[2]
+        # print(x.shape,y.shape,z.shape)
+        return (x, y, z, path)
 
 
 class ConicalSurface(Surface):
@@ -66,15 +64,29 @@ class ConicalSurface(Surface):
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
     def coordinates_transposition(self, coords):
-        print("Перевод координат не реализован - конус")
-        return None
+        #print("Перевод координат не реализован - конус")
+        new_coords = coords - self.start_coord.reshape((3, 1))
+        v = new_coords * np.repeat(self.z.reshape((3, 1)), coords.shape[1], axis=1)
+        v = v.sum(axis=0).reshape(1, coords.shape[1])
+        cos = ((new_coords-v*self.z.reshape((3,1))) / (self.radius + v*np.tan(self.angle))) * \
+              np.repeat(self.x.reshape((3, 1)), coords.shape[1], axis=1)
+        cos = cos.sum(axis=0)
+        sin = ((new_coords-v*self.z.reshape((3,1))) / (self.radius + v*np.tan(self.angle))) * \
+              np.repeat(self.y.reshape((3, 1)), coords.shape[1], axis=1)
+        sin = sin.sum(axis=0)
+        u = []
+        for i in range(len(sin)):
+            u.append(give_angle(cos[i], sin[i], 1))
+        u = np.array(u).reshape(1, coords.shape[1])
+
+        return np.concatenate((u, v), axis=0).T,"con"
 
     def give_3d_meshgrid(self, boundary_coords):
         meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
         if meshgrid_2d is None:
             print("Возврат сетки не реализован - конус")
             return None
-        u, v = meshgrid_2d
+        u, v, path = meshgrid_2d
         x = self.start_coord[0] + (self.radius + v * np.tan(self.angle)) * (
                 np.cos(u) * self.x[0] + np.sin(u) * self.y[0]) + v * \
             self.z[0]
@@ -84,8 +96,7 @@ class ConicalSurface(Surface):
         z = self.start_coord[2] + (self.radius + v * np.tan(self.angle)) * (
                 np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + v * \
             self.z[2]
-        return (x, y, z)
-
+        return (x, y, z, path)
 
     def draw(self, axis, color, is_plotting):
         if color is None:
@@ -124,22 +135,33 @@ class CylindricalSurface(Surface):
         self.z = self.placement.axis1.vector
         self.x = self.placement.axis2.vector
         self.y = np.cross(self.z, self.x)
-        # print("CylSurf: ", int(params[0]), self.radius)
 
     def check_data(self):
         if type(self.placement) != Axis2Placement3D:
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
     def coordinates_transposition(self, coords):
+        print("---")
         print("Перевод координат не реализован - цилиндр")
-        return None
+        new_coords = coords - self.start_coord.reshape((3, 1))
+        v = new_coords * np.repeat(self.z.reshape((3, 1)), coords.shape[1], axis=1)
+        v = v.sum(axis=0).reshape(1, coords.shape[1])
+        cos = (new_coords * np.repeat(self.z.reshape((3, 1)), coords.shape[1], axis=1))/self.radius
+        cos = cos.sum(axis=0).reshape(1, coords.shape[1])
+        sin = (new_coords * np.repeat(self.z.reshape((3, 1)), coords.shape[1], axis=1)) / self.radius
+        sin = sin.sum(axis=0).reshape(1, coords.shape[1])
+        u = []
+        for i in range(len(sin[0])):
+            u.append(give_angle(cos[0,i], sin[0,i], 1))
+        u = np.array(u).reshape(1, coords.shape[1])
+        return np.concatenate((u, v), axis=0).T,"cyl"
 
     def give_3d_meshgrid(self, boundary_coords):
         meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
         if meshgrid_2d is None:
             print("Возврат сетки не реализован - цилиндр")
             return None
-        u, v = meshgrid_2d
+        u, v, path = meshgrid_2d
         x = self.start_coord[0] + (self.radius) * (
                 np.cos(u) * self.x[0] + np.sin(u) * self.y[0]) + v * \
             self.z[0]
@@ -149,7 +171,7 @@ class CylindricalSurface(Surface):
         z = self.start_coord[2] + (self.radius) * (
                 np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + v * \
             self.z[2]
-        return (x, y, z)
+        return (x, y, z, path)
 
     def draw(self, axis, color, is_plotting):
         if color is None:
@@ -193,24 +215,24 @@ class ToroidalSurface(Surface):
         if type(self.placement) != Axis2Placement3D:
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
-
     def coordinates_transposition(self, coords):
         print("Перевод координат не реализован - тор")
-        return None
+
+        return None,"tor"
 
     def give_3d_meshgrid(self, boundary_coords):
         meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
         if meshgrid_2d is None:
             print("Возврат сетки не реализован - тор")
             return None
-        u, v = meshgrid_2d
+        u, v, path = meshgrid_2d
         x = self.start_coord[0] + (self.major_radius + self.minor_radius * np.cos(v)) * (
                 np.cos(u) * self.x[0] + np.sin(u) * self.y[0]) + self.minor_radius * self.z[0] * np.sin(v)
         y = self.start_coord[1] + (self.major_radius + self.minor_radius * np.cos(v)) * (
                 np.cos(u) * self.x[1] + np.sin(u) * self.y[1]) + self.minor_radius * self.z[1] * np.sin(v)
         z = self.start_coord[2] + (self.major_radius + self.minor_radius * np.cos(v)) * (
                 np.cos(u) * self.x[2] + np.sin(u) * self.y[2]) + self.minor_radius * self.z[2] * np.sin(v)
-        return (x,y,z)
+        return (x, y, z, path)
 
     def draw(self, axis, color, is_plotting):
         if color is None:

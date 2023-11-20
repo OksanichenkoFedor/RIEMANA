@@ -4,6 +4,7 @@ from res.parser.entities.ancestors import Curve, Drawable
 from res.parser.entities.auxiliary import Axis2Placement3D, Vector
 from res.parser.entities.basic import CartesianPoint
 from res.frontend.draw_3d import pathpatch_2d_to_3d
+from res.frontend.draw_2d import give_angle
 
 from matplotlib.patches import Circle as CirclePlot
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
@@ -343,19 +344,4 @@ class Circle(Curve, Drawable):
         return coords
 
 
-def give_angle(x, y, r):
-    cos = x / r
-    sin = y / r
-    cos = cos / np.sqrt(cos * cos + sin * sin)
-    sin = sin / np.sqrt(cos * cos + sin * sin)
 
-    if cos >= 0 and sin >= 0:
-        return np.arcsin(sin)
-    elif cos >= 0 and sin < 0:
-        return 2 * np.pi - np.arcsin((-1) * sin)
-    elif cos < 0 and sin >= 0:
-        return np.pi - np.arcsin(sin)
-    elif cos < 0 and sin < 0:
-        return np.pi + np.arcsin((-1) * sin)
-    else:
-        print("Aхтунг!!!")

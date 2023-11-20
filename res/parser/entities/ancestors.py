@@ -64,13 +64,13 @@ class Surface(Entity):
         pass
 
     def give_2d_meshgrid(self, boundary_coords):
-        points = self.coordinates_transposition(boundary_coords)
+        points, curr_type = self.coordinates_transposition(boundary_coords)
         if points is None:
             print("give_2d_meshgrid: Получили пустоту!")
             return None
-        good_x, good_y = draw_contur(points)
+        good_x, good_y, path = draw_contur(points,curr_type)
 
-        return good_x, good_y
+        return good_x, good_y, path
 
     @abstractmethod
     def give_3d_meshgrid(self, boundary_coords):
