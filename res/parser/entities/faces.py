@@ -59,6 +59,7 @@ class AdvancedFace(Entity, Drawable):
                 self.min[1], self.max[1] = np.min((np.min(ps[1]), self.min[1])), np.max((np.max(ps[1]), self.max[1]))
                 self.min[2], self.max[2] = np.min((np.min(ps[2]), self.min[2])), np.max((np.max(ps[2]), self.max[2]))
 
+
     def draw(self, axis, color, is_plotting):
         for fb in self.face_bounds:
             fb.loop.draw(axis, color, is_plotting)

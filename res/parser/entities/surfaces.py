@@ -22,10 +22,10 @@ class Plane(Surface):
         self.T = np.concatenate((self.x.reshape((3, 1)), self.y.reshape((3, 1)), self.z.reshape((3, 1))), axis=1).T
 
     def coordinates_transposition(self, coords):
-        #print("Начали переводить на плоскость")
+        # print("Начали переводить на плоскость")
         delta = (coords - self.start_coord.reshape((3, 1)).repeat(coords.shape[1], axis=1))
         inside_coord = self.T @ delta
-        return inside_coord[:-1, :].T,"pln"
+        return inside_coord[:-1, :].T, "pln"
 
     def give_3d_meshgrid(self, boundary_coords):
         meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
@@ -64,14 +64,14 @@ class ConicalSurface(Surface):
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
     def coordinates_transposition(self, coords):
-        #print("Перевод координат не реализован - конус")
+        # print("Перевод координат не реализован - конус")
         new_coords = coords - self.start_coord.reshape((3, 1))
         v = new_coords * np.repeat(self.z.reshape((3, 1)), coords.shape[1], axis=1)
         v = v.sum(axis=0).reshape(1, coords.shape[1])
-        cos = ((new_coords-v*self.z.reshape((3,1))) / (self.radius + v*np.tan(self.angle))) * \
+        cos = ((new_coords - v * self.z.reshape((3, 1))) / (self.radius + v * np.tan(self.angle))) * \
               np.repeat(self.x.reshape((3, 1)), coords.shape[1], axis=1)
         cos = cos.sum(axis=0)
-        sin = ((new_coords-v*self.z.reshape((3,1))) / (self.radius + v*np.tan(self.angle))) * \
+        sin = ((new_coords - v * self.z.reshape((3, 1))) / (self.radius + v * np.tan(self.angle))) * \
               np.repeat(self.y.reshape((3, 1)), coords.shape[1], axis=1)
         sin = sin.sum(axis=0)
         u = []
@@ -79,7 +79,7 @@ class ConicalSurface(Surface):
             u.append(give_angle(cos[i], sin[i], 1))
         u = np.array(u).reshape(1, coords.shape[1])
 
-        return np.concatenate((u, v), axis=0).T,"con"
+        return np.concatenate((u, v), axis=0).T, "con"
 
     def give_3d_meshgrid(self, boundary_coords):
         meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
@@ -141,20 +141,20 @@ class CylindricalSurface(Surface):
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
     def coordinates_transposition(self, coords):
-        print("---")
-        print("Перевод координат не реализован - цилиндр")
+        # print("---")
+        # print("Перевод координат не реализован - цилиндр")
         new_coords = coords - self.start_coord.reshape((3, 1))
         v = new_coords * np.repeat(self.z.reshape((3, 1)), coords.shape[1], axis=1)
         v = v.sum(axis=0).reshape(1, coords.shape[1])
-        cos = (new_coords * np.repeat(self.z.reshape((3, 1)), coords.shape[1], axis=1))/self.radius
+        cos = (new_coords * np.repeat(self.x.reshape((3, 1)), coords.shape[1], axis=1)) / self.radius
         cos = cos.sum(axis=0).reshape(1, coords.shape[1])
-        sin = (new_coords * np.repeat(self.z.reshape((3, 1)), coords.shape[1], axis=1)) / self.radius
+        sin = (new_coords * np.repeat(self.y.reshape((3, 1)), coords.shape[1], axis=1)) / self.radius
         sin = sin.sum(axis=0).reshape(1, coords.shape[1])
         u = []
         for i in range(len(sin[0])):
-            u.append(give_angle(cos[0,i], sin[0,i], 1))
+            u.append(give_angle(cos[0, i], sin[0, i], 1))
         u = np.array(u).reshape(1, coords.shape[1])
-        return np.concatenate((u, v), axis=0).T,"cyl"
+        return np.concatenate((u, v), axis=0).T, "cyl"
 
     def give_3d_meshgrid(self, boundary_coords):
         meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
@@ -199,7 +199,6 @@ class CylindricalSurface(Surface):
 class ToroidalSurface(Surface):
 
     def extract_data(self, line, data):
-        pass
         params = line.split(",")
         self.placement = data[int(params[0])]
 
@@ -216,9 +215,37 @@ class ToroidalSurface(Surface):
             raise ValueError('Expected Axis2Placement3D point, got ', type(self.placement))
 
     def coordinates_transposition(self, coords):
-        print("Перевод координат не реализован - тор")
+        #print("Перевод координат не реализован - тор")
+        new_coords = coords - self.start_coord.reshape((3, 1))
+        #print(new_coords.shape)
+        sin_v = ((new_coords * np.repeat(self.z.reshape((3, 1)),
+                                        coords.shape[1], axis=1)).sum(axis=0)).reshape(1, coords.shape[1])/self.minor_radius
 
-        return None,"tor"
+        cos_v1 = ((new_coords * np.repeat(self.x.reshape((3, 1)),
+                                        coords.shape[1], axis=1)).sum(axis=0)).reshape(1, coords.shape[1])
+        cos_v2 = ((new_coords * np.repeat(self.y.reshape((3, 1)),
+                                          coords.shape[1], axis=1)).sum(axis=0)).reshape(1, coords.shape[1])
+        cos_v = np.sqrt(cos_v1*cos_v1+cos_v2*cos_v2)
+        cos_v = ((cos_v.sum(axis=0) - self.major_radius) / self.minor_radius).reshape(1, coords.shape[1])
+        v = []
+        #print(cos_v)
+        for i in range(len(sin_v[0])):
+            #print(i, sin_v[0,i], cos_v[0,i])
+            v.append(give_angle(cos_v[0, i], sin_v[0, i], 1))
+        v = np.array(v).reshape(1, coords.shape[1])
+        cos_u = new_coords * np.repeat(self.x.reshape((3, 1)), coords.shape[1], axis=1) / (
+                    self.major_radius + self.minor_radius * cos_v)
+        cos_u = cos_u.sum(axis=0).reshape(1, coords.shape[1])
+        #print(cos_u.shape)
+        sin_u = new_coords * np.repeat(self.y.reshape((3, 1)), coords.shape[1], axis=1) / (
+                    self.major_radius + self.minor_radius * cos_v)
+        sin_u = sin_u.sum(axis=0).reshape(1, coords.shape[1])
+        #print(sin_u.shape)
+        u = []
+        for i in range(len(sin_u[0])):
+            u.append(give_angle(cos_u[0, i], sin_u[0, i], 1))
+        u = np.array(u).reshape(1, coords.shape[1])
+        return np.concatenate((u, v), axis=0).T, "tor"
 
     def give_3d_meshgrid(self, boundary_coords):
         meshgrid_2d = self.give_2d_meshgrid(boundary_coords)
