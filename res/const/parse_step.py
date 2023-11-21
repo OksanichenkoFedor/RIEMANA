@@ -27,4 +27,5 @@ CORRECT_ORDER = [
     "EDGE_LOOP",
     "FACE_BOUND",
     "ADVANCED_FACE",
+    "CLOSED_SHELL"
 ]

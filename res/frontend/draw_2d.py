@@ -85,15 +85,19 @@ def give_angle(x, y, r):
     sin = y / r
     cos = cos / np.sqrt(cos * cos + sin * sin)
     sin = sin / np.sqrt(cos * cos + sin * sin)
+    res = "no"
     if x * x + y * y < 0.0001 * r * r:
-        return 0
+        res = 0
     elif cos >= 0 and sin >= 0:
-        return np.arcsin(sin)
+        res = np.arcsin(sin)
     elif cos >= 0 and sin < 0:
-        return 2 * np.pi - np.arcsin((-1) * sin)
+        res = 2 * np.pi - np.arcsin((-1) * sin)
     elif cos < 0 and sin >= 0:
-        return np.pi - np.arcsin(sin)
+        res =  np.pi - np.arcsin(sin)
     elif cos < 0 and sin < 0:
-        return np.pi + np.arcsin((-1) * sin)
+        res = np.pi + np.arcsin((-1) * sin)
     else:
         print("Aхтунг!!! Углы!!! ", x, y, r)
+    if res > 2*np.pi or res < 0:
+        print("Bad angles: ", x/r,y/r,res)
+    return res

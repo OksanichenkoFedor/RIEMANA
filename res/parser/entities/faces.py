@@ -42,6 +42,9 @@ class AdvancedFace(Entity, Drawable):
             raise ValueError('Incorrect orientation: ', self.id)
         self.surface = data[int(params[1])]
         # print("AdvancedFace: ", list_fb, type(self.surface), bool(self.orientation))
+        self.boundary = False
+        self.inlet = False
+        self.outlet = True
 
     def check_data(self):
         self.plot_surfaces = []
@@ -61,13 +64,14 @@ class AdvancedFace(Entity, Drawable):
 
 
     def draw(self, axis, color, is_plotting):
+        if color is None:
+            color = np.random.random(3)
         for fb in self.face_bounds:
-            fb.loop.draw(axis, color, is_plotting)
+            pass
+            #fb.loop.draw(axis, color, is_plotting=True)
         for ps in self.plot_surfaces:
             if is_plotting and ps != None:
-                print(ps[0].shape, ps[1].shape, ps[2].shape)
-                print(ps[0][0], ps[1][0], ps[2][0])
-                color = np.random.random(3)
+
                 for i in range(len(ps[0])):
                     axis.plot(ps[0][i], ps[1][i], ps[2][i], ".", color=color)
 
@@ -81,3 +85,12 @@ class AdvancedFace(Entity, Drawable):
                 # axis.add_patch(self.patch)
                 # pathpatch_2d_to_3d(self.patch, centre_vector=self.surface.start_coord, normal=self.surface.z)
         return self.min.reshape((3, 1)), self.max.reshape((3, 1))
+
+    def generate_data_for_optimising(self):
+        x,y,z = [],[],[]
+        for ps in self.plot_surfaces:
+            x = x + list(ps[0])
+            y = y + list(ps[1])
+            z = z + list(ps[2])
+        res = [x,y,z]
+        return np.array(res)

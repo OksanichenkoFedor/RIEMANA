@@ -11,6 +11,6 @@ is_plotting = False
 plot_all_drawable = False
 
 elem_on_edge = 20
-elem_on_face = 100
-start_number_on_line = 5
+elem_on_face = 40
+start_number_on_line = 3
 

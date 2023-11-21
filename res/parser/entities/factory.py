@@ -4,6 +4,7 @@ from res.parser.entities.faces import FaceBound, AdvancedFace
 from res.parser.entities.surfaces import Plane, ConicalSurface, CylindricalSurface, ToroidalSurface
 from res.parser.entities.curves import Circle, BSplineCurveWithKnots, Line
 from res.parser.entities.edges import OrientedEdge, EdgeLoop, EdgeCurve
+from res.parser.entities.shells import ClosedShell
 
 def entity_factory(type, id, params, data):
     if type == "CARTESIAN_POINT":
@@ -40,6 +41,8 @@ def entity_factory(type, id, params, data):
         return FaceBound(id, params, data)
     if type == "ADVANCED_FACE":
         return AdvancedFace(id, params, data)
+    if type == "CLOSED_SHELL":
+        return ClosedShell(id, params, data)
 
 
 

@@ -18,6 +18,9 @@ class Entity(ABC):
     def check_data(self):
         pass
 
+    def generate_data_for_optimising(self):
+        return None
+
 
 class Curve(Entity):
 
