@@ -14,15 +14,15 @@ ax.set_box_aspect((1, 1, 1))
 
 drawable = []
 reactor = Cylinder(X_NORM, Y_NORM, Z_NORM, [0, 0, 0], R_REACTOR, H_REACTOR)
-reactor.generate_points(Nz=20, N_phi=40, N_r=10)
+reactor.generate_points(Nz=20, N_phi=40, N_r=10, uniq=True)
 drawable.append(reactor)
 
 dno = Cylinder(X_NORM, Y_NORM, Z_NORM, [0, 0, 0], R_DN0, H_DNO)
-dno.generate_points(Nz=10, N_phi=32, N_r=8)
+dno.generate_points(Nz=10, N_phi=32, N_r=8, uniq=True)
 drawable.append(dno)
 
 wafer = Cylinder(X_NORM, Y_NORM, Z_NORM, [0, 0, H_DNO], R_WAFER, H_WAFER)
-wafer.generate_points(Nz=10, N_phi=32, N_r=8)
+wafer.generate_points(Nz=10, N_phi=32, N_r=8, uniq=True)
 drawable.append(wafer)
 
 inlets = []
@@ -33,7 +33,7 @@ for i in range(8):
     curr_inlet = Cylinder(curr_x, curr_y, curr_z,
                           [R_LOC_INLET * np.cos(i * DELTA_PHI), R_LOC_INLET * np.sin(i * DELTA_PHI), H_LOC_INLET],
                           R_INLET, L_INLET)
-    curr_inlet.generate_points(5, 10, 8)
+    curr_inlet.generate_points(5, 10, 8, uniq=True)
     inlets.append(curr_inlet)
     drawable.append(curr_inlet)
 
@@ -86,31 +86,64 @@ in_surr2 = give_inlets_surroundings(inlets,mult=10,N_phi=8,Nz=10,N_r=4)
 
 coords = np.concatenate((coords,inside_walls,in_surr1,in_surr2),axis=1)
 
+bounds = np.concatenate((reactor.bounds,wafer.up,wafer.bounds,con.up,con.bounds),axis=1)
+inlet = None
+for i in range(8):
+    bounds = np.concatenate((bounds,inlets[i].bounds),axis=1)
+    if inlet is None:
+        inlet = inlets[i].down
+    else:
+        inlet = np.concatenate((inlet,inlets[i].down),axis=1)
 
+outlet = reactor.down
+num_c = coords.shape[1]
+num_b = bounds.shape[1]
+num_i = inlet.shape[1]
+num_o = outlet.shape[1]
+print(num_c,num_b,num_i,num_o)
+all_coords = np.concatenate((coords,bounds,inlet,outlet),axis=1)
 inlet_anses = []
 for i in range(8):
-    c_ans = inlets[i].is_points_inside(coords, include_bounds=False)
+    c_ans = inlets[i].is_points_inside(all_coords, include_bounds=False)
     inlet_anses.append(c_ans)
-ans_r = reactor.is_points_inside(coords)
-ans_c = con.is_points_inside(coords)
-ans_d = dno.is_points_inside(coords,include_bounds=False)
-ans_w = wafer.is_points_inside(coords,include_bounds=False, include_down=True)
+ans_r = reactor.is_points_inside(all_coords)
+ans_c = con.is_points_inside(all_coords)
+ans_d = dno.is_points_inside(all_coords,include_bounds=False)
+ans_w = wafer.is_points_inside(all_coords,include_bounds=False, include_down=True)
 ans = (ans_r.astype(int)+ans_c.astype(int))*(1-ans_d.astype(int))*(1-ans_w.astype(int))
 for i in range(8):
     ans = ans*(1-c_ans.astype(int))
 ans = ans.astype(bool)
 new_coords = []
+new_bounds = []
+new_inlet = []
+new_outlet = []
 for i in range(len(ans)):
     if ans[i]:
-        color="g"
-        #ax.plot(coords[0, i], coords[1, i], coords[2, i], ".", color=color)
-        new_coords.append([coords[0, i], coords[1, i], coords[2, i]])
+        if i<num_c:
+            new_coords.append([all_coords[0, i], all_coords[1, i], all_coords[2, i]])
+        elif i<num_c+num_b:
+            new_bounds.append([all_coords[0, i], all_coords[1, i], all_coords[2, i]])
+        elif i<num_c+num_b+num_i:
+            new_inlet.append([all_coords[0, i], all_coords[1, i], all_coords[2, i]])
+        else:
+            new_outlet.append([all_coords[0, i], all_coords[1, i], all_coords[2, i]])
 
 new_coords = np.array(new_coords)
 print("Используем: ",new_coords.shape," точек.")
 
 for coord in new_coords:
-    ax.plot(coord[0], coord[1], coord[2], ".", color=color)
+    pass
+    #ax.plot(coord[0], coord[1], coord[2], ".", color="g")
+
+for coord in new_bounds:
+    ax.plot(coord[0], coord[1], coord[2], ".", color="r")
+
+for coord in new_inlet:
+    ax.plot(coord[0], coord[1], coord[2], ".", color="k")
+
+for coord in new_outlet:
+    ax.plot(coord[0], coord[1], coord[2], ".", color="y")
 
 
 
