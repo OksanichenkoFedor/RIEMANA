@@ -23,3 +23,13 @@ R_CON_DOWN = R_REACTOR - 0.0179
 R_CON_UP = 0.2207
 H_CON = 0.01985
 
+ALPHA = np.arctan((1.0 * H_CON) / (1.0 * (R_CON_DOWN - R_CON_UP)))
+SIN_ALPHA = np.sin(ALPHA)
+COS_ALPHA = np.cos(ALPHA)
+
+
+TEST_H = 0.5
+TEST_W = 0.8
+ALPHA_OUT = 0.8
+ALPHA_IN = 0.4
+

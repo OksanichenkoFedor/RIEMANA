@@ -12,15 +12,17 @@ def give_points_field(min_coord,max_coord,N):
     coords = coords.reshape(N * N * N, -1).T
     return coords
 
-def give_points_field2d(min_coord,max_coord,N):
-    x = min_coord[0, 0] + np.arange(0, N, 1.0) * ((max_coord[0, 0] - min_coord[0, 0]) / (1.0 * N - 1.0))
-    x = np.repeat(x.reshape(N, 1), N, axis=1).reshape(N, N, 1)
-    y = min_coord[1, 0] + np.arange(0, N, 1.0) * ((max_coord[1, 0] - min_coord[1, 0]) / (1.0 * N - 1.0))
-    y = np.repeat(y.reshape(1, N), N, axis=0).reshape(N, N, 1)
+def give_points_field2d(min_coord, max_coord, Nx, Ny, rand=0.01):
+    delta_x = ((max_coord[0, 0] - min_coord[0, 0]) / (1.0 * Nx - 1.0))
+    delta_y = ((max_coord[1, 0] - min_coord[1, 0]) / (1.0 * Ny - 1.0))
+    x = min_coord[0, 0] + np.arange(0, Nx, 1.0) * delta_x
+    x = np.repeat(x.reshape(Nx, 1), Ny, axis=1).reshape(Nx, Ny, 1)
+    y = min_coord[1, 0] + np.arange(0, Ny, 1.0) * delta_y
+    y = np.repeat(y.reshape(1, Ny), Nx, axis=0).reshape(Nx, Ny, 1)
     coords = np.concatenate((x, y), axis=2)
-    coords = coords + (np.random.random(coords.shape) - 0.5) * 0.01
-    coords = coords.reshape(N * N, -1).T
-    return coords
+    coords = coords + (np.random.random(coords.shape) - 0.5) * rand
+    coords = coords.reshape(Nx * Ny, -1).T
+    return coords, delta_x, delta_y
 
 
 def give_inlets_surroundings(inlets,mult=1.1,Nz=20, N_phi=10, N_r=30):
