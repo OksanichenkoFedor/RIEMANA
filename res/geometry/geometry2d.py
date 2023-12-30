@@ -213,38 +213,48 @@ class TestReactor:
         max_coord = mid_coord + delta
         return min_coord, max_coord
 
-    def draw(self, axis, colors=None):
+    def draw(self, axis, vx, vy=None):
         for bound in self.boundsx:
             bound.draw(axis, "k")
         for bound in self.boundsy:
             bound.draw(axis, "k")
         self.inlet.draw(axis, "r")
         self.outlet.draw(axis, "b")
-        if colors is None:
+        if vy is None:
+            print("dfdfdfdfdf")
+            color = vx
+            max_col = np.max(color)
+            min_col = np.min(color)
+            print(max_col,min_col)
             for i in range(len(self.is_inside)):
-                if self.is_inlet[i]:
-                    axis.plot(self.coords[0, i], self.coords[1, i], ".", color="r")
-                elif self.is_outlet[i]:
-                    pass
-                    axis.plot(self.coords[0, i], self.coords[1, i], ".", color="b")
-                elif self.is_x_walls[i]:
-                    pass
-                    axis.plot(self.coords[0, i], self.coords[1, i], ".", color=(0.3, 0.7, 0.5))
-                elif self.is_y_walls[i]:
-                    pass
-                    axis.plot(self.coords[0, i], self.coords[1, i], ".", color=(0.7, 0.7, 0.0))
-                elif self.is_inside[i]:
-                    pass
-                    axis.plot(self.coords[0, i], self.coords[1, i], ".", color="g")
-        else:
-            max_color = np.max(colors)
-            min_color = np.min(colors)
-            print(max_color)
-            print(min_color)
-            for i in range(len(self.is_inside)):
-                alpha = (colors[i]-min_color)/(max_color-min_color)
+                #alpha = 1-np.log(1+(np.e-1)*(color[i]-min_col)/(max_col-min_col))
+                alpha = 1-(color[i] - min_col) / (max_col - min_col)
                 if self.is_inside[i]:
-                    axis.plot(self.coords[0, i], self.coords[1, i], ".", color=(alpha, 1.0-alpha, 0))
+                    axis.plot(self.coords[0, i], self.coords[1, i], ".",color=(alpha,alpha, alpha))
+        else:
+            max_vx = np.max(np.abs(vx))
+            max_vy = np.max(np.abs(vy))
+            print(max_vx,max_vy)
+            if max_vx==0:
+                max_vx = 1
+                if max_vy == 0:
+                    max_vy = 1
+                    max_div = 1
+                else:
+                    max_div = max_vy
+            else:
+                if max_vy == 0:
+                    max_vy = 1
+                    max_div = max_vx
+                else:
+                    max_div = np.sqrt(max_vy**2+max_vx**2)
+
+
+            for i in range(len(self.is_inside)):
+                alpha = 1 - np.sqrt((vx[i]**2+vy[i]**2)/(max_div**2))
+                if self.is_inside[i]:
+                    axis.arrow(self.coords[0, i], self.coords[1, i],0.01*vx[i]/max_vx,0.01*vy[i]/max_vy, color=(alpha, alpha, alpha))
+                    #axis.plot(self.coords[0, i], self.coords[1, i], ".", color=(alpha, alpha, alpha))
 
     def is_points_inside(self, coords, delta_x, delta_y):
         ans = self.path.contains_points(coords.T)
