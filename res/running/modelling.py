@@ -9,7 +9,7 @@ from res.counting.gas_dynamics import initgrid, step_custom_njit
 from res.const.modeling_params import DELTA_T
 
 koeff = 0.8
-N = 100
+N = 2000
 
 start = time.time()
 
@@ -30,7 +30,7 @@ for i in trange(100):
     newgrid = step_custom_njit(grid, ans.reshape((Nx, Ny)), is_inlet.reshape((Nx, Ny)), is_outlet.reshape((Nx, Ny)),
                                is_x_walls.reshape((Nx, Ny)), is_y_walls.reshape((Nx, Ny)),
                                is_inl_walls.reshape((Nx, Ny)),
-                               delta_x, delta_y, DELTA_T)
+                               delta_x, delta_y, DELTA_T,i)
     delta_rho = np.abs(grid[2] - newgrid[2]).sum() / (Nx * Ny * 0.0001)
     delta_u = np.abs(grid[0] - newgrid[0]).sum() / (Nx * Ny * 0.0001)
     delta_v = np.abs(grid[1] - newgrid[1]).sum() / (Nx * Ny * 0.0001)
@@ -40,7 +40,13 @@ for i in trange(100):
     end_counting = time.time()
     Times.append(end_counting - start_counting)
 
+
 fig = plt.figure(figsize=(12, 8))
 ax = fig.add_subplot(111)
-reactor.draw(ax, newgrid[2].reshape((Nx * Ny,)))
+reactor.draw(ax)
+plt.show()
+
+fig = plt.figure(figsize=(12, 8))
+ax = fig.add_subplot(111)
+reactor.draw(ax, newgrid[0].reshape((Nx * Ny,)), newgrid[1].reshape((Nx * Ny,)))
 plt.show()

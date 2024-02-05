@@ -29,7 +29,7 @@ COS_ALPHA = np.cos(ALPHA)
 
 
 TEST_H = 0.5
-TEST_W = 0.8
-ALPHA_OUT = 0.8
+TEST_W = 0.5
+ALPHA_OUT = 0.99
 ALPHA_IN = 0.4
 
