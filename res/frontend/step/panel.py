@@ -1,11 +1,11 @@
 from tkinter import BOTH
-from tkinter.ttk import Frame, Style
-from res.frontend.plot import PlotFrame
+from tkinter.ttk import Frame
+from res.frontend.step.plot import StepPlotFrame
 from res.parser.parser import Parser
 import tkinter as tk
 import time
 
-import res.config as config
+import res.config.step as config
 
 
 class AppFrame(Frame):
@@ -21,7 +21,7 @@ class AppFrame(Frame):
         self.pack(fill=BOTH, expand=True)
         #Style().configure("TButton", padding=(0, 5, 0, 5), font='serif 10')
 
-        self.plotF = PlotFrame(self)
+        self.plotF = StepPlotFrame(self)
         self.plotF.grid(row=0, column=0, rowspan=4)
         self.contPanel = ControlPanel(self)
         self.contPanel.grid(row=0, column=1, rowspan=4)

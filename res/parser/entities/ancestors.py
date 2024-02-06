@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
-from res.frontend.draw_2d import draw_contur
+from res.frontend.step.draw_2d import draw_contur
 
 
 class Entity(ABC):

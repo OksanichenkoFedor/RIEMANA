@@ -1,12 +1,9 @@
 import numpy as np
 
 from res.parser.entities.edges import EdgeLoop
-from res.frontend.draw_3d import pathpatch_2d_to_3d
-from res.parser.entities.ancestors import Edge, Drawable, Entity, Surface
+from res.parser.entities.ancestors import Drawable, Entity, Surface
 
-import res.config as config
-
-from matplotlib.patches import PathPatch
+import res.config.step as config
 
 
 class FaceBound(Entity):

@@ -3,8 +3,8 @@ import numpy as np
 from res.parser.entities.ancestors import Curve, Drawable
 from res.parser.entities.auxiliary import Axis2Placement3D, Vector
 from res.parser.entities.basic import CartesianPoint
-from res.frontend.draw_3d import pathpatch_2d_to_3d
-from res.frontend.draw_2d import give_angle
+from res.frontend.step.draw_3d import pathpatch_2d_to_3d
+from res.frontend.step.draw_2d import give_angle
 
 from matplotlib.patches import Circle as CirclePlot
 from mpl_toolkits.mplot3d.art3d import Line3DCollection

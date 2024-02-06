@@ -1,4 +1,4 @@
-from res.frontend.panel import AppFrame
+from res.frontend.step.panel import AppFrame
 from tkinter import Tk
 
 

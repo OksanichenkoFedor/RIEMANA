@@ -2,7 +2,7 @@ import numpy as np
 
 from res.parser.entities.ancestors import Surface
 from res.parser.entities.auxiliary import Axis2Placement3D
-from res.frontend.draw_2d import give_angle
+from res.frontend.step.draw_2d import give_angle
 from res.const.plot_config import NUMBER_OF_CON_SURFACE_POINTS, NUMBER_OF_CYL_SURFACE_POINTS, \
     NUMBER_OF_TOR_SURFACE_POINTS
 

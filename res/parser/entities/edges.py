@@ -2,12 +2,11 @@ import numpy as np
 
 from res.parser.entities.ancestors import Entity, Edge, Drawable, Curve
 from res.parser.entities.auxiliary import VertexPoint
-from res.parser.entities.curves import BSplineCurveWithKnots
 
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 import matplotlib.pyplot as plt
 
-import res.config as config
+import res.config.step as config
 
 
 class EdgeCurve(Edge):

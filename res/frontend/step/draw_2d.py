@@ -1,11 +1,10 @@
 import numpy as np
-import time
 
 import matplotlib.pyplot as plt
 import matplotlib.path as mplPath
 from matplotlib.patches import PathPatch
 
-import res.config as config
+import res.config.step as config
 
 
 def draw_contur(points, type):

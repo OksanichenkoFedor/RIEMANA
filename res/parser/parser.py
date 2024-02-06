@@ -1,7 +1,7 @@
 from res.const.parse_step import BAD_NAMES, CORRECT_ORDER
 from res.parser.entities.factory import entity_factory
 
-import res.config as config
+import res.config.step as config
 
 from res.const.plot_config import PLOT_ORDER
 class Parser:

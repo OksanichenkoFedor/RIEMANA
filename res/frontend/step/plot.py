@@ -1,9 +1,7 @@
 import matplotlib
 import tkinter as tk
 import numpy as np
-import time
-import res.config as config
-import matplotlib.pyplot as plt
+import res.config.step as config
 
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -13,7 +11,7 @@ from res.const.plot_config import PLOT_ORDER
 from res.parser.entities.ancestors import Drawable
 
 
-class PlotFrame(tk.Frame):
+class StepPlotFrame(tk.Frame):
     def __init__(self, parent):
         self.master = parent
         super().__init__(parent)
