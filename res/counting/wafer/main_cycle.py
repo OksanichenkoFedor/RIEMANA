@@ -8,7 +8,7 @@ from res.counting.wafer.mask_reactions import mask_reaction
 
 
 @njit()
-def process_particles(counter_arr, is_full_arr, params_arr, Ns, xsize, ysize, y0):
+def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, y0):
     for i in range(len(params_arr)):
         params = params_arr[i]
         unfound = True
@@ -31,7 +31,7 @@ def process_particles(counter_arr, is_full_arr, params_arr, Ns, xsize, ysize, y0
                 prev_farr = is_full_arr[prev_att_x, prev_att_y]
 
                 curr_counter, prev_counter, curr_farr, prev_farr = silicon_reaction(is_add, curr_counter, prev_counter,
-                                                                                    curr_farr, prev_farr, Ns)
+                                                                                    curr_farr, prev_farr, Si_num)
 
                 counter_arr[curr_att_x, curr_att_y] = curr_counter
                 counter_arr[prev_att_x, prev_att_y] = prev_counter

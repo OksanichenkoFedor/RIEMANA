@@ -33,8 +33,8 @@ Q_ins = []
 DR = []
 DV = []
 DU = []
-N = 15000
-for i in trange(450000):
+N = 5000
+for i in trange(150000):
     start_counting = time.time()
     newgrid = step_custom_njit(grid, ans.reshape((Nx, Ny)).astype(int), is_inlet.reshape((Nx, Ny)).astype(int),
                                is_outlet.reshape((Nx, Ny)).astype(int), is_x_walls.reshape((Nx, Ny)).astype(int),

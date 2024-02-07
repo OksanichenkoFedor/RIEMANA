@@ -2,6 +2,6 @@ import numpy as np
 
 
 
-A = np.array([0,1,2,3,0])
+A = np.array([[0,1],[9,0]])
+print(np.repeat(A.reshape(2,2,1),5,axis=2).shape)
 
-print(np.where(A>0,A+3,0))

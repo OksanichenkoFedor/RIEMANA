@@ -8,7 +8,7 @@ from tqdm import trange
 class WaferGenerator:
     def __init__(self, master):
         is_full = np.fromfunction(lambda i, j: j >= config.wafer_border, (config.wafer_xsize, config.wafer_ysize), dtype=int).astype(int)
-        counter_arr = is_full.copy() * config.wafer_Ns[0]
+        counter_arr = is_full.copy() * config.wafer_Si_num
         mask = np.ones((config.wafer_xsize, config.wafer_ysize))
         mask[:, :config.wafer_border] = mask[:, :config.wafer_border] * 0
         mask[:, config.wafer_border + config.wafer_mask_height:config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] = mask[:,
@@ -17,7 +17,10 @@ class WaferGenerator:
                                                                                                               config.wafer_left_area:config.wafer_right_area,
                                                                                                               :config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] * 0
         config.wafer_is_full = mask + is_full
-        config.wafer_counter_arr = counter_arr
+        config.wafer_counter_arr = np.repeat(counter_arr.reshape(1, counter_arr.shape[0],counter_arr.shape[1]),4,axis=0)
+        config.wafer_counter_arr[1] = config.wafer_counter_arr[1]*0
+        config.wafer_counter_arr[2] = config.wafer_counter_arr[2] * 0
+        config.wafer_counter_arr[2] = config.wafer_counter_arr[2] * 0
         self.master= master
 
     def run(self, num_iter, num_per_iter):
@@ -30,7 +33,7 @@ class WaferGenerator:
             t1 = time.time()
             params = generate_particles(num_per_iter, config.wafer_xsize)
             t2 = time.time()
-            process_particles(config.wafer_counter_arr, config.wafer_is_full, params, config.wafer_Ns, config.wafer_xsize, config.wafer_ysize, config.wafer_y0)
+            process_particles(config.wafer_counter_arr, config.wafer_is_full, params, config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize, config.wafer_y0)
             t3 = time.time()
             self.master.contPanel.progress_var.set(i+1)
             self.master.contPanel.progress_bar.update()

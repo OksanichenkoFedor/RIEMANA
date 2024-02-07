@@ -39,7 +39,7 @@ def step_custom_njit(grid, is_inside, is_inlet, is_outlet, is_x_walls, is_y_wall
             #new_rho = r_app - ((dt) / (2*dx)) * (delta_pho_x) - ((dt) / (2*dy)) * (delta_pho_y)  # 1.3.1.2
             delta_pho_x = rho[x + 1, y] * u[x + 1, y] - rho[x - 1, y] * u[x - 1, y]  # 1.3.1.3
             delta_pho_y = rho[x, y + 1] * v[x, y + 1] - rho[x, y - 1] * v[x, y - 1]  # 1.3.1.4
-            new_rho = r_app - ((dt) / (1*dx)) * (delta_pho_x) - ((dt) / (1*dy)) * (delta_pho_y)  # 1.3.1.2
+            new_rho = r_app# - ((dt) / (1*dx)) * (delta_pho_x) - ((dt) / (1*dy)) * (delta_pho_y)  # 1.3.1.2
 
 
 
