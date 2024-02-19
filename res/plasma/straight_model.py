@@ -69,9 +69,11 @@ print("v_t: ", good_form(V_T))
 
 m_eff = m_cl
 n_plus_old = None
+n_cl_old = None
 delta = 1
 num = 0
 Deltas = []
+Deltas_cl = []
 while (np.abs(delta) > 10 ** (-20)) and (num <= 100):
     print("Iteration: ", num)
     print()
@@ -84,6 +86,7 @@ while (np.abs(delta) > 10 ** (-20)) and (num <= 100):
         print(delta)
         Deltas.append(np.abs(delta))
     n_plus_old = n_plus
+
     print("n_plus: ", good_form(n_plus))
     b = (2 * k_4 + k_5) * k_ii * n_plus * n_plus - 2 * k_9 * (A * k_5 + k_ii * n_plus)
     ac = 2 * k_9 * (k_ii ** 2) * (n_plus ** 3) * (2 * k_4 + k_5)
@@ -119,6 +122,13 @@ while (np.abs(delta) > 10 ** (-20)) and (num <= 100):
 
     m_eff = ((n_cl2_plus / m_cl2 + n_cl_plus / m_cl + n_ar_plus / m_ar) / (n_plus)) ** (-1)
     print("m_eff: ", m_eff * (1.673 * 10.0 ** (-27)) ** (-1))
+    if n_cl_old is None:
+        pass
+    else:
+        delta1 = (n_cl_old - n_cl) / (n_cl_old + n_cl)
+        print(delta1)
+        Deltas_cl.append(np.abs(delta1))
+    n_cl_old = n_cl
 
 print("------")
 print("n_e = ", good_form(n_e))
@@ -126,7 +136,9 @@ print("n_plus =", good_form(n_plus))
 print("n_cl_minus =", good_form(n_cl_minus))
 
 import matplotlib.pyplot as plt
-
-plt.semilogy(Deltas, ".")
+print(len(Deltas),len(Deltas_cl))
+plt.semilogy(Deltas_cl, "o",label="n_cl")
+plt.semilogy(Deltas, ".",label="n_plus")
 plt.grid()
+plt.legend()
 plt.show()
