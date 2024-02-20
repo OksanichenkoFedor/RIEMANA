@@ -74,7 +74,7 @@ delta = 1
 num = 0
 Deltas = []
 Deltas_cl = []
-while (np.abs(delta) > 10 ** (-20)) and (num <= 100):
+while (np.abs(delta) >= 0) and (num <= 100):
     print("Iteration: ", num)
     print()
     num += 1
@@ -139,6 +139,8 @@ import matplotlib.pyplot as plt
 print(len(Deltas),len(Deltas_cl))
 plt.semilogy(Deltas_cl, "o",label="n_cl")
 plt.semilogy(Deltas, ".",label="n_plus")
+#plt.plot(Deltas_cl, "o",label="n_cl")
+#plt.plot(Deltas, ".",label="n_plus")
 plt.grid()
 plt.legend()
 plt.show()
