@@ -85,4 +85,11 @@ def count_Cl2_inel_power(T_e, do_print = False):
     return Cl2_inel_power
 
 
+# momentum transfer
+def give_k_Cl2_mom(T_e):
+    T_ev = T_e / (e / k_b)
+    return 4.47 * (10.0 ** (-13.0)) * np.exp(-2.17/T_ev + 0.362/(T_ev**2) - 0.0196/(T_ev**3))
+
+
+
 

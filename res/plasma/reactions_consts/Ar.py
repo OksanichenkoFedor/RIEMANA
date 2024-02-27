@@ -1,5 +1,6 @@
 import numpy as np
 from res.plasma.utils import good_form
+from res.plasma.reactions_consts.k_from_cr_sec import give_reaction_const
 
 k_b = 1.388*10.0**(-23)
 e = 1.602*10.0**(-19)
@@ -15,12 +16,7 @@ def give_k_1(T_e):
 e_th_Ar_plus = 15.6*e
 
 # Ar + e -> e + Ar
-def give_Ar_mom_trans(T_e):
-    T_ev = T_e / (e / k_b)
-    if T_ev<=4.0:
-        return 1*(10.0**(-15))*(0.514 + 5.51*T_ev + 22.9*(T_ev**2) - 6.42*(T_ev**3) + 6*(T_ev**4))
-    else:
-        return 1*(10.0**(-15))*(39.9*T_ev-1.86*(T_ev**2)-0.4672*(T_ev**3)+0.0006429*(T_ev**4))
+
 
 # Ar energy-loss reactions
 
@@ -58,4 +54,16 @@ def count_Ar_inel_power(T_e, do_print = False):
         print("Ar_inel_power: ", good_form(Ar_inel_power))
     return Ar_inel_power
 
+
+# momentum transfer
+#give_k_Ar_mom = give_reaction_const("res/plasma/reactions_consts/Ar_mom2.txt", up=100)
+give_k_Ar_mom = give_reaction_const("reactions_consts/Ar_mom2.txt", up=100)
+
+
+def give_Ar_mom_trans(T_e):
+    T_ev = T_e / (e / k_b)
+    if T_ev<=4.0:
+        return 1*(10.0**(-15))*(0.514 + 5.51*T_ev + 22.9*(T_ev**2) - 6.42*(T_ev**3) + 6*(T_ev**4))
+    else:
+        return 1*(10.0**(-15))*(39.9*T_ev-1.86*(T_ev**2)-0.4672*(T_ev**3)+0.0006429*(T_ev**4))
 

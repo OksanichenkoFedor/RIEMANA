@@ -1,23 +1,31 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from res.geometry.proc_functions import give_points_field2d
-from res.geometry.count_functions import pnt2line
-coords, delta_x, delta_y = give_points_field2d(np.array([[0.75],[0.75]]),
-                             np.array([[2.25],[2.25]]),30,rand=0)
-N = 4
-a = np.arange(0,3,0.05)
-b = np.arange(0,3,0.05)
-x1,x2 = 1.1,2
-y2,y1 = 1,2
-A = np.array([False, True, False, True])
-B = np.array([False, False, True, True])
-print((A*B))
+from res.plasma.reactions_consts.k_from_cr_sec import give_reaction_const
+from res.plasma.reactions_consts.Ar import give_Ar_mom_trans
+from res.plasma.consts import m_e, e, k_b
 
-#ans = f(coords[0],coords[1])
-#for i in range(len(ans)):
-#    if ans[i]:
-#        plt.plot(coords[0, i], coords[1, i], ".",color="g")
-#    else:
-#        plt.plot(coords[0, i], coords[1, i], ".", color="r")
-#plt.plot([x1,x2],[y1,y2])
-#plt.show()
+give_Ar_mom1 = give_reaction_const("res/plasma/reactions_consts/Ar_mom1.txt",up=200)
+give_Ar_mom2 = give_reaction_const("res/plasma/reactions_consts/Ar_mom2.txt",up=200)
+give_Cl_mom = give_reaction_const("res/plasma/reactions_consts/Cl_mom.txt",up=200)
+
+engs = np.arange(0.1, 10, 0.02)
+K1 = []
+K2 = []
+K3 = []
+K4 = []
+
+for i in range(len(engs)):
+    K1.append(give_Ar_mom1(engs[i]*(e / k_b)))
+    K2.append(give_Ar_mom2(engs[i]*(e / k_b)))
+    K3.append(give_Cl_mom(engs[i]*(e / k_b)) )
+    K4.append(give_Ar_mom_trans(engs[i]*(e / k_b)))
+plt.plot(engs,K1,label="Ar1")
+plt.plot(engs,K2,label="Ar2")
+plt.plot(engs,K3,label="Cl")
+plt.plot(engs,K4,label="Ar_b")
+plt.xlabel("Энергия,эВ")
+plt.ylabel("k,$m^3$/c")
+plt.legend()
+plt.grid()
+plt.show()
+

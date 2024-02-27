@@ -18,8 +18,9 @@ Deltas = []
 Deltas_cl = []
 Deltas_T_e = []
 
-W = 0
-param_vector = (p_0, T_gas, R, L, gamma_cl, y_ar, W)
+W = 100
+V = np.pi*R*R*L
+param_vector = (p_0, T_gas, R, L, gamma_cl, y_ar, W, V)
 
 k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12, A, B = count_simple_start(T_e, param_vector, do_print=False)
 

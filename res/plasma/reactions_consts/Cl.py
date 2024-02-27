@@ -1,5 +1,6 @@
 import numpy as np
 from res.plasma.utils import good_form
+from res.plasma.reactions_consts.k_from_cr_sec import give_reaction_const
 
 k_b = 1.388 * 10.0 ** (-23)
 e = 1.602 * 10.0 ** (-19)
@@ -65,3 +66,7 @@ def count_Cl_inel_power(T_e, do_print = False):
     if do_print:
         print("Cl_inel_power: ", good_form(Cl_inel_power))
     return Cl_inel_power
+
+# momentum transfer
+#give_k_Cl_mom = give_reaction_const("res/plasma/reactions_consts/Cl_mom.txt", up=100)
+give_k_Cl_mom = give_reaction_const("reactions_consts/Cl_mom.txt", up=100)
