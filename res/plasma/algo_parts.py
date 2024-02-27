@@ -2,11 +2,15 @@ import numpy as np
 
 from res.plasma.utils import good_form
 from res.plasma.consts import *
-from res.plasma.reaction_consts import give_k_1, give_k_2, give_k_3, give_k_4, give_k_5, give_k_13, give_k_getero, k_ii
+from res.plasma.reactions_consts.common_reactions import give_k_getero, k_ii
+from res.plasma.reactions_consts.Ar  import give_k_1, count_Ar_inel_power
+from res.plasma.reactions_consts.Cl  import give_k_3, count_Cl_inel_power
+from res.plasma.reactions_consts.Cl2 import give_k_2, give_k_4, give_k_5, give_k_13, count_Cl2_inel_power
+
 
 
 def count_simple_start(start_T_e, param_vector, do_print=False):
-    p_0, T_gas, R, L, gamma_cl, y_ar = param_vector
+    p_0, T_gas, R, L, gamma_cl, y_ar,_ = param_vector
 
     A = (p_0 / (k_b * T_gas)) * (1 - y_ar)
     B = (p_0 / (k_b * T_gas)) * y_ar
@@ -44,7 +48,7 @@ def count_simple_start(start_T_e, param_vector, do_print=False):
 
     return k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12, A, B
 
-def count_n_plus(j, T_e, params ,is_m_eff=False, do_print=False):
+def count_n_plus_straight(j, T_e, params ,is_m_eff=False, do_print=False):
     if is_m_eff:
         m_eff = params
     else:
@@ -54,6 +58,21 @@ def count_n_plus(j, T_e, params ,is_m_eff=False, do_print=False):
     if do_print:
         print("n_plus: ", good_form(n_plus))
     return n_plus
+
+def solve_subsistem_consist(n_e, k_4, k_5, k_9, k_13, A, do_print=False):
+    a = 2*k_9*k_ii + (2*k_4+k_5)*k_ii*n_e
+    b = n_e*n_e*(2*k_4+k_5)*k_ii + k_ii*2*k_9*n_e
+    c = 2*k_9*n_e*A*(k_5+k_13)
+    n_plus = (b+np.sqrt(b**2 + 4*a*c))/(2*a)
+    n_cl2 = (2 * A * k_9) / (2 * k_9 + (2 * k_4 + k_5) * n_e)
+    n_cl = 2 * A - 2 * n_cl2
+    n_cl_minus = n_plus - n_e
+    if do_print:
+        print("n_plus: ", good_form(n_plus))
+        print("n_cl2: ", good_form(n_cl2))
+        print("n_cl: ", good_form(n_cl))
+        print("n_cl_minus: ", good_form(n_cl_minus))
+    return n_plus, n_cl2, n_cl, n_cl_minus
 
 def solve_subsistem(k_4, k_5, k_9, k_13, n_plus, A, do_print=False):
     b = (2 * k_4 + k_5) * k_ii * n_plus * n_plus - 2 * k_9 * (A * (k_5+k_13) + k_ii * n_plus)
@@ -171,7 +190,7 @@ def count_ks(T_e, n_vector, param_vector, do_print=False):
 
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
 
-    p_0, T_gas, R, L, gamma_cl, _ = param_vector
+    p_0, T_gas, R, L, gamma_cl, _, _ = param_vector
 
     m_eff = count_m_eff(n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, do_print=False)
 
@@ -206,13 +225,13 @@ def count_ks(T_e, n_vector, param_vector, do_print=False):
         print("k_13: ", good_form(k_13))
     return (k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12)
 
-def count_left(T_e, n_cl2, n_cl, n_ar):
+def count_left_fTe(T_e, n_cl2, n_cl, n_ar):
     k_1 = give_k_1(T_e)
     k_2 = give_k_2(T_e)
     k_3 = give_k_3(T_e)
     return 2*(k_2*n_cl2 + k_3*n_cl + k_1*n_ar)
 
-def count_right(T_e, n_vector, mini_param_vector):
+def count_right_fTe(T_e, n_vector, mini_param_vector):
     p_0, T_gas, R, L, m_eff = mini_param_vector
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
     k_5 = give_k_5(T_e)
@@ -228,7 +247,7 @@ def count_right(T_e, n_vector, mini_param_vector):
 def count_T_e(n_vector, param_vector, do_print=False):
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
 
-    p_0, T_gas, R, L, gamma_cl, _ = param_vector
+    p_0, T_gas, R, L, gamma_cl, _, _ = param_vector
 
     m_eff = count_m_eff(n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, do_print=False)
 
@@ -242,8 +261,8 @@ def count_T_e(n_vector, param_vector, do_print=False):
     while np.abs(delta)>10.0**(-6):
         num+=1
         curr_T_e = (left_T_e+right_T_e)/2.0
-        left_part = count_left(curr_T_e, n_cl2, n_cl, n_ar)
-        right_part = count_right(curr_T_e, n_vector, mini_param_vector)
+        left_part = count_left_fTe(curr_T_e, n_cl2, n_cl, n_ar)
+        right_part = count_right_fTe(curr_T_e, n_vector, mini_param_vector)
         delta = (right_part-left_part)/(right_part+left_part)
         if delta>0:
             left_T_e = curr_T_e
@@ -258,6 +277,68 @@ def count_T_e(n_vector, param_vector, do_print=False):
     k_s = count_ks(curr_T_e, n_vector, param_vector, do_print=True)
 
     return k_s, curr_T_e
+
+def count_tau_eff(T_e, n_vector, param_vector, do_print=False):
+    n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
+    p_0, T_gas, R, L, gamma_cl, y_ar, W = param_vector
+    T_i = count_T_i(p_0, T_gas, do_print=False)
+    m_eff = count_m_eff(n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, do_print=False)
+    lambda_mean = count_lambda(n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, T_i, do_print=False)
+    beta, gamma_T, beta_s = count_beta_s(n_e, n_cl_minus, T_e, T_i, do_print=False)
+    v = count_v(T_e, beta_s, m_eff, gamma_T, do_print=False)
+    D_i = count_D_i(lambda_mean, m_eff, T_i, gamma_T, beta_s, do_print=False)
+    d_c = count_d_c(beta_s, gamma_T, R, L, lambda_mean, v, D_i, do_print=False)
+
+    v_cl2_plus = count_v(T_e, beta_s, m_cl2, gamma_T, do_print=False)
+    v_cl_plus = count_v(T_e, beta_s, m_cl, gamma_T, do_print=False)
+    v_ar_plus = count_v(T_e, beta_s, m_ar, gamma_T, do_print=False)
+    tau_eff = (v_cl2_plus*n_cl2_plus + v_cl_plus*n_cl_plus + v_ar_plus*n_ar_plus)/d_c
+    if do_print:
+        print("tau_eff: ", good_form(tau_eff))
+    return tau_eff
+
+
+def count_W_eff(T_e, V, n_ar, n_cl2, n_cl, do_print=False):
+    inel_part = V*(n_ar*count_Ar_inel_power(T_e) + n_cl2*count_Cl2_inel_power(T_e) + n_cl*count_Cl_inel_power(T_e))
+    el_part = 3*V*T_e*k_b*m_e*(1)
+    if do_print:
+        print("inel_part: ", good_form(inel_part))
+        print("el_part: ", good_form(el_part))
+    return el_part+inel_part
+
+def count_W_ion(T_e, tau_eff, n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, p_0, T_gas, do_print=False):
+    #n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
+    #p_0, T_gas, R, L, gamma_cl, y_ar, W = param_vector
+    T_i = count_T_i(p_0, T_gas, do_print=False)
+    m_eff = count_m_eff(n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, do_print=False)
+    eU_f = 0.5*k_b*T_e*np.log((T_e*m_eff)/(T_i*m_e))
+    W_ion = (eU_f+0.5*T_e*k_b)*tau_eff
+    if do_print:
+        print("W_ion: ", good_form(W_ion))
+    return
+
+def count_W_e(T_e, tau_eff, do_print=False):
+    W_e = 2*T_e*k_b*tau_eff
+    if do_print:
+        print("W_e: ", good_form(W_e))
+    return W_e
+
+
+
+def count_n_e(T_e, n_vector, param_vector, do_print = False):
+    p_0, T_gas, R, L, gamma_cl, y_ar, W = param_vector
+    n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
+    tau_eff = count_tau_eff(T_e, n_vector, param_vector, do_print=False)
+
+    W_eff = 1
+
+    W_ion = count_W_ion(T_e, tau_eff, n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, p_0, T_gas, do_print=False)
+    W_e = count_W_e(T_e, tau_eff, do_print=False)
+
+    n_e = (W - (W_ion + W_e))/W_eff
+    if do_print:
+        print("n_e: ", good_form(n_e))
+    return n_e
 
 
 

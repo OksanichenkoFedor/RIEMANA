@@ -1,6 +1,4 @@
-import numpy as np
-import time
-from res.plasma.reaction_consts import *
+from res.plasma.reactions_consts.common_reactions import *
 
 p_0 = 1.333 * 1
 T_0 = 300

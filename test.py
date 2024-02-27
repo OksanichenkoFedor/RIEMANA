@@ -1,12 +1,21 @@
 
-from res.plasma.algo_parts import count_beta_s
+from res.plasma.reactions_consts.Ar import give_Ar_mom_trans
 
-T_i = 1117
-T_e = 25043.5
-n_e = 2.40586*10.0**(16.0)
-n_cl_minus = 7.16407*10.0**(16)
+import numpy as np
+import matplotlib.pyplot as plt
+k_b = 1.388*10.0**(-23)
+e = 1.602*10.0**(-19)
+T = np.arange(0,8,0.1)*(e / k_b)
+#print(A)
+Ks = []
+for i in range(len(T)):
+    Ks.append(give_Ar_mom_trans(T[i]))
 
-count_beta_s(n_e, n_cl_minus, T_e, T_i, do_print=True)
+plt.plot(T/(e / k_b),Ks,".")
+plt.grid()
+plt.show()
+
+
 
 
 

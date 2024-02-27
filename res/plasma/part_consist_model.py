@@ -2,12 +2,12 @@ import numpy as np
 import time
 from res.plasma.consts import e, k_b, m_cl
 from res.plasma.start_params import p_0, T_gas, R, L, gamma_cl, y_ar, j
-from res.plasma.algo_parts import count_simple_start, solve_subsistem_consist, solve_subsistem, count_ions, count_T_e
+from res.plasma.algo_parts import count_simple_start, count_n_plus_straight, solve_subsistem, count_ions, count_T_e
 from res.plasma.utils import good_form
 
 
 T_e = 1 * (e / k_b)
-n_e = 1.0 * 10.00**(16)
+
 
 n_plus_old = None
 n_cl_old = None
@@ -26,17 +26,21 @@ k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12, A, B = count_simple_start(
 while (np.abs(delta_T_e) >= 0) and (num <= 15):
     print("Iteration: ", num)
     print()
-    n_plus, n_cl2, n_cl, n_cl_minus = solve_subsistem_consist(n_e, k_4, k_5, k_9, k_13, A, do_print=False)
-
+    if num==0:
+        params = m_cl
+        n_plus = count_n_plus_straight(j, T_e, params, is_m_eff=True, do_print=False)
+    else:
+        params = (n_plus, n_cl2_plus, n_cl_plus, n_ar_plus)
+        n_plus = count_n_plus_straight(j, T_e, params, is_m_eff=False, do_print=True)
     num += 1
     if n_plus_old is None:
         pass
     else:
         delta = (n_plus_old - n_plus) / (n_plus_old + n_plus)
         Deltas.append(np.abs(delta))
-
     n_plus_old = n_plus
 
+    n_e, n_cl2, n_cl, n_cl_minus = solve_subsistem(k_4, k_5, k_9, k_13, n_plus, A, do_print=True)
     n_cl_plus, n_cl2_plus, n_ar_plus, n_ar, alphas = count_ions(n_e, n_cl, n_cl_minus, n_plus, B, n_cl2, k_1, k_2, k_3,
                                                                 k_10, k_11, k_12, k_13, do_print=True)
 
@@ -49,10 +53,6 @@ while (np.abs(delta_T_e) >= 0) and (num <= 15):
     k_s, T_e_new = count_T_e(n_vector, param_vector, do_print=True)
 
     k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12 = k_s
-
-    #cчитаем n_e
-
-
 
 
     if n_cl_old is None:
