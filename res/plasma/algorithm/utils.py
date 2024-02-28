@@ -13,6 +13,8 @@ def count_m_eff(n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, do_print=False):
 
 
 def count_T_i(P, T_gas, do_print=False):
+    if P* (10.0 / 1.333) < 1:
+        return (e / k_b) * 0.5
     T_i = T_gas + ((e / k_b) * 0.5 - T_gas) / (P * (10.0 / 1.333))
     if do_print:
         print("T_i: ", good_form(T_i))
@@ -38,17 +40,18 @@ def count_lambda(n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, T_
     return lambda_mean
 
 
-def count_beta_s(n_e, n_cl_minus, T_e, T_i, do_print=False):
+def count_beta_s(n_e, n_cl_minus, T_e, T_i, simple, do_print=False):
     beta = n_cl_minus / n_e
     gamma_T = T_e / T_i
     beta_s = beta
     delta = 1
     num = 0
-    while delta > 10.0 ** (-5):
-        num += 1
-        beta_s_new = beta * np.exp(((1 - gamma_T) * (1 + beta_s)) / (2 * (1 + beta_s * gamma_T)))
-        delta = np.abs(beta_s_new - beta_s) / (beta_s_new + beta_s)
-        beta_s = beta_s_new
+    if not simple:
+        while delta > 10.0 ** (-5):
+            num += 1
+            beta_s_new = beta * np.exp(((1 - gamma_T) * (1 + beta_s)) / (2 * (1 + beta_s * gamma_T)))
+            delta = np.abs(beta_s_new - beta_s) / (beta_s_new + beta_s)
+            beta_s = beta_s_new
     if do_print:
         print("beta: ", round(beta, 5))
         print("gamma_T: ", round(gamma_T, 5))
@@ -71,13 +74,13 @@ def count_D_i(lambda_mean, m_eff, T_i, gamma_T, beta_s, do_print=False):
     return D_i
 
 
-def count_tau_eff(T_e, n_vector, param_vector, do_print=False):
+def count_tau_eff(T_e, n_vector, param_vector, simple, do_print=False):
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
     p_0, T_gas, R, L, gamma_cl, y_ar, W, V = param_vector
     T_i = count_T_i(p_0, T_gas, do_print=False)
     m_eff = count_m_eff(n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, do_print=False)
     lambda_mean = count_lambda(n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, T_i, do_print=False)
-    beta, gamma_T, beta_s = count_beta_s(n_e, n_cl_minus, T_e, T_i, do_print=False)
+    beta, gamma_T, beta_s = count_beta_s(n_e, n_cl_minus, T_e, T_i, simple, do_print=False)
     v = count_v(T_e, beta_s, m_eff, gamma_T, do_print=False)
     D_i = count_D_i(lambda_mean, m_eff, T_i, gamma_T, beta_s, do_print=False)
     d_c = count_d_c(beta_s, gamma_T, R, L, lambda_mean, v, D_i, do_print=False)

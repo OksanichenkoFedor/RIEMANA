@@ -43,10 +43,10 @@ def count_W_e(T_e, tau_eff, V, do_print=False):
     return W_e
 
 
-def count_n_e(T_e, n_vector, param_vector, do_print=False):
+def count_n_e(T_e, n_vector, param_vector, simple, do_print=False):
     p_0, T_gas, R, L, gamma_cl, y_ar, W, V = param_vector
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
-    tau_eff = count_tau_eff(T_e, n_vector, param_vector, do_print=False)
+    tau_eff = count_tau_eff(T_e, n_vector, param_vector, simple, do_print=False)
 
     W_ion = count_W_ion(T_e, tau_eff, n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, p_0, T_gas, V, do_print=False)
     W_e = count_W_e(T_e, tau_eff, V, do_print=False)

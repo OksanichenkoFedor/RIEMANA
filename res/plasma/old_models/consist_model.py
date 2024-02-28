@@ -7,7 +7,7 @@ from res.plasma.algorithm.energy_loss import count_n_e
 from res.plasma.algorithm.chemical_kinetic import count_simple_start, solve_subsistem_consist, count_ions
 
 
-def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False):
+def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False, simple=False):
     V = np.pi * R * R * L
     param_vector = (p_0, T_gas, R, L, gamma_cl, y_ar, W, V)
     T_e = 5 * (e / k_b)
@@ -23,7 +23,7 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False):
 
     k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12, A, B = count_simple_start(T_e, param_vector, do_print=False)
 
-    while (np.abs(delta_n_e) >= 10.0 ** (-15.0)) and (num <= 100):
+    while (np.abs(delta_n_e) >= 10.0 ** (-15.0)) and (num <= 20):
         num += 1
 
         n_plus, n_cl2, n_cl, n_cl_minus = solve_subsistem_consist(n_e, k_4, k_5, k_9, k_13, A, do_print=False)
@@ -36,13 +36,13 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False):
 
         k_inp = (k_1, k_2, k_3, k_5, k_13)
 
-        k_s, T_e_new = count_T_e(n_vector, param_vector, do_print=False)
+        k_s, T_e_new = count_T_e(n_vector, param_vector, simple, do_print=False)
 
         k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12 = k_s
 
         # cчитаем n_e
 
-        n_e_new = count_n_e(T_e, n_vector, param_vector, do_print=False)
+        n_e_new = count_n_e(T_e, n_vector, param_vector, simple, do_print=False)
 
         delta_n_e = (n_e - n_e_new) / (n_e + n_e_new)
         Deltas_n_e.append(np.abs(delta_n_e))
