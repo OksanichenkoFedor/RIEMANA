@@ -57,7 +57,7 @@ def count_Ar_inel_power(T_e, do_print = False):
 
 # momentum transfer
 #give_k_Ar_mom = give_reaction_const("res/plasma/reactions_consts/Ar_mom2.txt", up=100)
-give_k_Ar_mom = give_reaction_const("reactions_consts/Ar_mom2.txt", up=100)
+give_k_Ar_mom = give_reaction_const("../reactions_consts/Ar_mom2.txt", up=100)
 
 
 def give_Ar_mom_trans(T_e):

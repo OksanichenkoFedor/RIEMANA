@@ -22,7 +22,7 @@ for i in range(len(engs)):
 plt.plot(engs,K1,label="Ar1")
 plt.plot(engs,K2,label="Ar2")
 plt.plot(engs,K3,label="Cl")
-plt.plot(engs,K4,label="Ar_b")
+#plt.plot(engs,K4,label="Ar_b")
 plt.xlabel("Энергия,эВ")
 plt.ylabel("k,$m^3$/c")
 plt.legend()

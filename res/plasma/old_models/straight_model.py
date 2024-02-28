@@ -1,23 +1,16 @@
-from res.plasma.reactions_consts.common_reactions import *
+import numpy as np
 
-p_0 = 1.333 * 1
-T_0 = 300
-T_gas = 600
-j = 15
-k_ii = 5.0 * 10.0 ** (-14)
-y_ar = 0.0
+from res.plasma.consts import e, k_b, m_ar, m_cl2, m_cl
+from res.plasma.start_params import p_0, T_0, T_gas, R, L, gamma_cl, y_ar, W, j
+from res.plasma.reactions_consts.common_reactions import k_ii
+
+from res.plasma.utils import good_form
+
+from res.plasma.reactions_consts.Ar import give_k_1
+from res.plasma.reactions_consts.Cl2 import give_k_2, give_k_4, give_k_5
+from res.plasma.reactions_consts.Cl import give_k_3, give0_k_3
+
 T_e = 2.39 * (e / k_b)
-gamma_cl = 0.05  # вот это надо найти
-
-R = 0.13  # это параметры пхт реактора от НИИТМ
-L = 0.16  # это параметры пхт реактора от НИИТМ
-
-m_cl = 35.5 * 1.673 * 10.0 ** (-27)
-m_cl2 = 71 * 1.673 * 10.0 ** (-27)
-m_ar = 40 * 1.673 * 10.0 ** (-27)
-
-k_b = 1.388 * 10.0 ** (-23)
-e = 1.602 * 10.0 ** (-19)
 
 A = (p_0 / (k_b * T_gas)) * (1 - y_ar)
 B = (p_0 / (k_b * T_gas)) * y_ar
@@ -34,22 +27,12 @@ def count_el_reaction_const(curr_A, curr_B, curr_C):
     return curr_A * ((T_e/(e/k_b)) ** curr_B) * np.exp((-1 * curr_C) / (T_e))
 
 
-k_1 = count_el_reaction_const(A_Ar, B_Ar, C_Ar)  # Ar + e -> Ar(+) + 2e
-k_2 = count_el_reaction_const(A_Cl2, B_Cl2, C_Cl2)  # Cl2 + e -> Cl2(+) + 2e
+k_1 = give_k_1(T_e)  # Ar + e -> Ar(+) + 2e
+k_2 = give_k_2(T_e)  # Cl2 + e -> Cl2(+) + 2e
 k_3 = give_k_3(T_e)  # Cl + e -> Cl(+) + 2e
-k_4 = count_el_reaction_const(A_Cl2_dis, B_Cl2_dis, C_Cl2_dis)  # Cl2 + e -> Cl + Cl + 2e
+k_4 = give_k_4(T_e)  # Cl2 + e -> Cl + Cl + 2e
 k_5 = give_k_5(T_e)  # Cl2 + e -> Cl + Cl(-)
 
-
-def good_form(num):
-    if num == 0.0:
-        return "0.0"
-    elif str(num) == "inf":
-        return "inf"
-    # print(num)
-    integ = int(np.log(num) / np.log(10))
-    ost = num / (10.0 ** (integ))
-    return str(round(ost, 5)) + "*10^" + str(integ)
 
 
 print("k_1: ", good_form(k_1))

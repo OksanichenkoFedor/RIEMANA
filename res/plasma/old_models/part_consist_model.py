@@ -1,9 +1,14 @@
 import numpy as np
-import time
+
 from res.plasma.consts import e, k_b, m_cl
-from res.plasma.start_params import p_0, T_gas, R, L, gamma_cl, y_ar, j
-from res.plasma.algo_parts import count_simple_start, count_n_plus_straight, solve_subsistem, count_ions, count_T_e
+from res.plasma.start_params import T_gas, R, L, gamma_cl, W
+
 from res.plasma.utils import good_form
+
+from res.plasma.start_params import p_0, T_gas, R, L, gamma_cl, y_ar, j
+from res.plasma.algorithm.electron_temperature import count_T_e
+from res.plasma.algorithm.chemical_kinetic import count_simple_start, count_n_plus_straight, solve_subsistem, count_ions
+
 
 
 T_e = 1 * (e / k_b)
@@ -18,7 +23,6 @@ Deltas = []
 Deltas_cl = []
 Deltas_T_e = []
 
-W = 100
 V = np.pi*R*R*L
 param_vector = (p_0, T_gas, R, L, gamma_cl, y_ar, W, V)
 
