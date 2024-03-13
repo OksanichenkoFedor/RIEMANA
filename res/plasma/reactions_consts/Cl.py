@@ -68,6 +68,10 @@ def count_Cl_inel_power(T_e, do_print = False):
     return Cl_inel_power
 
 # momentum transfer
+def give_k_Cl_mom(T_e):
+    T_ev = T_e / (e / k_b)
+    return 0.28694 * (10 ** (-13)) * (T_ev ** 0.92478) * np.exp(
+        (-0.6563) / T_ev + 1.24428 / (T_ev ** 2) - 0.55659 / (T_ev ** 3) + 0.0778167 / (T_ev ** 4))
 #give_k_Cl_mom = give_reaction_const("res/plasma/reactions_consts/Cl_mom.txt", up=100)
-give_k_Cl_mom = give_reaction_const("../reactions_consts/Cl_mom.txt", up=100)
+#give_k_Cl_mom = give_reaction_const("../reactions_consts/Cl_mom.txt", up=100)
 #give_k_Cl_mom = give_reaction_const("../reactions_consts/Cl_mom.txt", up=100)

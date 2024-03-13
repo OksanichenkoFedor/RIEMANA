@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import trange
 
-gammas = [37.50913073577249]
+gammas = [5,10,15,20]
 
 beta = np.exp(np.arange(np.log(1), np.log(2), 0.001))
 beta_s = []

@@ -63,9 +63,17 @@ def count_Ar_inel_power(T_e, do_print = False):
 
 
 # momentum transfer
+def give_k_Ar_mom(T_e):
+    T_ev = T_e / (e / k_b)
+    return 0.37376 * (10 ** (-12)) * (T_ev ** (-0.027)) * np.exp(
+        (-6.817) / T_ev + 4.433 / (T_ev ** 2) - 1.462 / (T_ev ** 3) + 0.174 / (T_ev ** 4))
+
+
 #give_k_Ar_mom = give_reaction_const("res/plasma/reactions_consts/Ar_mom2.txt", up=100)
-give_k_Ar_mom = give_reaction_const("../reactions_consts/Ar_mom2.txt", up=100)
 #give_k_Ar_mom = give_reaction_const("../reactions_consts/Ar_mom2.txt", up=100)
+#give_k_Ar_mom = give_reaction_const("../reactions_consts/Ar_mom2.txt", up=100)
+
+
 
 
 def give_Ar_mom_trans(T_e):
