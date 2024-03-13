@@ -36,18 +36,24 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False, sim
 
         k_inp = (k_1, k_2, k_3, k_5, k_13)
 
+        n_e_new, inel_parts, el_parts, el_part, inel_part, W_ion, W_e = count_n_e(T_e, n_vector, param_vector,
+                                                                                  do_print=False)
+        delta_n_e = (n_e - n_e_new) / (n_e + n_e_new)
+        Deltas_n_e.append(np.abs(delta_n_e))
+        # print("delta_n_e: ", delta_n_e)
+        n_e = n_e_new
+
+        n_vector = (n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus)
+
         k_s, T_e_new = count_T_e(n_vector, param_vector, simple, do_print=False)
 
         k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12 = k_s
 
         # cчитаем n_e
 
-        n_e_new = count_n_e(T_e, n_vector, param_vector, simple, do_print=False)
 
-        delta_n_e = (n_e - n_e_new) / (n_e + n_e_new)
-        Deltas_n_e.append(np.abs(delta_n_e))
-        #print("delta_n_e: ", delta_n_e)
-        n_e = n_e_new
+
+
 
         if n_cl_old is None:
             pass
@@ -58,13 +64,27 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False, sim
             Deltas_T_e.append(np.abs(delta_T_e))
         n_cl_old = n_cl
         T_e = T_e_new
+    n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e1, n_cl_minus = n_vector
+
     res = {
         "T_e": T_e,
         "n_plus": n_plus,
         "n_e": n_e,
         "n_cl_minus": n_cl_minus,
+        "n_cl": n_cl,
+        "n_cl2": n_cl2,
         "Deltas_T_e": Deltas_T_e,
-        "Deltas_n_e": Deltas_n_e
+        "Deltas_n_e": Deltas_n_e,
+        "W_e": W_e,
+        "W_ion": W_ion,
+        "W_el": el_part * n_e_new,
+        "W_inel": inel_part * n_e_new,
+        "W_el_Ar": el_parts[0],
+        "W_el_Cl2": el_parts[1],
+        "W_el_Cl": el_parts[2],
+        "W_inel_Ar": inel_parts[0],
+        "W_inel_Cl2": inel_parts[1],
+        "W_inel_Cl": inel_parts[2]
     }
 
     if plot_error:

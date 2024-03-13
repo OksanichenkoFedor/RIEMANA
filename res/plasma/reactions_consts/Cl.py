@@ -69,5 +69,5 @@ def count_Cl_inel_power(T_e, do_print = False):
 
 # momentum transfer
 #give_k_Cl_mom = give_reaction_const("res/plasma/reactions_consts/Cl_mom.txt", up=100)
-give_k_Cl_mom = give_reaction_const("reactions_consts/Cl_mom.txt", up=100)
+give_k_Cl_mom = give_reaction_const("../reactions_consts/Cl_mom.txt", up=100)
 #give_k_Cl_mom = give_reaction_const("../reactions_consts/Cl_mom.txt", up=100)

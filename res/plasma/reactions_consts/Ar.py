@@ -50,6 +50,13 @@ def count_Ar_inel_power(T_e, do_print = False):
     Ar_inel_power = give_k_1(T_e)*e_th_Ar_plus + give_k_Ar_4s_12_32(T_e)*e_th_Ar_4s_12_32 + \
                     give_k_Ar_3d_ap_32(T_e)*e_th_Ar_3d_ap_32 + give_k_Ar_3d_32(T_e)*e_th_Ar_3d_32 + \
                     give_k_Ar_5s_32(T_e)*e_th_Ar_5s_32 + give_k_Ar_5s_ap_12(T_e)*e_th_Ar_5s_ap_12
+    #print("T_e: ",T_e*(k_b/e))
+    #print("k_1: ",good_form(give_k_1(T_e)))
+    #print("k_Ar_4s_12_32: ",good_form(give_k_Ar_4s_12_32(T_e)))
+    #print("k_Ar_3d_ap_32: ", good_form(give_k_Ar_3d_ap_32(T_e)))
+    #print("k_Ar_3d_32: ", good_form(give_k_Ar_3d_32(T_e)))
+    #print("k_Ar_5s_32: ", good_form(give_k_Ar_5s_32(T_e)))
+    #print("k_Ar_5s_ap_12: ", good_form(give_k_Ar_5s_ap_12(T_e)))
     if do_print:
         print("Ar_inel_power: ", good_form(Ar_inel_power))
     return Ar_inel_power
@@ -57,7 +64,7 @@ def count_Ar_inel_power(T_e, do_print = False):
 
 # momentum transfer
 #give_k_Ar_mom = give_reaction_const("res/plasma/reactions_consts/Ar_mom2.txt", up=100)
-give_k_Ar_mom = give_reaction_const("reactions_consts/Ar_mom2.txt", up=100)
+give_k_Ar_mom = give_reaction_const("../reactions_consts/Ar_mom2.txt", up=100)
 #give_k_Ar_mom = give_reaction_const("../reactions_consts/Ar_mom2.txt", up=100)
 
 

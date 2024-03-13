@@ -72,14 +72,34 @@ def give_k_Cl2_1_SIGMA_u(T_e):
     return 2.12 * (10.0 ** (-15)) * np.exp((-11.16*(e/k_b))/T_e)
 e_th_Cl2_1_SIGMA_u = 7*e
 
+# e + Cl2 -> Cl2[Ryd] + e
 def give_k_Cl2_Ryd(T_e):
     return 4.30* (10.0 ** (-14)) * np.exp((-12.76*(e/k_b))/T_e)
 e_th_Cl2_Ryd = 9.5*e
 
+# e + Cl2 -> Cl2[v1] + e
+def give_k_Cl2_v1(T_e):
+    T_ev = T_e*(k_b/e)
+    return 4.35 * (10.0 ** (-16)) * (T_ev**(-1.48)) * np.exp((-0.76)/T_ev)
+e_th_Cl2_v1 = 0.07*e
+
+# e + Cl2 -> Cl2[v2] + e
+def give_k_Cl2_v2(T_e):
+    T_ev = T_e*(k_b/e)
+    return 8.1 * (10.0 ** (-17)) * (T_ev**(-1.48)) * np.exp((-0.68)/T_ev)
+e_th_Cl2_v2 = 0.14*e
+
+# e + Cl2 -> Cl2[v3] + e
+def give_k_Cl2_v3(T_e):
+    T_ev = T_e*(k_b/e)
+    return 2.39 * (10.0 ** (-17)) * (T_ev**(-1.49)) * np.exp((-0.64)/T_ev)
+e_th_Cl2_v3 = 0.21*e
+
 def count_Cl2_inel_power(T_e, do_print = False):
     Cl2_inel_power = give_k_Cl2_b3_PI_u(T_e)*e_th_Cl2_b3_PI_u + give_k_Cl2_1_PI_u(T_e)*e_th_Cl2_1_PI_u + \
                      give_k_Cl2_1_PI_g(T_e)*e_th_Cl2_1_PI_g + give_k_Cl2_1_SIGMA_u(T_e)*e_th_Cl2_1_SIGMA_u + \
-                     give_k_13(T_e)*e_th_13 + give_k_2(T_e)*e_th_Cl2_plus + give_k_Cl2_Ryd(T_e)*e_th_Cl2_Ryd
+                     give_k_13(T_e)*e_th_13 + give_k_Cl2_Ryd(T_e)*e_th_Cl2_Ryd + \
+                     give_k_Cl2_v1(T_e)*e_th_Cl2_v1 + give_k_Cl2_v2(T_e)*e_th_Cl2_v2 + give_k_Cl2_v3(T_e)*e_th_Cl2_v3
     if do_print:
         print("Cl2_inel_power: ", good_form(Cl2_inel_power))
     return Cl2_inel_power
