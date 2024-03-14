@@ -1,13 +1,13 @@
 import numpy as np
 
 from res.plasma.consts import e, k_b, m_cl
-from res.plasma.start_params import T_gas, R, L, gamma_cl, W
+from res.plasma.start_params import W
 
 from res.plasma.utils import good_form
 
 from res.plasma.start_params import p_0, T_gas, R, L, gamma_cl, y_ar, j
-from res.plasma.algorithm.electron_temperature import count_T_e
-from res.plasma.algorithm.chemical_kinetic import count_simple_start, count_n_plus_straight, solve_subsistem, count_ions
+from res.plasma.algorithm.for_testing.electron_temperature import count_T_e
+from res.plasma.algorithm.for_testing.chemical_kinetic import count_simple_start, count_n_plus_straight, solve_subsistem, count_ions
 
 
 

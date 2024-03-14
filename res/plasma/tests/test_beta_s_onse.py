@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import trange
-import time
-from res.plasma.algorithm.beta_s import count_min_beta_s, count_min_beta
+from res.plasma.algorithm.for_testing.beta_s import count_min_beta_s, count_min_beta
 
 def count_beta_s(beta, gamma_T, max_iter):
     delta = 1

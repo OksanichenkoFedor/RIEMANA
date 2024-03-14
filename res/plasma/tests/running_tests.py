@@ -5,7 +5,7 @@ import time
 
 
 from res.plasma.start_params import T_gas, R, L, gamma_cl, W
-from res.plasma.models.consist_model_old import run_consist_model
+from res.plasma.models.consist_model_aclr import run_consist_model
 from res.plasma.consts import e, k_b
 
 
@@ -28,6 +28,7 @@ plot_arrays = {
 
 y_ar = np.arange(0.0,1.0,0.01)
 Ps = np.arange(0.8,2.0,0.02)*0.13333
+run_consist_model(p_0 = 10*0.13333, T_gas = 600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600)
 Times = []
 for i in trange(len(y_ar)):
     curr_y_ar = y_ar[i]
@@ -48,7 +49,7 @@ for i in trange(len(y_ar)):
 
 
 Times = np.array(Times)
-print("Avg time: ",round(Times.mean(),3),"+-",round(Times.std(),3))
+print("Avg time (ms): ",round(1000*Times.mean(),2),"+-",round(1000*Times.std(),2))
 
 fig, ([ax11, ax12], [ax21, ax22]) = plt.subplots(2, 2, figsize=(13, 11))
 

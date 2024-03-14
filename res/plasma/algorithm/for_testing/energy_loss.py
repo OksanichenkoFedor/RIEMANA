@@ -8,7 +8,7 @@ from res.plasma.reactions_consts.Ar import count_Ar_inel_power, give_k_Ar_mom
 from res.plasma.reactions_consts.Cl import count_Cl_inel_power, give_k_Cl_mom
 from res.plasma.reactions_consts.Cl2 import count_Cl2_inel_power, give_k_Cl2_mom
 
-from res.plasma.algorithm.utils import count_T_i, count_m_eff, count_tau_eff
+from res.plasma.algorithm.for_testing.utils import count_T_i, count_m_eff, count_tau_eff
 
 
 def count_W_eff(T_e, V, n_ar, n_cl2, n_cl, do_print=False):

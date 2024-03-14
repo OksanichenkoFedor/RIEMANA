@@ -1,6 +1,6 @@
 import numpy as np
 
-from res.plasma.algorithm.beta_s import count_beta_s
+from res.plasma.algorithm.for_testing.beta_s import count_beta_s
 
 from res.plasma.consts import m_cl, m_cl2, m_ar, e, k_b, e_sgs, pol_ar, pol_cl2, pol_cl
 

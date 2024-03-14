@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from res.plasma.consts import e, k_b
-from res.plasma.algorithm.electron_temperature import count_T_e
-from res.plasma.algorithm.energy_loss import count_n_e
-from res.plasma.algorithm.chemical_kinetic import count_simple_start, solve_subsistem_consist, count_ions
+from res.plasma.algorithm.for_testing.electron_temperature import count_T_e
+from res.plasma.algorithm.for_testing.energy_loss import count_n_e
+from res.plasma.algorithm.for_testing.chemical_kinetic import count_simple_start, solve_subsistem_consist, count_ions
 
 
 def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False, simple=False):

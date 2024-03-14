@@ -8,10 +8,10 @@ from res.plasma.reactions_consts.Ar import give_k_1
 from res.plasma.reactions_consts.Cl import give_k_3
 from res.plasma.reactions_consts.Cl2 import give_k_2
 from res.plasma.reactions_consts.Cl2 import give_k_5, give_k_13
-from res.plasma.algorithm.chemical_kinetic import count_m_eff, count_ks_chem
-from res.plasma.algorithm.beta_s import count_beta_s, count_min_gamma_T
+from res.plasma.algorithm.for_testing.chemical_kinetic import count_m_eff, count_ks_chem
+from res.plasma.algorithm.for_testing.beta_s import count_beta_s
 
-from res.plasma.algorithm.utils import count_T_i, count_lambda, count_v, count_d_c, count_D_i
+from res.plasma.algorithm.for_testing.utils import count_T_i, count_lambda, count_v, count_d_c, count_D_i
 
 
 def count_ks(T_e, n_vector, param_vector, do_print=False, simple=False):

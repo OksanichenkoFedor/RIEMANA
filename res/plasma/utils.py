@@ -1,5 +1,8 @@
 import numpy as np
+from numba import jit
+do_njit = False
 
+@jit(nopython=True)
 def good_form(num):
     if num == 0.0:
         return "0.0"

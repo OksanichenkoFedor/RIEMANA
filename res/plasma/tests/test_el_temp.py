@@ -4,9 +4,9 @@ from tqdm import trange
 
 from res.plasma.consts import e, k_b
 
-from res.plasma.algorithm.utils import count_T_i
-from res.plasma.algorithm.part_solver import solve_part
-from res.plasma.algorithm.beta_s import pure_count_beta_s
+from res.plasma.algorithm.for_testing.utils import count_T_i
+from res.plasma.algorithm.for_testing.part_solver import solve_part
+from res.plasma.algorithm.for_testing.beta_s import pure_count_beta_s
 
 
 p_0 = 10*0.13333
