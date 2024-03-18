@@ -24,6 +24,7 @@ def count_ks(T_e, n_vector, param_vector, do_print=False, simple=False):
     T_i = count_T_i(p_0, T_gas, do_print=False)
     lambda_mean = count_lambda(n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, T_i, do_print=False)
     beta, gamma_T, beta_s = count_beta_s(n_e, n_cl_minus, T_e, T_i, do_print=False)
+    print(gamma_T)
     v = count_v(T_e, beta_s, m_eff, gamma_T, do_print=False)
     D_i = count_D_i(lambda_mean, m_eff, T_i, gamma_T, beta_s, do_print=False)
     d_c = count_d_c(beta_s, gamma_T, R, L, lambda_mean, v, D_i, do_print=False)

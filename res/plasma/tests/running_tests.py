@@ -5,7 +5,7 @@ import time
 
 
 from res.plasma.start_params import T_gas, R, L, gamma_cl, W
-from res.plasma.models.consist_model_aclr import run_consist_model
+from res.plasma.models.consist_model_print import run_consist_model
 from res.plasma.consts import e, k_b
 
 
