@@ -18,7 +18,7 @@ def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type):
     axis.set_xticks(np.arange(0, xsize, 1) - 0.5, minor=True)
     axis.set_yticks(np.arange(0, ysize, 100) - 0.5)
     axis.set_xticks(np.arange(0, xsize, 100) - 0.5)
-    #axis.grid(which='minor', alpha=0.2)
+    #xis.grid(which='minor', alpha=1)
     axis.grid(which='major', alpha=0.5)
 
 

@@ -20,7 +20,7 @@ def find_prev(curr_x, curr_y, prev_x, prev_y, curr_angle, is_on_horiz):
         prev_att_y = int(prev_y)
     else:
         curr_att_y = int(curr_y) - 1
-        prev_att_y = int(prev_y) - 1
+        prev_att_y = int(prev_y)
 
     if (curr_angle <= 1.0 * np.pi) or is_on_horiz:
         curr_att_x = int(curr_x)

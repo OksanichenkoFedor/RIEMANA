@@ -17,7 +17,7 @@ class WaferPlotFrame(tk.Frame):
         self.initUI()
 
     def initUI(self):
-        self.f = Figure(figsize=(10, 10), dpi=100, tight_layout=True)
+        self.f = Figure(figsize=(9, 9), dpi=100, tight_layout=True)
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=0, columnspan=2)

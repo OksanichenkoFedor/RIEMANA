@@ -3,11 +3,20 @@ import numpy as np
 
 @njit()
 def custom_choise(Ps):
-    #if Ps.sum()!=1:
-    #    int("b")
+    #print(Ps)
     num = np.random.random()
     sum = 0
     for i in range(len(Ps)):
         sum+=Ps[i]
-        if num<sum:
+        if num<=sum:
             return i
+
+@njit()
+def straight_reflection(angle, is_on_horiz):
+    if is_on_horiz:
+        angle = np.pi - angle
+        if angle < 0:
+            angle += 2.0 * np.pi
+    else:
+        angle = 2.0 * np.pi - angle
+    return angle

@@ -1,4 +1,4 @@
-multiplier = 0.05
+multiplier = 0.5
 
 wafer_Si_num = 30
 wafer_cell_size = 2.5  # nanometers
@@ -22,12 +22,12 @@ wafer_plot_types = ["is_cell", "Si", "SiCl", "SiCl2", "SiCl3"]
 # wafer_plot_type = "Si"
 
 
-num_iter = 10
-num_per_iter = 20000
+num_iter = 2500
+num_per_iter = 200
 
 T_i = 0.12
-T_e = 3
+T_e = 40 # энергия иона
 
-y_ar_plus = 0.5
-y_cl_plus = 0.4
-y_cl = 0.1
+y_ar_plus = 0
+y_cl_plus = 0.1
+y_cl = 0.9
