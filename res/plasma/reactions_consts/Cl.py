@@ -7,24 +7,14 @@ k_b = 1.388 * 10.0 ** (-23)
 e = 1.602 * 10.0 ** (-19)
 
 # Cl + e -> Cl(+) + 2e
-A_Cl = 1.0 / (3.6 * 10.0 ** 6.0)
-B_Cl = 0.5
-C_Cl = 12.96 * (e / k_b)
-
-@jit(nopython=True)
-def give0_k_3(T_e):
-    T_ev = T_e / (e / k_b)
-    x = np.log(T_ev / 12.96)
-    return A_Cl * (T_ev ** B_Cl) * np.exp((-1 * C_Cl) / T_e) * (1.419 * (10.0 ** (-7.0)) - 1.864 * (10.0 ** (-8)) * x
-                                                                - 5.439 * (10.0 ** (-8)) * x ** 2
-                                                                + 3.306 * (10.0 ** (-8)) * x ** 3
-                                                                - 3.540 * (10.0 ** (-9)) * x ** 4
-                                                                - 2.915 * (10.0 ** (-8)) * x ** 5)
 
 @jit(nopython=True)
 def give_k_3(T_e):
     T_ev = T_e / (e / k_b)
-    return 3.00 * (10.0 ** (-14)) * (T_ev ** 0.559) * np.exp((-13.21) / T_ev)
+    k =  3.00 * (10.0 ** (-14)) * (T_ev ** 0.559) * np.exp((-13.21) / T_ev)
+    return k
+
+e_th_Cl_plus = 12.96 * e
 
 
 # Cl energy-loss reactions
@@ -66,10 +56,11 @@ def give_k_Cl_5_P(T_e):
 e_th_Cl_5_P = 12.15*e
 
 @jit(nopython=True)
-def count_Cl_inel_power(T_e):
+def count_Cl_inel_power(T_e, ens_data, ens_connector):
     Cl_inel_power = give_k_Cl_3_D(T_e)*e_th_Cl_3_D + give_k_Cl_4_D(T_e)*e_th_Cl_4_D + \
                     give_k_Cl_4_P(T_e)*e_th_Cl_4_P + give_k_Cl_4_S(T_e)*e_th_Cl_4_S + \
-                    give_k_Cl_5_D(T_e)*e_th_Cl_5_D + give_k_Cl_5_P(T_e)*e_th_Cl_5_P
+                    give_k_Cl_5_D(T_e)*e_th_Cl_5_D + give_k_Cl_5_P(T_e)*e_th_Cl_5_P + \
+                    give_k_3(T_e)*e_th_Cl_plus
     return Cl_inel_power
 
 # momentum transfer

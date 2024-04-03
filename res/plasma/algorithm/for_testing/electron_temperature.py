@@ -75,7 +75,7 @@ def count_right_fTe(T_e, n_vector, mini_param_vector):
     return (k_5 - k_13) * n_cl2 + ((2 * v) / (d_c) + k_ii * beta * n_e) * (1 + beta)
 
 
-def count_T_e(n_vector, param_vector, strict_solve,do_print=False):
+def count_T_e(n_vector, param_vector, strict_solv , react_data, do_print=False):
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
 
     p_0, T_gas, R, L, gamma_cl, _, _, _ = param_vector

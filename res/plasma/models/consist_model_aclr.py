@@ -5,6 +5,11 @@ from res.plasma.consts import e, k_b
 from res.plasma.algorithm.with_aclr.electron_temperature import count_T_e
 from res.plasma.algorithm.with_aclr.energy_loss import count_n_e
 from res.plasma.algorithm.with_aclr.chemical_kinetic import count_simple_start, solve_subsistem_consist, count_ions
+from res.plasma.reactions_consts.consts_data import react_data, ens_data, give_numbed_react_data
+
+react_data, react_connector = give_numbed_react_data(react_data)
+ens_data, ens_connector = give_numbed_react_data(ens_data)
+
 
 
 def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False):
@@ -35,14 +40,14 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False):
 
         k_inp = (k_1, k_2, k_3, k_5, k_13)
 
-        n_e_new, inel_parts, el_parts, el_part, inel_part, W_ion, W_e = count_n_e(T_e, n_vector, param_vector)
+        n_e_new, inel_parts, el_parts, el_part, inel_part, W_ion, W_e = count_n_e(T_e, n_vector, param_vector, ens_data, ens_connector)
         delta_n_e = (n_e - n_e_new) / (n_e + n_e_new)
         Deltas_n_e.append(np.abs(delta_n_e))
         n_e = n_e_new
 
         n_vector = (n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus)
 
-        k_s, T_e_new = count_T_e(n_vector, param_vector)
+        k_s, T_e_new = count_T_e(n_vector, param_vector, react_data)
 
         k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12 = k_s
 
@@ -68,6 +73,7 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False):
         "n_cl_minus": n_cl_minus,
         "n_cl": n_cl,
         "n_cl2": n_cl2,
+        "n_ar": n_ar,
         "Deltas_T_e": Deltas_T_e,
         "Deltas_n_e": Deltas_n_e,
         "W_e": W_e,
