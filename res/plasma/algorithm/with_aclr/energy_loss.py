@@ -10,13 +10,13 @@ from res.plasma.reactions_consts.Cl2 import count_Cl2_inel_power, give_k_Cl2_mom
 from res.plasma.algorithm.with_aclr.utils import count_T_i, count_m_eff, count_tau_eff
 
 @jit(nopython=True)
-def count_W_eff(T_e, V, n_ar, n_cl2, n_cl, ens_data, ens_connector):
+def count_W_eff(T_e, V, n_ar, n_cl2, n_cl,inel_data, inel_connector, el_data, el_connector):
     k_ar_m = give_k_Ar_mom(T_e)
     k_cl2_m = give_k_Cl2_mom(T_e)
     k_cl_m = give_k_Cl_mom(T_e)
-    ar_inel = (V * n_ar * count_Ar_inel_power(T_e, ens_data, ens_connector))
-    cl2_inel = (V * n_cl2 * count_Cl2_inel_power(T_e, ens_data, ens_connector))
-    cl_inel = (V * n_cl * count_Cl_inel_power(T_e, ens_data, ens_connector))
+    ar_inel = (V * n_ar * count_Ar_inel_power(T_e, inel_data, inel_connector))
+    cl2_inel = (V * n_cl2 * count_Cl2_inel_power(T_e, inel_data, inel_connector))
+    cl_inel = (V * n_cl * count_Cl_inel_power(T_e, inel_data, inel_connector))
     inel_part = ar_inel + cl2_inel + cl_inel
 
     ar_el = (3 * V * T_e * k_b * m_e * k_ar_m * (n_ar / m_ar))
@@ -39,14 +39,15 @@ def count_W_e(T_e, tau_eff, V):
     return W_e
 
 @jit(nopython=True)
-def count_n_e(T_e, n_vector, param_vector, ens_data, ens_connector):
+def count_n_e(T_e, n_vector, param_vector, inel_data, inel_connector, el_data, el_connector):
     p_0, T_gas, R, L, gamma_cl, y_ar, W, V = param_vector
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
     tau_eff = count_tau_eff(T_e, n_vector, param_vector)
 
     W_ion = count_W_ion(T_e, tau_eff, n_plus, n_cl2_plus, n_cl_plus, n_ar_plus, p_0, T_gas, V)
     W_e = count_W_e(T_e, tau_eff, V)
-    el_part,inel_part, inel_alphas, el_alphas = count_W_eff(T_e, V, n_ar, n_cl2, n_cl, ens_data, ens_connector)
+    el_part,inel_part, inel_alphas, el_alphas = count_W_eff(T_e, V, n_ar, n_cl2, n_cl, inel_data, inel_connector,
+                                                                                       el_data, el_connector)
     W_eff = el_part + inel_part
     n_e = (W - 1 * (W_ion + W_e)) / W_eff
     return n_e, inel_alphas, el_alphas, el_part, inel_part, W_ion, W_e

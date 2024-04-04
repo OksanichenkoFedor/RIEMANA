@@ -18,11 +18,12 @@ react_data = {
 }
 
 ens_data = {
+       #[                   A, B,
     # Cl2
-    2: [9.21 * 10.0 ** (-14), 0, (-1.0) * 12.9 * (e / k_b), 11.48 * e],  # Cl2 + e -> Cl2(+) + 2e
-    13: [8.55 * 10.0 ** (-16), 0, (-1.0) * 12.65 * (e / k_b), 12.65 * e],  # Cl2 + e -> Cl(+) + Cl(-) + e
+    2:  [9.21 * 10.0 ** (-14), 0, -12.90,     0,       0, 0, 0, 11.48 * e],  # Cl2 + e -> Cl2(+) + 2e
+    13: [8.55 * 10.0 ** (-16), 0, -12.65,     0,       0, 0, 0, 12.65 * e],  # Cl2 + e -> Cl(+) + Cl(-) + e
 
-    14: [4.47 * (10.0 ** (-13.0)), (-1.0) * 2.17, 0.362, (-1.0) * 0.0196],  # Cl2 e momentum transfer
+    14: [4.47 * 10.0 ** (-13), 0, -2.17 , 0.362, -0.0196],  # Cl2 e momentum transfer
     15: [6.13 * (10.0 ** (-16)), 2.74, (-1.0) * 6.85, 3.69, 0.856, 0.0711, 3.36 * e],  # e + Cl2 -> Cl2[b3_PI_u] + e
     16: [3.8 * (10.0 ** (-14)), (-1.0)*3.824 * (e / k_b), 4.3 * e],  # e + Cl2 -> Cl2[1_PI_u] + e
     17: [9.74 * (10.0 ** (-15)), (-1.0)*10.71 * (e / k_b), 6.4 * e],  # e + Cl2 -> Cl2[1_PI_g] + e
@@ -44,7 +45,7 @@ ens_data = {
     29: [2.79 * (10.0 ** (-15)), (-1.0)*11.06*(e / k_b), 12.15 * e],  # e + Cl -> Cl[5P] + e
 
     # Ar
-    1: [1.235 * 10.0 ** (-13), 0, (-1.0)*18.69*(e / k_b), 15.6*e],  # Ar + e -> Ar(+) + 2e
+    1: [1.235 * 10.0 ** (-13), 0, (-1.0)*18.69*(e / k_b), 15.60*e],  # Ar + e -> Ar(+) + 2e
 
     30: [0.37376 * (10 ** (-12)), (-1.0)*0.027, (-1.0)*6.817, 4.433, (-1.0)*1.462, 0.174],  # Ar e momentum transfer
     31: [0.371 * (10.0**(-13.0)), (-1.0)*15.06*(e / k_b), 11.6*e],  # e + Ar -> Ar[4s_{1/2},4s_{3/2}] + e
@@ -55,22 +56,4 @@ ens_data = {
 }
 
 
-def give_numbed_react_data(pre_react_data):
-    max_len = 0
-    max_key = 0
-    res = []
-    for key in pre_react_data.keys():
-        max_len = max(max_len, len(pre_react_data[key]))
-        max_key = max(max_key, key)
-    connector = np.zeros(max_key+1)
-    keys = list(pre_react_data.keys())
-    for i in range(len(keys)):
 
-        res.append(pre_react_data[keys[i]])
-        connector[keys[i]] = i
-
-    for i in range(len(res)):
-        while len(res[i]) < max_len:
-            res[i].append(0)
-
-    return np.array(res), np.array(connector)

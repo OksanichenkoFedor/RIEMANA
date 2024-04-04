@@ -2,7 +2,7 @@ import numpy as np
 from numba import jit
 from res.plasma.utils import good_form
 from res.plasma.reactions_consts.k_from_cr_sec import give_reaction_const
-from res.plasma.reactions_consts.consts_data import react_data
+from res.plasma.reactions_consts.consts_data_old import react_data
 
 k_b = 1.388*10.0**(-23)
 e = 1.602*10.0**(-19)

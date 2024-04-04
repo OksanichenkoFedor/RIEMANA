@@ -7,6 +7,7 @@ import time
 from res.plasma.start_params import T_gas, R, L, gamma_cl, W
 from res.plasma.models.consist_model_aclr import run_consist_model
 from res.plasma.consts import e, k_b
+from res.plasma.reactions_consts.const_functions import give_consts
 
 
 
@@ -29,15 +30,17 @@ plot_arrays = {
 
 y_ar = np.arange(0.0,0.9,0.01)
 Ps = np.arange(0.8,2.0,0.02)*0.13333
-run_consist_model(p_0 = 10*0.13333, T_gas = 600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600)
+
 Times = []
+consts = give_consts("data.csv")
+run_consist_model(p_0 = 10*0.13333, T_gas = 600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600, consts=consts)
 for i in trange(len(y_ar)):
     curr_y_ar = y_ar[i]
     #print("dfdf: ",curr_y_ar)
     curr_p = 10*0.13333#Ps[i]
     #print(Ps[i])
     start = time.time()
-    res = run_consist_model(p_0 = curr_p, T_gas = 600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=curr_y_ar, W=500)
+    res = run_consist_model(p_0 = curr_p, T_gas = 600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=curr_y_ar, W=500, consts=consts)
     end = time.time()
     Times.append(end-start)
     N_e.append(res["n_e"])
@@ -109,9 +112,9 @@ ax22.set_ylabel("W,Вт",size=15)
 ax22.grid()
 ax22.legend()
 
-ax11.plot(y_ar, np.array(plot_arrays["W_inel_Ar"])/np.array(N_ar), label="Ar")
-ax11.plot(y_ar, np.array(plot_arrays["W_inel_Cl2"])/np.array(N_cl2), label="Cl2")
-ax11.plot(y_ar, np.array(plot_arrays["W_inel_Cl"])/np.array(N_cl), label="Cl")
+ax11.plot(y_ar, np.array(plot_arrays["W_inel_Ar"])*np.array(N_e), label="Ar")
+ax11.plot(y_ar, np.array(plot_arrays["W_inel_Cl2"])*np.array(N_e), label="Cl2")
+ax11.plot(y_ar, np.array(plot_arrays["W_inel_Cl"])*np.array(N_e), label="Cl")
 ax11.set_title("Потеря энергии на неупругие соударения")
 ax11.set_xlabel("доля аргона",size=10)
 ax11.set_ylabel("W,Вт",size=15)

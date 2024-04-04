@@ -68,7 +68,7 @@ def count_right_fTe(T_e, n_vector, mini_param_vector):
 
 
 @jit(nopython=True)
-def count_T_e(n_vector, param_vector, react_data):
+def count_T_e(n_vector, param_vector, chem_data, chem_connector):
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
 
     p_0, T_gas, R, L, gamma_cl, _, _, _ = param_vector
