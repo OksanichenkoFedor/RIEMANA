@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from res.plasma.consts import e, k_b
+from res.plasma.reactions.consts import e, k_b
 
 from res.plasma.algorithm.for_testing.part_solver import solve_part
 from res.plasma.algorithm.for_testing.energy_loss import count_n_e

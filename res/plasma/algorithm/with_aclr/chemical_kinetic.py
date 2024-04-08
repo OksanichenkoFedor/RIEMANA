@@ -1,7 +1,7 @@
 import numpy as np
 from numba import jit
 
-from res.plasma.consts import e, k_b, m_cl, m_cl2, m_ar
+from res.plasma.reactions.consts import e, k_b, m_cl, m_cl2, m_ar
 
 from res.plasma.reactions.common_reactions import k_ii
 

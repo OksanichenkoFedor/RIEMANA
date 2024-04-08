@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import trange
 
-from res.plasma.consts import k_b, e
+from res.plasma.reactions.consts import k_b, e
 
 from res.plasma.reactions_consts.Ar import give_k_Ar_mom
 from res.plasma.reactions_consts.Cl import give_k_Cl_mom

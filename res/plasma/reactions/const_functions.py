@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from res.plasma.consts import e, k_b
+from res.plasma.reactions.consts import e, k_b
 
 
 def give_numbed_data(pre_react_data):

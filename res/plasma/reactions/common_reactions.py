@@ -1,7 +1,7 @@
 import numpy as np
 from numba import jit
 
-from res.plasma.consts import k_b, e
+from res.plasma.reactions.consts import k_b
 
 k_ii = 5.0 * 10.0 ** (-14)
 

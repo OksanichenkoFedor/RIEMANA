@@ -2,10 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import trange
 
-
-from res.plasma.start_params import T_gas, R, L, gamma_cl, W
 from res.plasma.models.consist_model_mult_laps import run_consist_model
-from res.plasma.consts import e, k_b
+from res.plasma.reactions.consts import e, k_b
 
 
 

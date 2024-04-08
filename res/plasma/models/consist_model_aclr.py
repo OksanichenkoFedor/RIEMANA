@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from res.plasma.consts import e, k_b
+from res.plasma.reactions.consts import e, k_b
 from res.plasma.algorithm.with_aclr.electron_temperature import count_T_e
 from res.plasma.algorithm.with_aclr.energy_loss import count_n_e
 from res.plasma.algorithm.with_aclr.chemical_kinetic import count_simple_start, solve_subsistem_consist, count_ions

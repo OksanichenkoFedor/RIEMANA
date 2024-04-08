@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 from tqdm import trange
 import time
 
-
-from res.plasma.start_params import T_gas, R, L, gamma_cl, W
 from res.plasma.models.consist_model_aclr import run_consist_model
 from res.plasma.models.consist_model_old_consts import run_consist_model as run_consist_model_old
-from res.plasma.consts import e, k_b
+from res.plasma.reactions.consts import e, k_b
 from res.plasma.reactions.const_functions import give_consts
 
 

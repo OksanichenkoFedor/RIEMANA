@@ -2,7 +2,7 @@ import numpy as np
 import scipy.integrate as integrate
 from scipy.interpolate import CubicSpline
 from scipy.special import gamma
-from res.plasma.consts import m_e, e, k_b
+from res.plasma.reactions.consts import m_e, e, k_b
 
 
 def give_sigma(filename):

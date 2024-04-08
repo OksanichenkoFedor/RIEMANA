@@ -1,5 +1,4 @@
-import numpy as np
-from res.plasma.consts import k_b, e
+from res.plasma.reactions.consts import k_b, e
 
 react_data = {
     1: [1.235 * 10.0 ** (-13), 0, (-1.0) * 18.69 * (e / k_b)],  # Ar + e -> Ar(+) + 2e

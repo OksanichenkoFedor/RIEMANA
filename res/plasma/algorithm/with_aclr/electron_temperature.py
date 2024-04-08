@@ -1,7 +1,7 @@
 import numpy as np
 from numba import jit
 
-from res.plasma.consts import e, k_b, m_ar, m_cl2, m_cl
+from res.plasma.reactions.consts import e, k_b, m_ar, m_cl2, m_cl
 from res.plasma.reactions.common_reactions import give_k_getero, k_ii
 from res.plasma.reactions.reactions_conts import give_k
 from res.plasma.algorithm.with_aclr.chemical_kinetic import count_m_eff, count_ks_chem

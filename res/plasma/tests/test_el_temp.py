@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import trange
 
-from res.plasma.consts import e, k_b
+from res.plasma.reactions.consts import e, k_b
 
 from res.plasma.algorithm.for_testing.utils import count_T_i
 from res.plasma.algorithm.for_testing.part_solver import solve_part
