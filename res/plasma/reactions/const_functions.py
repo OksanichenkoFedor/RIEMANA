@@ -31,7 +31,7 @@ def generate_dict(Nums, const_arr):
     return res
 
 
-def give_consts(filename):
+def give_consts(filename, do_rand=True):
     data = pd.read_csv(filename)
     for column in data.columns:
         data = data.rename(columns={column: column.replace(" ", "")})
@@ -39,6 +39,12 @@ def give_consts(filename):
     A_num = np.array(data["A_num"]).astype(float)
     A_pow = np.array(data["A_pow"]).astype(float)
     B = np.array(data["B"]).astype(float)
+    Err = np.array(data["err"]).astype(float)
+    if do_rand:
+        A_num = A_num * (1.0+Err*0.01*(2*np.random.random(Err.shape)-1))
+    Type = np.array(data["type"])
+    for i in range(len(Type)):
+        Type[i] = Type[i].replace(" ", "")
 
     A = A_num * np.power(10, A_pow) * np.power(k_b / e, B)
 
@@ -74,4 +80,11 @@ def give_consts(filename):
     inel_data, inel_connector = give_numbed_data(generate_dict(Nums_inel, for_inel))
     el_data, el_connector = give_numbed_data(generate_dict(Nums_el, for_el))
 
-    return chem_data, chem_connector, inel_data, inel_connector, el_data, el_connector
+    ar_vec = Nums[(Type == "Ar") * (is_inel == 1)]
+    cl2_vec = Nums[(Type == "Cl2")*(is_inel == 1)]
+    cl_vec = Nums[(Type == "Cl") * (is_inel == 1)]
+    #print("Ar: ",ar_vec)
+    #print("Cl: ", cl_vec)
+    #print("Cl2: ", cl2_vec)
+
+    return chem_data, chem_connector, inel_data, inel_connector, el_data, el_connector, ar_vec, cl2_vec, cl_vec

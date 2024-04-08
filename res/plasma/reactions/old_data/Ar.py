@@ -1,8 +1,5 @@
 import numpy as np
 from numba import jit
-from res.plasma.utils import good_form
-from res.plasma.reactions_consts.k_from_cr_sec import give_reaction_const
-from res.plasma.reactions_consts.consts_data_old import react_data
 
 k_b = 1.388*10.0**(-23)
 e = 1.602*10.0**(-19)
@@ -56,7 +53,12 @@ def give_k_Ar_5s_ap_12(T_e):
 e_th_Ar_5s_ap_12 = 14.3*e
 
 @jit(nopython=True)
-def count_Ar_inel_power(T_e, ens_data, ens_connector):
+def give_k(params, T_e):
+    return params[0]*(T_e**params[1])*np.exp(params[2]/T_e + params[3]/(T_e**2) + params[4]/(T_e**3) +
+                                             params[5]/(T_e**4) + params[6]/(T_e**5))
+
+@jit(nopython=True)
+def count_Ar_inel_power(T_e):
     Ar_inel_power = give_k_1(T_e)*e_th_Ar_plus + give_k_Ar_4s_12_32(T_e)*e_th_Ar_4s_12_32 + \
                     give_k_Ar_3d_ap_32(T_e)*e_th_Ar_3d_ap_32 + give_k_Ar_3d_32(T_e)*e_th_Ar_3d_32 + \
                     give_k_Ar_5s_32(T_e)*e_th_Ar_5s_32 + give_k_Ar_5s_ap_12(T_e)*e_th_Ar_5s_ap_12

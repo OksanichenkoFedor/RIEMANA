@@ -12,7 +12,7 @@ from res.plasma.algorithm.with_aclr.chemical_kinetic import count_simple_start, 
 def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, consts,plot_error=False):
 
 
-    chem_data, chem_connector, inel_data, inel_connector, el_data, el_connector = consts
+    chem_data, chem_connector, inel_data, inel_connector, el_data, el_connector, ar_vec, cl2_vec, cl_vec = consts
 
     V = np.pi * R * R * L
     param_vector = (p_0, T_gas, R, L, gamma_cl, y_ar, W, V)
@@ -27,7 +27,7 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, consts,plot_error=Fal
     Deltas_T_e = []
     Deltas_n_e = []
 
-    k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12, A, B = count_simple_start(T_e, param_vector)
+    k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12, A, B = count_simple_start(T_e, param_vector,chem_data, chem_connector)
 
     while (np.abs(delta_n_e) >= 10.0 ** (-15.0)) and (num <= 20):
         num += 1
@@ -43,7 +43,8 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, consts,plot_error=Fal
 
         n_e_new, inel_parts, el_parts, el_part, inel_part, W_ion, W_e = count_n_e(T_e, n_vector, param_vector,
                                                                                   inel_data, inel_connector,
-                                                                                  el_data, el_connector)
+                                                                                  el_data, el_connector,
+                                                                                  ar_vec, cl2_vec, cl_vec)
         delta_n_e = (n_e - n_e_new) / (n_e + n_e_new)
         Deltas_n_e.append(np.abs(delta_n_e))
         n_e = n_e_new

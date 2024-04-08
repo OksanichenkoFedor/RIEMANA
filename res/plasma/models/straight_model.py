@@ -1,10 +1,10 @@
 import numpy as np
 
 from res.plasma.consts import e, k_b, m_ar, m_cl2, m_cl
-from res.plasma.start_params import p_0, T_0, T_gas, R, L, gamma_cl, y_ar, W, j
+from res.plasma.start_params import p_0, T_gas, R, L, gamma_cl, y_ar, j
 from res.plasma.reactions_consts.common_reactions import k_ii
 
-from res.plasma.utils import good_form
+from res.plasma.utils.utils import good_form
 
 from res.plasma.reactions_consts.Ar import give_k_1
 from res.plasma.reactions_consts.Cl2 import give_k_2, give_k_4, give_k_5

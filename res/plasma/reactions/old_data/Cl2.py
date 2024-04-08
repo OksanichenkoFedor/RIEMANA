@@ -1,6 +1,5 @@
 import numpy as np
 from numba import jit
-from res.plasma.utils import good_form
 
 k_b = 1.388 * 10.0 ** (-23)
 e = 1.602 * 10.0 ** (-19)
@@ -141,12 +140,17 @@ e_th_Cl2_v3 = 0.21 * e
 
 
 @jit(nopython=True)
-def count_Cl2_inel_power(T_e, ens_data, ens_connector):
+def give_k(params, T_e):
+    return params[0]*(T_e**params[1])*np.exp(params[2]/T_e + params[3]/(T_e**2) + params[4]/(T_e**3) +
+                                             params[5]/(T_e**4) + params[6]/(T_e**5))
+
+@jit(nopython=True)
+def count_Cl2_inel_power(T_e):
     Cl2_inel_power = give_k_Cl2_b3_PI_u(T_e) * e_th_Cl2_b3_PI_u + give_k_Cl2_1_PI_u(T_e) * e_th_Cl2_1_PI_u + \
                      give_k_Cl2_1_PI_g(T_e) * e_th_Cl2_1_PI_g + give_k_Cl2_1_SIGMA_u(T_e) * e_th_Cl2_1_SIGMA_u + \
-                     give_k_13(T_e) * e_th_13 + give_k_2(T_e) * e_th_Cl2_plus + \
-                     give_k_Cl2_Ryd(T_e) * e_th_Cl2_Ryd + give_k_Cl2_v1(T_e) * e_th_Cl2_v1 + \
-                     give_k_Cl2_v2(T_e) * e_th_Cl2_v2 + give_k_Cl2_v3(T_e) * e_th_Cl2_v3
+                     give_k_13(T_e) * e_th_13 + give_k_Cl2_Ryd(T_e) * e_th_Cl2_Ryd + \
+                     give_k_Cl2_v1(T_e) * e_th_Cl2_v1 + give_k_Cl2_v2(T_e) * e_th_Cl2_v2 + give_k_Cl2_v3(
+        T_e) * e_th_Cl2_v3 + give_k_2(T_e)*e_th_Cl2_plus
     return Cl2_inel_power
 
 

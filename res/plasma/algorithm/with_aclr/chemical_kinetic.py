@@ -3,30 +3,30 @@ from numba import jit
 
 from res.plasma.consts import e, k_b, m_cl, m_cl2, m_ar
 
-from res.plasma.utils import good_form
-
-from res.plasma.reactions_consts.Ar import give_k_1
-from res.plasma.reactions_consts.Cl import give_k_3
-from res.plasma.reactions_consts.Cl2 import give_k_2
-from res.plasma.reactions_consts.Cl2 import give_k_4, give_k_5, give_k_13
-from res.plasma.reactions_consts.common_reactions import k_ii
+from res.plasma.reactions.common_reactions import k_ii
 
 from res.plasma.algorithm.with_aclr.utils import count_m_eff
+from res.plasma.reactions.reactions_conts import give_k
 
 @jit(nopython=True)
-def count_simple_start(start_T_e, param_vector):
+def count_ks_chem(T_e, chem_data, chem_connector):
+    k_1 = give_k(chem_data[chem_connector[1]], T_e)  # Ar + e -> Ar(+) + 2e
+    k_2 = give_k(chem_data[chem_connector[2]], T_e)  # Cl2 + e -> Cl2(+) + 2e
+    k_3 = give_k(chem_data[chem_connector[3]], T_e)  # Cl + e -> Cl(+) + 2e
+    k_4 = give_k(chem_data[chem_connector[4]], T_e)  # Cl2 + e -> Cl + Cl + 2e
+    k_5 = give_k(chem_data[chem_connector[5]], T_e)  # Cl2 + e -> Cl + Cl(-)
+    k_13 = give_k(chem_data[chem_connector[13]], T_e)  # Cl2 + e -> Cl(+) + Cl(-) + e
+    return (k_1, k_2, k_3, k_4, k_5, k_13)
+
+@jit(nopython=True)
+def count_simple_start(start_T_e, param_vector, chem_data, chem_connector):
     p_0, T_gas, R, L, gamma_cl, y_ar, _, _ = param_vector
 
     A = (p_0 / (k_b * T_gas)) * (1 - y_ar)
     B = (p_0 / (k_b * T_gas)) * y_ar
     V_T = np.sqrt(8.0 * k_b * T_gas / (np.pi * m_cl))
 
-    k_1 = give_k_1(start_T_e)  # Ar + e -> Ar(+) + 2e
-    k_2 = give_k_2(start_T_e)  # Cl2 + e -> Cl2(+) + 2e
-    k_3 = give_k_3(start_T_e)  # Cl + e -> Cl(+) + 2e
-    k_4 = give_k_4(start_T_e)  # Cl2 + e -> Cl + Cl + 2e
-    k_5 = give_k_5(start_T_e)  # Cl2 + e -> Cl + Cl(-)
-    k_13 = give_k_13(start_T_e)  # Cl2 + e -> Cl(+) + Cl(-) + e
+    k_1, k_2, k_3, k_4, k_5, k_13 = count_ks_chem(start_T_e, chem_data, chem_connector)
 
     k_9 = ((R + L) / (2 * R * L)) * V_T * gamma_cl
 
@@ -77,19 +77,9 @@ def count_ions(n_e, n_cl, n_cl_minus, n_plus, B, n_cl2, k_1, k_2, k_3, k_10, k_1
     n_cl_plus = alpha * n_cl_plus
     n_cl2_plus = alpha * n_cl2_plus
     n_ar_plus = alpha * n_ar_plus
-    n_ar = B  - n_ar_plus
+    n_ar = B - n_ar_plus
 
     alpha_cl_plus = n_cl_plus / n_plus
     alpha_cl2_plus = n_cl2_plus / n_plus
     alpha_ar_plus = n_ar_plus / n_plus
     return n_cl_plus, n_cl2_plus, n_ar_plus, n_ar, (alpha_cl_plus, alpha_cl2_plus, alpha_ar_plus)
-
-@jit(nopython=True)
-def count_ks_chem(T_e):
-    k_1 = give_k_1(T_e)
-    k_2 = give_k_2(T_e)
-    k_3 = give_k_3(T_e)
-    k_4 = give_k_4(T_e)
-    k_5 = give_k_5(T_e)
-    k_13 = give_k_13(T_e)
-    return (k_1, k_2, k_3, k_4, k_5, k_13)

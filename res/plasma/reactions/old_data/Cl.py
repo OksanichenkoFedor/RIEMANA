@@ -1,10 +1,10 @@
 import numpy as np
 from numba import jit
-from res.plasma.utils import good_form
-from res.plasma.reactions_consts.k_from_cr_sec import give_reaction_const
 
 k_b = 1.388 * 10.0 ** (-23)
 e = 1.602 * 10.0 ** (-19)
+
+vec = [3, 24, 25, 26, 27, 28, 29]
 
 # Cl + e -> Cl(+) + 2e
 
@@ -56,12 +56,17 @@ def give_k_Cl_5_P(T_e):
 e_th_Cl_5_P = 12.15*e
 
 @jit(nopython=True)
-def count_Cl_inel_power(T_e, ens_data, ens_connector):
+def give_k(params, T_e):
+    return params[0]*(T_e**params[1])*np.exp(params[2]/T_e + params[3]/(T_e**2) + params[4]/(T_e**3) +
+                                             params[5]/(T_e**4) + params[6]/(T_e**5))
+
+@jit(nopython=True)
+def count_Cl_inel_power(T_e):
     Cl_inel_power = give_k_Cl_3_D(T_e)*e_th_Cl_3_D + give_k_Cl_4_D(T_e)*e_th_Cl_4_D + \
                     give_k_Cl_4_P(T_e)*e_th_Cl_4_P + give_k_Cl_4_S(T_e)*e_th_Cl_4_S + \
-                    give_k_Cl_5_D(T_e)*e_th_Cl_5_D + give_k_Cl_5_P(T_e)*e_th_Cl_5_P + \
-                    give_k_3(T_e)*e_th_Cl_plus
-    return Cl_inel_power
+                    give_k_Cl_5_D(T_e)*e_th_Cl_5_D + give_k_Cl_5_P(T_e)*e_th_Cl_5_P
+    print(give_k_3(T_e)*e_th_Cl_plus / Cl_inel_power)
+    return Cl_inel_power# + give_k_3(T_e)*e_th_Cl_plus
 
 # momentum transfer
 @jit(nopython=True)

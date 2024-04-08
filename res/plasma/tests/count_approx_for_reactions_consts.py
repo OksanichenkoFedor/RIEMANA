@@ -8,7 +8,7 @@ from res.plasma.reactions_consts.Ar import give_k_Ar_mom
 from res.plasma.reactions_consts.Cl import give_k_Cl_mom
 from res.plasma.reactions_consts.Cl2 import give_k_Cl2_mom
 
-from res.plasma.utils import generate_approximation
+from res.plasma.utils.utils import generate_approximation
 
 
 

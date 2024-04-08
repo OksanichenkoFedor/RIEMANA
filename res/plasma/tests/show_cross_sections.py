@@ -15,9 +15,9 @@ def give_sigma(filename):
         Sigmas.append(line[1])
     spl = CubicSpline(Engs, Sigmas)
     return spl
-spl1 = give_sigma("../reactions_consts/Ar_mom1.txt")
-spl2 = give_sigma("../reactions_consts/Ar_mom2.txt")
-spl3 = give_sigma("../reactions_consts/Cl_mom.txt")
+spl1 = give_sigma("../reactions/old_data/Ar_mom1.txt")
+spl2 = give_sigma("../reactions/old_data/Ar_mom2.txt")
+spl3 = give_sigma("../reactions/old_data/Cl_mom.txt")
 engs = np.arange(0,500,0.1)
 #plt.plot(engs,spl1(engs),label="Ar1")
 plt.plot(engs,spl2(engs),label="Ar2")

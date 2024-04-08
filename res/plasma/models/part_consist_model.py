@@ -3,7 +3,7 @@ import numpy as np
 from res.plasma.consts import e, k_b, m_cl
 from res.plasma.start_params import W
 
-from res.plasma.utils import good_form
+from res.plasma.utils.utils import good_form
 
 from res.plasma.start_params import p_0, T_gas, R, L, gamma_cl, y_ar, j
 from res.plasma.algorithm.for_testing.electron_temperature import count_T_e

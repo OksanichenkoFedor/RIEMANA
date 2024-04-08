@@ -6,7 +6,7 @@ from res.plasma.consts import e, k_b
 from res.plasma.algorithm.for_testing.part_solver import solve_part
 from res.plasma.algorithm.for_testing.energy_loss import count_n_e
 
-from res.plasma.utils import good_form
+from res.plasma.utils.utils import good_form
 
 
 def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, plot_error=False, simple=False):
