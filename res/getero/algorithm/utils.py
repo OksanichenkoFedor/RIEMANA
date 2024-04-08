@@ -12,7 +12,8 @@ def custom_choise(Ps):
             return i
 
 @njit()
-def straight_reflection(angle, is_on_horiz):
+def straight_reflection(curr_angle, is_on_horiz):
+    angle = curr_angle
     if is_on_horiz:
         angle = np.pi - angle
         if angle < 0:

@@ -1,4 +1,4 @@
-multiplier = 0.5
+multiplier = 0.1
 
 wafer_Si_num = 30
 wafer_cell_size = 2.5  # nanometers
@@ -28,6 +28,6 @@ num_per_iter = 200
 T_i = 0.12
 T_e = 40 # энергия иона
 
-y_ar_plus = 0.1
-y_cl_plus = 0.0
+y_ar_plus = 0.0
+y_cl_plus = 0.1
 y_cl = 0.9

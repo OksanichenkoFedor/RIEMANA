@@ -3,23 +3,35 @@ from numba import njit
 
 from res.getero.algorithm.space_orientation import find_prev, give_next_cell
 
-from res.getero.algorithm.silicon_reactions import silicon_reaction
+from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.mask_reactions import mask_reaction
 
 
 @njit()
 def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, y0):
-    for i in range(len(params_arr)):
-        params = params_arr[i]
-        unfound = True
-        curr_x = params[0]
-        curr_en = params[1]
-        curr_y = y0
-        is_on_horiz = 1
-        curr_angle = params[2]
-        curr_type = params[3]
-        prev_y, prev_x = None, None
+    i = 0
+    redepo = np.zeros((5))
+    is_redepo = False
+    while i<len(params_arr):
+        if is_redepo:
+            params = redepo
+            curr_x = params[0]
+            curr_y = params[1]
+            is_on_horiz = params[2]
+            curr_en = params[3]
+            curr_angle = params[4]
+            curr_type = params[5]
+        else:
+            params = params_arr[i]
+            curr_y = y0
+            curr_x = params[0]
+            curr_en = params[1]
+            is_on_horiz = 1
+            curr_angle = params[2]
+            curr_type = params[3]
 
+        prev_y, prev_x = None, None
+        unfound = True
         changed_angle = False
 
         while unfound:
@@ -38,17 +50,14 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
                 prev_counter = counter_arr[:, prev_att_x, prev_att_y]
                 curr_farr = is_full_arr[curr_att_x, curr_att_y]
                 prev_farr = is_full_arr[prev_att_x, prev_att_y]
-                #print(curr_att_x, curr_att_y, curr_counter, is_full_arr[curr_att_x, curr_att_y])
-                #print(curr_farr, prev_farr)
-                #print("curr_counter: ", curr_counter)
-                #print(is_full_arr[curr_att_x, curr_att_y])
-                new_type, curr_counter, prev_counter, curr_farr, prev_farr, is_react, new_angle, new_en = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr,
-                                                                  prev_farr, Si_num, is_on_horiz, curr_angle, curr_en)
 
+                new_type, curr_counter, prev_counter, curr_farr, prev_farr, is_react, new_angle, new_en, is_redepo, \
+                redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_num,
+                                                 is_on_horiz, curr_angle, curr_en)
+                is_redepo = False
                 counter_arr[:, curr_att_x, curr_att_y] = curr_counter
                 counter_arr[:, prev_att_x, prev_att_y] = prev_counter
                 is_full_arr[curr_att_x, curr_att_y] = curr_farr
-                #print(prev_att_x, prev_att_y, prev_farr)
                 is_full_arr[prev_att_x, prev_att_y] = prev_farr
                 curr_angle = new_angle
                 curr_type = new_type
@@ -91,7 +100,10 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
                 elif int(curr_y) <= 1 and (curr_angle <= 1.5 * np.pi and curr_angle >= 0.5 * np.pi):
                     unfound = False
                 changed_angle = False
-
+        if is_redepo:
+            is_redepo = False
+        else:
+            i+=1
 
     return counter_arr, is_full_arr
 

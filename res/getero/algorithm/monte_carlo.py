@@ -33,7 +33,7 @@ def generate_cl_plus(num, xsize, alpha_el, T_e):
     sigma = np.arctan(np.sqrt(alpha_el))
     angle = np.random.normal(loc=0, scale=sigma, size=num).reshape((-1, 1))
     angle = np.where(angle < 0, angle + 2 * np.pi, angle)
-    curr_type = np.ones((num, 1)) * 1
+    curr_type = np.ones((num, 1)) * 2
     return np.concatenate((x, ens, angle, curr_type), axis=1)
 
 
@@ -43,5 +43,5 @@ def generate_ar_plus(num, xsize, alpha_el, T_e):
     sigma = np.arctan(np.sqrt(alpha_el))
     angle = np.random.normal(loc=0, scale=sigma, size=num).reshape((-1, 1))
     angle = np.where(angle < 0, angle + 2 * np.pi, angle)
-    curr_type = np.ones((num, 1)) * 2
+    curr_type = np.ones((num, 1)) * 3
     return np.concatenate((x, ens, angle, curr_type), axis=1)
