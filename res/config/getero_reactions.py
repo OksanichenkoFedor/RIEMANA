@@ -1,4 +1,4 @@
-multiplier = 0.1
+multiplier = 0.5
 
 wafer_Si_num = 30
 wafer_cell_size = 2.5  # nanometers
@@ -12,6 +12,10 @@ wafer_mask_height = int(40 * multiplier)
 wafer_y0 = 0
 wafer_silicon_size = int(800 * multiplier)
 
+test_x = 0
+test_y = 0
+test_type = 1 #
+
 wafer_is_full = None
 wafer_counter_arr = None
 old_wif = None
@@ -23,11 +27,11 @@ wafer_plot_types = ["is_cell", "Si", "SiCl", "SiCl2", "SiCl3"]
 
 
 num_iter = 2500
-num_per_iter = 200
+num_per_iter = 2000
 
 T_i = 0.12
 T_e = 40 # энергия иона
 
-y_ar_plus = 0.0
-y_cl_plus = 0.1
-y_cl = 0.9
+y_ar_plus = 0.05
+y_cl_plus = 0.0
+y_cl = 0.95

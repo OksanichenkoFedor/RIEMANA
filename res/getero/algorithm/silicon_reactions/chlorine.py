@@ -53,10 +53,6 @@ def clorine_etching(curr_type, curr_counter, prev_counter, curr_farr,
     if curr_counter[0]+curr_counter[1]+curr_counter[2]+curr_counter[3] <= 0:
         curr_farr = 0
         curr_counter[0], curr_counter[1], curr_counter[2], curr_counter[3] = 0, 0, 0, 0
-    elif curr_counter[0]+curr_counter[1]+curr_counter[2]+curr_counter[3] >= 2 * Si_num:
-        prev_farr = 1
-        curr_counter[0], curr_counter[1], curr_counter[2], curr_counter[3] = Si_num, 0, 0, 0
-        prev_counter[0], prev_counter[1], prev_counter[2], prev_counter[3] = Si_num, 0, 0, 0
 
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
            is_react, curr_angle, curr_en, is_redepo, redepo_params
@@ -195,10 +191,6 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
     if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] <= 0:
         curr_farr = 0
         curr_counter[0], curr_counter[1], curr_counter[2], curr_counter[3] = 0, 0, 0, 0
-    elif curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] >= 2 * Si_num:
-        prev_farr = 1
-        curr_counter[0], curr_counter[1], curr_counter[2], curr_counter[3] = Si_num, 0, 0, 0
-        prev_counter[0], prev_counter[1], prev_counter[2], prev_counter[3] = Si_num, 0, 0, 0
 
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
            is_react, curr_angle, curr_en, is_redepo, redepo_params
