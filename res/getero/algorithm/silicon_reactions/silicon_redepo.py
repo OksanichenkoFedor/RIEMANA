@@ -17,13 +17,13 @@ def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
     is_redepo = False
     redepo_params = np.zeros((6))
 
-    if curr_reaction == 4:
+    if curr_reaction == 1:
         is_react = False
         # TODO нормальное отражение прописать
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
-
+    print("Si react")
     is_react = True
     if curr_reaction == 0:
         curr_counter[0] += 1

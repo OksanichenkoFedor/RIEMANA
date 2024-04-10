@@ -47,7 +47,7 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
         return ans
     elif curr_type == 4:
         # Si попытка переосаждения
-        print("Si")
+        print("Si r")
         ans = Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
                                   prev_farr, Si_num, is_on_horiz, curr_angle, curr_en)
         return ans
@@ -68,8 +68,9 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
     elif curr_type == 8:
         # SiCl4 попытка переосаждения
+        print("dsdsdsdsdsds")
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
-    return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, True, curr_angle, curr_en, False, np.zeros((6))
+    return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, False, curr_angle, curr_en, False, np.zeros((6))
 
 
 

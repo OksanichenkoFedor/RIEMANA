@@ -1,4 +1,4 @@
-from tkinter import Tk
+
 from tkinter.ttk import Frame, Style
 from tkinter import BOTH
 
@@ -30,9 +30,3 @@ class TestAppFrame(Frame):
         self.contPanel = TestControlPanel(self)
         self.contPanel.grid(row=0, column=1, rowspan=4)
         pass
-
-
-
-root = Tk()
-app = TestAppFrame()
-root.mainloop()

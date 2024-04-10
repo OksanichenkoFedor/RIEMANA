@@ -13,6 +13,8 @@ from res.getero.frontend.grafic_funcs import plot_cells
 from res.getero.algorithm.space_orientation import find_prev
 from res.getero.tests.test_geom.test_main_cycle import test_process_particles, process_particles
 
+from res.getero.algorithm.types_of_particle import types
+
 
 class TestPlotFrame(Frame):
     def __init__(self, parent):
@@ -47,7 +49,7 @@ class TestPlotFrame(Frame):
 
 
     def generate_field(self):
-        multiplier = 0.01
+        multiplier = 0.005
         wafer_Si_num = 1
         wafer_border = int(500 * multiplier)
         wafer_xsize = int(2000 * multiplier)
@@ -76,6 +78,7 @@ class TestPlotFrame(Frame):
         config.wafer_counter_arr[1] = config.wafer_counter_arr[1] * 0
         config.wafer_counter_arr[2] = config.wafer_counter_arr[2] * 0
         config.wafer_counter_arr[3] = config.wafer_counter_arr[3] * 0
+        config.wafer_Si_num = wafer_Si_num
 
         config.wafer_counter_arr[0] = config.wafer_counter_arr[0] - mask * config.wafer_Si_num
     def plot(self):
@@ -138,12 +141,19 @@ class TestPlotFrame(Frame):
             self.replot()
         elif self.found==2:
             self.replot()
+            curr_en = 32
+            params_arr = [[self.x1, curr_en, self.angle, config.test_type]]
+            #print(types[config.test_type])
             config.wafer_counter_arr, config.wafer_is_full, \
-            arr_x, arr_y = process_particles(config.wafer_counter_arr, config.wafer_is_full,
-                                                  [[self.x1, 0, self.angle, False]], config.test_type,
-                                                  config.wafer_xsize, config.wafer_ysize, self.y1, self.ax)
+            arr_x, arr_y, rarr_x, rarr_y = process_particles(config.wafer_counter_arr, config.wafer_is_full, params_arr,
+                                             config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize,
+                                             self.y1, self.ax)
+            self.recheck_cell()
             self.replot()
+
+            self.ax.plot(rarr_x, rarr_y, "o", color="r")
             self.ax.plot(arr_x, arr_y, ".", color="g")
+
             self.canvas.draw()
             self.found = 0
 
@@ -168,18 +178,24 @@ class TestPlotFrame(Frame):
             #print("4")
             if config.test_y>0:
                 config.test_y-=1
+        elif event.key == "d":
+            config.wafer_counter_arr[:, config.test_x, config.test_y] = np.array([0,0,0,0])
+            config.wafer_is_full[config.test_x, config.test_y] = 0
         else:
             return None
-        #print(config.test_x, config.test_y)
-        #print(config.wafer_counter_arr.shape)
-        #print("---")
-        self.master.contPanel.si_lbl["text"] = "Si: "+str(config.wafer_counter_arr[0][config.test_x, config.test_y])
+
+
+        self.recheck_cell()
+        self.replot()
+
+        #print('Modifier keys:', event.modifier)
+
+
+    def recheck_cell(self):
+        self.master.contPanel.si_lbl["text"] = "Si: " + str(config.wafer_counter_arr[0][config.test_x, config.test_y])
         self.master.contPanel.sicl_lbl["text"] = "SiCl: " + str(
             config.wafer_counter_arr[1][config.test_x, config.test_y])
         self.master.contPanel.sicl2_lbl["text"] = "SiCl2: " + str(
             config.wafer_counter_arr[2][config.test_x, config.test_y])
         self.master.contPanel.sicl3_lbl["text"] = "SiCl3: " + str(
             config.wafer_counter_arr[3][config.test_x, config.test_y])
-        self.replot()
-
-        #print('Modifier keys:', event.modifier)

@@ -50,6 +50,7 @@ class TestControlPanel(Frame):
             colr.configure(fg="green")
             types_inv = {v: k for k, v in types.items()}
             config.test_type = types_inv[res]
+            self.master.plotF.canvas.get_tk_widget().focus_force()
         else:
             status.set("Enter the correct type")
             colr.configure(fg="red")

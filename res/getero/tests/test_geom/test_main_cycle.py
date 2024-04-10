@@ -12,10 +12,10 @@ def test_silicon_reaction(is_add, curr_counter, prev_counter, curr_farr, prev_fa
     # Основное вещество (идёт активная реакция)
     if is_add:
         curr_counter += 1
-        # print("Села")
+        #print("Села")
     else:
         curr_counter -= 1
-        # print("Выбила")
+        #print("Выбила")
     if curr_counter <= 0:
         curr_farr = 0
         curr_counter = 0
@@ -29,12 +29,16 @@ def test_silicon_reaction(is_add, curr_counter, prev_counter, curr_farr, prev_fa
 
 
 def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, y0, axis):
-    arr_x, arr_y = [], []
+    arr_x, arr_y, rarr_x, rarr_y = [], [], [], []
+
     i = 0
     redepo = np.zeros((6))
     is_redepo = False
+    is_red_plot = False
     while i<len(params_arr):
         if is_redepo:
+
+            is_red_plot = True
             is_redepo = False
 
             params = redepo
@@ -46,7 +50,9 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
             curr_type = params[5]
             if curr_type == 4:
                 pass
-                #print("redepo", curr_type)
+                print("redepo", curr_type)
+            else:
+                print("??? ", curr_type)
         else:
             params = params_arr[i]
             curr_y = y0
@@ -55,16 +61,18 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
             is_on_horiz = 1
             curr_angle = params[2]
             curr_type = params[3]
-            print(curr_type)
+            #print("curr_type: ",curr_type)
 
         prev_y, prev_x = None, None
         unfound = True
         changed_angle = False
 
         while unfound:
-            if curr_type == 4:
+            if curr_type == 8:
                 pass
-                #print("Si???")
+                print("SiCl4")
+            if curr_type == 4:
+                print("Si")
             curr_att_x, prev_att_x, curr_att_y, prev_att_y = find_prev(curr_x, curr_y, prev_x, prev_y, curr_angle, is_on_horiz)
             if (curr_att_x==prev_att_x and curr_att_y==prev_att_y ) and (not (prev_y is None)):
                 pass
@@ -82,10 +90,14 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
                 prev_farr = is_full_arr[prev_att_x, prev_att_y]
                 if curr_type==4:
                     print("Si!!!")
-                new_type, curr_counter, prev_counter, curr_farr, prev_farr, is_react, new_angle, new_en, is_redepo, \
-                redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_num,
+                new_type, curr_counter, prev_counter, curr_farr, prev_farr, is_react, new_angle, new_en, new_is_redepo, \
+                new_redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_num,
                                                  is_on_horiz, curr_angle, curr_en)
+                if not is_redepo:
+                    is_redepo = new_is_redepo
+                    redepo_params = new_redepo_params
                 if is_redepo:
+                    print("fdfdfdfdfdfdf ", redepo_params[-1])
                     redepo_params[0] = curr_x
                     redepo_params[1] = curr_y
                     redepo_params[2] = is_on_horiz
@@ -110,13 +122,19 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
                 curr_angle = mask_reaction(is_on_horiz, curr_angle)
                 changed_angle = True
             else:
+                if curr_type==4:
+                    print("Si!!")
                 prev_x = curr_x
                 prev_y = curr_y
 
                 curr_x, curr_y, new_angle, new_is_on_horiz = give_next_cell(prev_x, prev_y, curr_angle, is_on_horiz)
 
-                arr_x.append(curr_x - 0.5)
-                arr_y.append(curr_y - 0.5)
+                if is_red_plot:
+                    rarr_x.append(curr_x - 0.5)
+                    rarr_y.append(curr_y - 0.5)
+                else:
+                    arr_x.append(curr_x - 0.5)
+                    arr_y.append(curr_y - 0.5)
 
                 curr_angle = new_angle
                 is_on_horiz = new_is_on_horiz
@@ -132,8 +150,12 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
 
                 curr_x, curr_y, new_angle, new_is_on_horiz = give_next_cell(prev_x, prev_y, curr_angle, is_on_horiz)
 
-                arr_x.append(curr_x - 0.5)
-                arr_y.append(curr_y - 0.5)
+                if is_red_plot:
+                    rarr_x.append(curr_x - 0.5)
+                    rarr_y.append(curr_y - 0.5)
+                else:
+                    arr_x.append(curr_x - 0.5)
+                    arr_y.append(curr_y - 0.5)
 
                 curr_angle = new_angle
                 is_on_horiz = new_is_on_horiz
@@ -147,8 +169,10 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
             pass
         else:
             i+=1
+        if is_red_plot:
+            is_red_plot = False
 
-    return counter_arr, is_full_arr, arr_x, arr_y
+    return counter_arr, is_full_arr, arr_x, arr_y, rarr_x, rarr_y
 
 
 def test_process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, y0, axis):

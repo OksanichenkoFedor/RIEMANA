@@ -27,7 +27,7 @@ plot_arrays = {
     "W_inel_Cl": np.zeros((N_rep, y_ar.shape[0])),
 }
 consts = give_consts("data.csv", do_rand=False)
-run_consist_model(p_0 = 10*0.13333, T_gas = 600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600, consts=consts)
+run_consist_model(p_0=10 * 0.13333, T_gas=600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600, consts=consts)
 for i in trange(N_rep):
     consts = give_consts("data.csv", do_rand=True)
     for j in range(len(y_ar)):
@@ -41,13 +41,13 @@ for i in trange(N_rep):
         end = time.time()
         Times[i, j] = end - start
         N_e[i, j] = res["n_e"]
-        N_cl[i,j] = res["n_cl"]
-        N_cl2[i,j] = res["n_cl2"]
-        N_ar[i,j] = res["n_ar"]
-        T_e[i,j] = res["T_e"]
-        Beta[i,j] = res["n_cl_minus"] / res["n_e"]
+        N_cl[i, j] = res["n_cl"]
+        N_cl2[i, j] = res["n_cl2"]
+        N_ar[i, j] = res["n_ar"]
+        T_e[i, j] = res["T_e"]
+        Beta[i, j] = res["n_cl_minus"] / res["n_e"]
         for key in plot_arrays.keys():
-            plot_arrays[key][i,j] = res[key]
+            plot_arrays[key][i, j] = res[key]
 
 
 def plot_dov_int(axis, x, y, label, color="b"):
@@ -57,34 +57,56 @@ def plot_dov_int(axis, x, y, label, color="b"):
     axis.fill_between(x, (mean - std), (mean + std), color=color, alpha=0.1)
 
 
-print("Avg time (ms): ",round(1000*Times.mean(),2),"+-",round(1000*Times.std(),2))
+print("Avg time (ms): ", round(1000 * Times.mean(), 2), "+-", round(1000 * Times.std(), 2))
 
 fig, ([ax11, ax12], [ax21, ax22]) = plt.subplots(2, 2, figsize=(13, 11))
 
-#fig.suptitle("en_loss first")
+# fig.suptitle("en_loss first")
 
-plot_dov_int(ax11, y_ar, N_e/(10.0**17), "N_e", "b")
-ax11.set_xlabel("доля аргона",size=10)
-ax11.set_ylabel("$n_e, 10^{17} m^{-3}$",size=15)
+plot_dov_int(ax11, y_ar, N_e / (10.0 ** 17), "N_e", "b")
+ax11.set_xlabel("доля аргона", size=10)
+ax11.set_ylabel("$n_e, 10^{17} m^{-3}$", size=15)
 ax11.set_title("Концентрация электронов")
 ax11.grid()
 
-plot_dov_int(ax12, y_ar, T_e/(e/k_b), "T_e", "b")
-ax12.set_xlabel("доля аргона",size=10)
-ax12.set_ylabel("T_e,eV",size=15)
+plot_dov_int(ax12, y_ar, T_e / (e / k_b), "T_e", "b")
+ax12.set_xlabel("доля аргона", size=10)
+ax12.set_ylabel("T_e,eV", size=15)
 ax12.set_title("Температура электронов")
 ax12.grid()
 
-plot_dov_int(ax21, y_ar, N_cl/(10.0**20), "N_Cl", "b")
-ax21.set_xlabel("доля аргона",size=10)
-ax21.set_ylabel("$n_{Cl}, 10^{20} m^{-3}$",size=15)
+plot_dov_int(ax21, y_ar, N_cl / (10.0 ** 20), "N_Cl", "b")
+ax21.set_xlabel("доля аргона", size=10)
+ax21.set_ylabel("$n_{Cl}, 10^{20} m^{-3}$", size=15)
 ax21.set_title("Концентрация молекул $Cl$")
 ax21.grid()
 
-plot_dov_int(ax22, y_ar, N_cl2/(10.0**19), "N_Cl2", "b")
-ax22.set_xlabel("доля аргона",size=10)
-ax22.set_ylabel("$n_{Cl_2}, 10^{19} m^{-3}$",size=15)
+plot_dov_int(ax22, y_ar, N_cl2 / (10.0 ** 19), "N_Cl2", "b")
+ax22.set_xlabel("доля аргона", size=10)
+ax22.set_ylabel("$n_{Cl_2}, 10^{19} m^{-3}$", size=15)
 ax22.set_title("Концентрация молекул $Cl_2$")
 ax22.grid()
+
+plt.show()
+
+fig, (ax11, ax22) = plt.subplots(1, 2, figsize=(18, 5))
+
+plot_dov_int(ax22, y_ar, np.array(plot_arrays["W_el_Ar"]) * np.array(N_e), "Ar", "b")
+plot_dov_int(ax22, y_ar, np.array(plot_arrays["W_el_Cl2"]) * np.array(N_e), "Cl2", (1,0.647,0))
+plot_dov_int(ax22, y_ar, np.array(plot_arrays["W_el_Cl"]) * np.array(N_e), "Cl", "g")
+ax22.set_title("Потеря энергии на эластичные соударения")
+ax22.set_xlabel("доля аргона", size=10)
+ax22.set_ylabel("W,Вт", size=15)
+ax22.grid()
+ax22.legend()
+
+plot_dov_int(ax11, y_ar, np.array(plot_arrays["W_inel_Ar"]) * np.array(N_e), "Ar", "b")
+plot_dov_int(ax11, y_ar, np.array(plot_arrays["W_inel_Cl2"]) * np.array(N_e), "Cl2", (1,0.647,0))
+plot_dov_int(ax11, y_ar, np.array(plot_arrays["W_inel_Cl"]) * np.array(N_e), "Cl", "g")
+ax11.set_title("Потеря энергии на неупругие соударения")
+ax11.set_xlabel("доля аргона", size=10)
+ax11.set_ylabel("W,Вт", size=15)
+ax11.grid()
+ax11.legend()
 
 plt.show()

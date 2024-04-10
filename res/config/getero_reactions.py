@@ -14,7 +14,7 @@ wafer_silicon_size = int(800 * multiplier)
 
 test_x = 0
 test_y = 0
-test_type = 1 #
+test_type = 1
 
 wafer_is_full = None
 wafer_counter_arr = None
