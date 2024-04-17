@@ -68,7 +68,7 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
     elif curr_type == 8:
         # SiCl4 попытка переосаждения
-        print("dsdsdsdsdsds")
+        #print("dsdsdsdsdsds")
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, False, curr_angle, curr_en, False, np.zeros((6))
 

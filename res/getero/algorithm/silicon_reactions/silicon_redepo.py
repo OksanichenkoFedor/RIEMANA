@@ -29,6 +29,7 @@ def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[0] += 1
 
     if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] >= 2 * Si_num:
+        print("fffffffffffff2")
         prev_farr = 1
         prev_counter[0], prev_counter[1], prev_counter[2], prev_counter[3] = curr_counter[0] / 2, curr_counter[1] / 2, \
                                                                              curr_counter[2] / 2, curr_counter[3] / 2
@@ -73,6 +74,7 @@ def SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[1] += 1
 
     if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] >= 2 * Si_num:
+        print("fffffffffffff3")
         prev_farr = 1
         prev_counter[0], prev_counter[1], prev_counter[2], prev_counter[3] = curr_counter[0] / 2, curr_counter[1] / 2, \
                                                                              curr_counter[2] / 2, curr_counter[3] / 2
@@ -89,6 +91,8 @@ def SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
 def SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
                     prev_farr, Si_num, is_on_horiz, curr_angle, curr_en):
     p_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]
+    #print("p_sum SiCl2: ", p_sum)
+    #print("curr_farr SiCl2: ", curr_farr)
     p_A = gamma_Si_SiCl_redepo * curr_counter[0] / p_sum
     p_B = gamma_SiCl_SiCl_redepo * curr_counter[1] / p_sum
     p_C = gamma_SiCl2_SiCl_redepo * curr_counter[2] / p_sum
@@ -118,6 +122,7 @@ def SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[2] += 1
 
     if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] >= 2 * Si_num:
+        print("fffffffffffff4")
         prev_farr = 1
         prev_counter[0], prev_counter[1], prev_counter[2], prev_counter[3] = curr_counter[0]/2, curr_counter[1]/2, \
                                                                              curr_counter[2]/2, curr_counter[3]/2

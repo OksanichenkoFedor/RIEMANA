@@ -143,11 +143,10 @@ class TestPlotFrame(Frame):
             self.replot()
             curr_en = 32
             params_arr = [[self.x1, curr_en, self.angle, config.test_type]]
-            #print(types[config.test_type])
             config.wafer_counter_arr, config.wafer_is_full, \
             arr_x, arr_y, rarr_x, rarr_y = process_particles(config.wafer_counter_arr, config.wafer_is_full, params_arr,
                                              config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize,
-                                             self.y1, self.ax)
+                                             self.y1)
             self.recheck_cell()
             self.replot()
 
