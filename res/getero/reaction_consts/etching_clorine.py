@@ -3,7 +3,7 @@ ver_2 = [0.75, 0.15, 0.11, 0.007]
 ver_3 = [0.4, 0.08, 0.06, 0.004]
 test_ver = [0.5,0.5,0.5,0.5]
 
-curr_ver = test_ver
+curr_ver = ver_1
 
 gamma_Cl_A = curr_ver[0] # Si_s + Cl_g -> SiCl_s
 gamma_Cl_B = curr_ver[1] # SiCl_s + Cl_g -> SiCl2_s

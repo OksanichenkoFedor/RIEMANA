@@ -1,12 +1,17 @@
+import numpy as np
+
 # Si_s -> Si_g
-K_sp_ar_si = 0.035
-E_th_ar_si_sp = 31.8
+K_sp_ar_sicl0 = 0.0352
+E_th_ar_sicl0_sp = 31.86
 # SiCl_s -> SiCl_g
-K_sp_ar_sicl = 0.08
-E_th_ar_sicl_sp = 20.6
+K_sp_ar_sicl1 = 0.08
+E_th_ar_sicl1_sp = 20.57
 # SiCl2_s -> SiCl2_g
-K_sp_ar_sicl2 = 0.114
-E_th_ar_sicl2_sp = 16.9
+K_sp_ar_sicl2 = 0.1142
+E_th_ar_sicl2_sp = 16.93
 # SiCl3_s -> SiCl3_g
-K_sp_ar_sicl3 = 0.142
-E_th_ar_sicl3_sp = 15.3
+K_sp_ar_sicl3 = 0.1424
+E_th_ar_sicl3_sp = 15.29
+
+sput_data_Ar_plus = np.array([[E_th_ar_sicl0_sp, E_th_ar_sicl1_sp, E_th_ar_sicl2_sp, E_th_ar_sicl3_sp],
+                              [K_sp_ar_sicl0, K_sp_ar_sicl1, K_sp_ar_sicl2, K_sp_ar_sicl3]])

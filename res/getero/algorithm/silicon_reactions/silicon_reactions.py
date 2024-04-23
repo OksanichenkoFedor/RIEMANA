@@ -13,7 +13,7 @@ from res.getero.algorithm.utils import straight_reflection
 
 @njit()
 def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr,
-                     Si_num, is_on_horiz, curr_angle, curr_en):
+                     Si_num, is_on_horiz, curr_angle, curr_en, R, otn_const):
     # Основное вещество (идёт активная реакция)
     if curr_type == 0:
         # радикал Хлора
@@ -26,10 +26,10 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
             return ans
         else:
             ans = clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
-                                   prev_farr, Si_num, is_on_horiz, curr_angle, curr_en)
+                                   prev_farr, Si_num, is_on_horiz, curr_angle, curr_en, R, otn_const)
 
             return ans
-    elif curr_type == 1:
+    elif curr_type == 9:
         # атом Ar
         ans = argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
                                prev_farr, Si_num, is_on_horiz, curr_angle, curr_en)
@@ -37,7 +37,7 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
     elif curr_type == 2:
         # ион Cl_plus
         ans = clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
-                            prev_farr, Si_num, is_on_horiz, curr_angle, curr_en)
+                            prev_farr, Si_num, is_on_horiz, curr_angle, curr_en, R, otn_const)
 
         return ans
     elif curr_type == 3:
@@ -71,15 +71,3 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
         #print("dsdsdsdsdsds")
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, False, curr_angle, curr_en, False, np.zeros((6))
-
-
-
-
-
-
-
-
-
-
-
-

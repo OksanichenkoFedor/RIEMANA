@@ -8,7 +8,7 @@ from res.getero.algorithm.mask_reactions import mask_reaction
 
 
 @njit()
-def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize):
+def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize, R, otn_const):
     curr_x = params[0]
     curr_y = params[1]
     is_on_horiz = params[2]
@@ -50,7 +50,7 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize)
                 print("---")
             new_type, curr_counter, prev_counter, curr_farr, prev_farr, is_react, new_angle, new_en, is_redepo, \
             redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_num,
-                                                 is_on_horiz, curr_angle, curr_en)
+                                                 is_on_horiz, curr_angle, curr_en, R, otn_const)
 
             counter_arr[:, curr_att_x, curr_att_y] = curr_counter
             counter_arr[:, prev_att_x, prev_att_y] = prev_counter
@@ -65,7 +65,7 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize)
                 redepo_params[1] = curr_y
                 redepo_params[2] = is_on_horiz
                 counter_arr, is_full_arr = process_one_particle(counter_arr, is_full_arr, redepo_params,
-                                                                Si_num, xsize, ysize)
+                                                                Si_num, xsize, ysize, R, otn_const)
 
 
 
@@ -115,10 +115,11 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize)
     return counter_arr, is_full_arr
 
 @njit()
-def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize):
+def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, R, otn_const):
     for i in range(len(params_arr)):
         curr_params_arr = params_arr[i]
-        counter_arr, is_full_arr = process_one_particle(counter_arr, is_full_arr, curr_params_arr, Si_num, xsize, ysize)
+        counter_arr, is_full_arr = process_one_particle(counter_arr, is_full_arr, curr_params_arr, Si_num, xsize, ysize,
+                                                        R, otn_const)
     return counter_arr, is_full_arr
 
 

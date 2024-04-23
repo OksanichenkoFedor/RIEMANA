@@ -9,12 +9,15 @@ from res.plasma.reactions.const_functions import give_consts
 
 y_ar = np.arange(0.0, 1.0, 0.01)
 
-N_rep = 1000
+N_rep = 100
 
 N_e = np.zeros((N_rep, y_ar.shape[0]))
 N_cl = np.zeros((N_rep, y_ar.shape[0]))
+N_cl_plus = np.zeros((N_rep, y_ar.shape[0]))
 N_cl2 = np.zeros((N_rep, y_ar.shape[0]))
+N_cl2_plus = np.zeros((N_rep, y_ar.shape[0]))
 N_ar = np.zeros((N_rep, y_ar.shape[0]))
+N_ar_plus = np.zeros((N_rep, y_ar.shape[0]))
 Beta = np.zeros((N_rep, y_ar.shape[0]))
 T_e = np.zeros((N_rep, y_ar.shape[0]))
 Times = np.zeros((N_rep, y_ar.shape[0]))
@@ -42,8 +45,11 @@ for i in trange(N_rep):
         Times[i, j] = end - start
         N_e[i, j] = res["n_e"]
         N_cl[i, j] = res["n_cl"]
+        N_cl_plus[i, j] = res["n_cl_plus"]
         N_cl2[i, j] = res["n_cl2"]
+        N_cl2_plus[i, j] = res["n_cl2_plus"]
         N_ar[i, j] = res["n_ar"]
+        N_ar_plus[i, j] = res["n_ar_plus"]
         T_e[i, j] = res["T_e"]
         Beta[i, j] = res["n_cl_minus"] / res["n_e"]
         for key in plot_arrays.keys():
@@ -81,10 +87,13 @@ ax21.set_ylabel("$n_{Cl}, 10^{20} m^{-3}$", size=15)
 ax21.set_title("Концентрация молекул $Cl$")
 ax21.grid()
 
-plot_dov_int(ax22, y_ar, N_cl2 / (10.0 ** 19), "N_Cl2", "b")
+plot_dov_int(ax22, y_ar, N_cl2_plus / (10.0 ** 20), "N_Cl2_plus", "r")
+plot_dov_int(ax22, y_ar, N_cl_plus / (10.0 ** 20), "N_Cl_plus", "g")
+plot_dov_int(ax22, y_ar, N_ar_plus / (10.0 ** 20), "N_Ar_plus", "b")
 ax22.set_xlabel("доля аргона", size=10)
-ax22.set_ylabel("$n_{Cl_2}, 10^{19} m^{-3}$", size=15)
-ax22.set_title("Концентрация молекул $Cl_2$")
+ax22.set_ylabel("$n_{i}, 10^{20} m^{-3}$", size=15)
+ax22.set_title("Концентрация ионов")
+ax22.legend()
 ax22.grid()
 
 plt.show()
