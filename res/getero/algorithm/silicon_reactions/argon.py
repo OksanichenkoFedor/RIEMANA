@@ -23,14 +23,11 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
     p_sum = p_sicl0_sp + p_sicl1_sp + p_sicl2_sp + p_sicl3_sp
 
     if p_sum==0:
-        # никакой реакции не будет, пока что будем считать, что это отражение
         is_react = False
         is_redepo = False
         redepo_params = np.zeros((6))
-        curr_type = 1  # ион аргона нейтрализуется
-        curr_en = 0.9 * curr_en  # энергия теряется #TODO допилить нормальные потери энергии
+        curr_type = 9  # ион аргона нейтрализуется
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
-        # TODO добавить рассеяние при отражении
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
 
