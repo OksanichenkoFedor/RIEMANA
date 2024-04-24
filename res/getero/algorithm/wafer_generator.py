@@ -5,6 +5,7 @@ from res.getero.algorithm.monte_carlo import generate_particles
 import time
 from tqdm import trange
 
+
 class WaferGenerator:
     def __init__(self, master):
         is_full = np.fromfunction(lambda i, j: j >= config.wafer_border, (config.wafer_xsize, config.wafer_ysize), dtype=int).astype(int)
@@ -36,10 +37,16 @@ class WaferGenerator:
             params = generate_particles(num_per_iter, config.wafer_xsize, y_ar_plus=config.y_ar_plus, y_cl=config.y_cl,
                                         y_cl_plus=config.y_cl_plus, T_i=config.T_i, T_e=config.T_e, y0=config.wafer_y0)
             t2 = time.time()
-            config.wafer_counter_arr, config.wafer_is_full = process_particles(config.wafer_counter_arr, config.wafer_is_full, params, config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize, config.y_cl/config.y_cl_plus, config.otn_const)
+            if config.y_cl_plus==0.0:
+                R = 1000
+            else:
+                R = config.y_cl/config.y_cl_plus
+            config.wafer_counter_arr, config.wafer_is_full = process_particles(config.wafer_counter_arr, config.wafer_is_full, params, config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize, R, config.otn_const)
             t3 = time.time()
+
             self.master.contPanel.progress_var.set(i+1)
             self.master.contPanel.progress_bar.update()
             self.master.style.configure("LabeledProgressbar", text=str(i+2)+"/"+str(num_iter))
+
         self.master.style.configure("LabeledProgressbar", text="0/0")
         self.master.contPanel.progress_var.set(0)

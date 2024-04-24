@@ -5,6 +5,7 @@ matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 
+from res.bot.simple import print_message, throw_plot
 
 import res.config.getero_reactions as config
 from res.getero.frontend.grafic_funcs import plot_cells
@@ -52,3 +53,12 @@ class WaferPlotFrame(tk.Frame):
 
     def unclick_mouse_event(self, event):
         pass
+
+    def send_picture(self):
+        print_message("test", 710672679)
+        self.f.savefig("tmp.png")
+        throw_plot("tmp.png", 710672679)
+        try:
+            pass
+        except:
+            pass

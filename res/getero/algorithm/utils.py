@@ -21,3 +21,28 @@ def straight_reflection(curr_angle, is_on_horiz):
     else:
         angle = 2.0 * np.pi - angle
     return angle
+
+@njit()
+def generate_cos_point():
+    a = 2*np.random.random()-1
+    x = np.arcsin(a)
+    return x
+
+@njit()
+def isotropic_reflection(curr_angle, is_on_horiz):
+    #print("isotropic_reflection")
+    #print(is_on_horiz, curr_angle/np.pi)
+    dop_angle = generate_cos_point()
+    if is_on_horiz:
+        if curr_angle<np.pi*0.5 or curr_angle>np.pi*1.5:
+            return np.pi + dop_angle
+        else:
+            if dop_angle<0:
+                return dop_angle+2*np.pi
+            else:
+                return dop_angle
+    else:
+        if curr_angle<np.pi:
+            return np.pi*1.5 + dop_angle
+        else:
+            return np.pi*0.5 + dop_angle

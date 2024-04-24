@@ -5,7 +5,7 @@ from res.getero.reaction_consts.sputtering_argon import E_th_ar_sicl0_sp, E_th_a
                                                           E_th_ar_sicl2_sp, E_th_ar_sicl3_sp,\
                                                           K_sp_ar_sicl0, K_sp_ar_sicl1, K_sp_ar_sicl2, K_sp_ar_sicl3
 
-from res.getero.algorithm.utils import custom_choise, straight_reflection
+from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection
 
 from res.getero.reaction_consts.angular_dependences import sput_an_dep
 
@@ -48,55 +48,51 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
         is_react = False
         is_redepo = False
         redepo_params = np.zeros((6))
-        curr_type = 1 # ион аргона нейтрализуется
+        curr_type = 9 # ион аргона нейтрализуется
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
     if curr_reaction==0:
         # sp: Si_s -> Si_g
         curr_en = curr_en-E_th_ar_sicl0_sp
-        curr_type = 1 # ион аргона нейтрализуется
+        curr_type = 9 # ион аргона нейтрализуется
         is_react = False
-        redepo_angle = straight_reflection(curr_angle, is_on_horiz)
+        redepo_angle = isotropic_reflection(curr_angle, is_on_horiz)
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[0] -= 1
         is_redepo = True
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 4])
-        # TODO угол выбитых частиц
     elif curr_reaction==1:
         # sp: SiCl_s -> SiCl_g
         curr_en = curr_en - E_th_ar_sicl1_sp
         curr_type = 9  # ион аргона нейтрализуется
         is_react = False
-        redepo_angle = straight_reflection(curr_angle, is_on_horiz)
+        redepo_angle = isotropic_reflection(curr_angle, is_on_horiz)
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[1] -= 1
         is_redepo = True
 
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 5])
-        # TODO угол выбитых частиц
     elif curr_reaction==2:
         # sp: SiCl2_s -> SiCl2_g
         curr_en = curr_en - E_th_ar_sicl2_sp
-        curr_type = 1  # ион аргона нейтрализуется
+        curr_type = 9  # ион аргона нейтрализуется
         is_react = False
-        redepo_angle = straight_reflection(curr_angle, is_on_horiz)
+        redepo_angle = isotropic_reflection(curr_angle, is_on_horiz)
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[2] -= 1
         is_redepo = True
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6])
-        # TODO угол выбитых частиц
     elif curr_reaction==3:
         # sp: SiCl3_s -> SiCl3_g
         curr_en = curr_en - E_th_ar_sicl3_sp
-        curr_type = 0  # ион аргона нейтрализуется
+        curr_type = 9  # ион аргона нейтрализуется
         is_react = False
-        redepo_angle = straight_reflection(curr_angle, is_on_horiz)
+        redepo_angle = isotropic_reflection(curr_angle, is_on_horiz)
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[3] -= 1
         is_redepo = True
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 7])
-        # TODO угол выбитых частиц
 
     # TODO разобраться с нормальным уничтожением ячейки
 

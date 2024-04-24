@@ -1,7 +1,7 @@
 from numba import njit
 import numpy as np
 
-from res.getero.algorithm.utils import custom_choise, straight_reflection
+from res.getero.algorithm.utils import custom_choise, isotropic_reflection
 
 from res.getero.reaction_consts.redepo_silicon import gamma_Si_redepo, gamma_Si_SiCl_redepo, gamma_SiCl2_SiCl_redepo, \
     gamma_SiCl_SiCl_redepo, gamma_SiCl3_SiCl_redepo, gamma_Si_SiCl2_redepo, \
@@ -19,8 +19,7 @@ def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
 
     if curr_reaction == 1:
         is_react = False
-        # TODO нормальное отражение прописать
-        curr_angle = straight_reflection(curr_angle, is_on_horiz)
+        curr_angle = isotropic_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
     print("Si react")
@@ -58,8 +57,7 @@ def SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
 
     if curr_reaction == 4:
         is_react = False
-        # TODO нормальное отражение прописать
-        curr_angle = straight_reflection(curr_angle, is_on_horiz)
+        curr_angle = isotropic_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
 
@@ -106,8 +104,7 @@ def SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
 
     if curr_reaction == 4:
         is_react = False
-        # TODO нормальное отражение прописать
-        curr_angle = straight_reflection(curr_angle, is_on_horiz)
+        curr_angle = isotropic_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
 
@@ -122,7 +119,6 @@ def SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[2] += 1
 
     if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] >= 2 * Si_num:
-        print("fffffffffffff4")
         prev_farr = 1
         prev_counter[0], prev_counter[1], prev_counter[2], prev_counter[3] = curr_counter[0]/2, curr_counter[1]/2, \
                                                                              curr_counter[2]/2, curr_counter[3]/2

@@ -97,6 +97,7 @@ class ControlPanel(Frame):
         self.sleep()
         self.master.getero.run(config.num_iter, config.num_per_iter)
         self.master.plotF.replot()
+        self.master.plotF.send_picture()
         self.wakeUp()
         self.bback.config(state=tk.NORMAL)
 

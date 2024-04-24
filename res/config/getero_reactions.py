@@ -1,6 +1,6 @@
 import numpy as np
 
-multiplier = 0.1
+multiplier = 0.2
 
 wafer_Si_num = 84
 wafer_cell_size = 2.5  # nanometers
@@ -10,13 +10,13 @@ wafer_xsize = int(2000 * multiplier)
 wafer_ysize = int(2400 * multiplier)
 wafer_left_area = int(800 * multiplier)
 wafer_right_area = int(1200 * multiplier)
-wafer_mask_height = int(40 * multiplier)
+wafer_mask_height = int(100 * multiplier)
 wafer_y0 = 0
-wafer_silicon_size = int(1800 * multiplier)
+wafer_silicon_size = int(1600 * multiplier)
 
 test_x = 0
 test_y = 0
-test_type = 1
+test_type = 0
 
 wafer_is_full = None
 wafer_counter_arr = None
@@ -38,4 +38,4 @@ y_ar_plus = 0.1
 y_cl_plus = 0.1
 y_cl = 0.8
 
-otn_const = 1/np.log(8)
+otn_const = 1.0/np.log(8)

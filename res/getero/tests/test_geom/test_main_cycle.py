@@ -28,7 +28,7 @@ def test_silicon_reaction(is_add, curr_counter, prev_counter, curr_farr, prev_fa
     return curr_counter, prev_counter, curr_farr, prev_farr
 
 
-def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize):
+def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize, R, otn_const):
     arr_x, arr_y, rarr_x, rarr_y = [], [], [], []
     curr_x = params[0]
     curr_y = params[1]
@@ -40,7 +40,9 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize)
     unfound = True
     changed_angle = False
     #print("start ", i, curr_type)
+    print("curr_en: ",curr_en)
     while unfound:
+        print(curr_angle/np.pi, curr_type)
         if curr_type == 8:
             pass
             print("SiCl4")
@@ -68,14 +70,14 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize)
                 print("Si!!!")
             new_type, curr_counter, prev_counter, curr_farr, prev_farr, is_react, new_angle, new_en, is_redepo, \
             redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_num,
-                                                 is_on_horiz, curr_angle, curr_en)
+                                                 is_on_horiz, curr_angle, curr_en, R, otn_const)
             if is_redepo:
                 redepo_params[0] = curr_x
                 redepo_params[1] = curr_y
                 redepo_params[2] = is_on_horiz
                 counter_arr, is_full_arr, arr_x_1, \
                 arr_y_1, arr_x_2, arr_y_2 = process_one_particle(counter_arr, is_full_arr,
-                                                                 redepo_params, Si_num, xsize, ysize)
+                                                                 redepo_params, Si_num, xsize, ysize, R, otn_const)
                 rarr_x = rarr_x + arr_x_1 + arr_x_2
                 rarr_y = rarr_y + arr_y_1 + arr_y_2
 
@@ -147,7 +149,7 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize)
     return counter_arr, is_full_arr, arr_x, arr_y, rarr_x, rarr_y
 
 
-def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, y0):
+def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, y0, R, otn_const):
     arr_x, arr_y, rarr_x, rarr_y = [], [], [], []
     for i in range(len(params_arr)):
         curr_x = params_arr[i][0]
@@ -160,7 +162,7 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
 
         counter_arr, is_full_arr, arr_x_1, \
         arr_y_1, rarr_x_1, rarr_y_1 = process_one_particle(counter_arr, is_full_arr, curr_params_arr,
-                                                           Si_num, xsize, ysize)
+                                                           Si_num, xsize, ysize, R, otn_const)
         arr_x = arr_x + arr_x_1
         arr_y = arr_y + arr_y_1
         rarr_x = rarr_x + rarr_x_1
@@ -184,6 +186,7 @@ def test_process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, 
         prev_angle = curr_angle
         changed_angle = False
         while unfound:
+            print(curr_angle/np.pi)
             curr_att_x, prev_att_x, curr_att_y, prev_att_y = find_prev(curr_x, curr_y, prev_x, prev_y, curr_angle, is_on_horiz)
             if curr_att_x==prev_att_x and curr_att_y==prev_att_y and prev_y!=None:
                 print("Ахтунг!!!!")

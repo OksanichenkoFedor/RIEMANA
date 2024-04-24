@@ -141,12 +141,18 @@ class TestPlotFrame(Frame):
             self.replot()
         elif self.found==2:
             self.replot()
-            curr_en = 32
+            curr_en = 0
             params_arr = [[self.x1, curr_en, self.angle, config.test_type]]
+
+            if config.y_cl_plus==0.0:
+                R = 1000
+            else:
+                R = config.y_cl/config.y_cl_plus
+
             config.wafer_counter_arr, config.wafer_is_full, \
             arr_x, arr_y, rarr_x, rarr_y = process_particles(config.wafer_counter_arr, config.wafer_is_full, params_arr,
                                              config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize,
-                                             self.y1)
+                                             self.y1, R, config.otn_const)
             self.recheck_cell()
             self.replot()
 
