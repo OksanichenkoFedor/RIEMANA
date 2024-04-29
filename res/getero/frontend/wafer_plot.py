@@ -1,5 +1,7 @@
 import matplotlib
 import tkinter as tk
+import matplotlib.pyplot as plt
+import time
 
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -36,13 +38,28 @@ class WaferPlotFrame(tk.Frame):
         self.replot()
 
     def replot(self):
+        start = time.time()
         self.ax.clear()
         self.ax.set_xlabel('x')
         self.ax.set_ylabel('y')
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
         plot_cells(self.ax, config.wafer_counter_arr, config.wafer_is_full,
                    config.wafer_ysize, config.wafer_xsize, curr_type)
+        for i in range(config.wafer_border_arr.shape[0]):
+            for j in range(config.wafer_border_arr.shape[1]):
+                if config.wafer_border_arr[i,j,0]==1.0:
+                    circle11 = plt.Circle((i, j), 0.1, color='y')
+                    self.ax.add_patch(circle11)
+                #elif config.wafer_border_arr[i,j]==-1.0:
+                #    circle11 = plt.Circle((i, j), 0.1, color='r')
+                #    self.ax.add_patch(circle11)
+                #elif config.wafer_border_arr[i,j]==0.0:
+                #    circle11 = plt.Circle((i, j), 0.1, color='g')
+                #    self.ax.add_patch(circle11)
         self.canvas.draw()
+        end = time.time()
+        print("Plot time: ",round(end-start,3))
+
 
 
     def move_mouse_event(self, event):

@@ -33,3 +33,6 @@ def plot_particle(params, axis, y0, alpha=1.0):
         color = "g"
     print(10*np.sin(params[1]),10*np.cos(params[1]))
     axis.arrow(params[0]-0.5, y0-0.5, 2*np.sin(params[1]), 2*np.cos(params[1]),color=color,linewidth=2, alpha = alpha)
+
+def plot_line(border_array, axis):
+    pass

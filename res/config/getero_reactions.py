@@ -1,6 +1,6 @@
 import numpy as np
 
-multiplier = 0.2
+multiplier = 0.1
 
 wafer_Si_num = 84
 wafer_cell_size = 2.5  # nanometers
@@ -20,6 +20,7 @@ test_type = 0
 
 wafer_is_full = None
 wafer_counter_arr = None
+wafer_border_arr = None
 old_wif = None
 old_wca = None
 

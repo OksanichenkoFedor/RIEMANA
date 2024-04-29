@@ -8,23 +8,48 @@ from tqdm import trange
 
 class WaferGenerator:
     def __init__(self, master):
-        is_full = np.fromfunction(lambda i, j: j >= config.wafer_border, (config.wafer_xsize, config.wafer_ysize), dtype=int).astype(int)
+        self.master = master
+        self.generate_wafer()
+
+
+    def generate_wafer(self):
+        is_full = np.fromfunction(lambda i, j: j >= config.wafer_border, (config.wafer_xsize, config.wafer_ysize),
+                                  dtype=int).astype(int)
         counter_arr = is_full.copy() * config.wafer_Si_num
         mask = np.ones((config.wafer_xsize, config.wafer_ysize))
         mask[:, :config.wafer_border] = mask[:, :config.wafer_border] * 0
-        mask[:, config.wafer_border + config.wafer_mask_height:config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] = mask[:,
-                                                                                                               config.wafer_border + config.wafer_mask_height:config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] * 0
-        mask[config.wafer_left_area:config.wafer_right_area, :config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] = mask[
-                                                                                                              config.wafer_left_area:config.wafer_right_area,
-                                                                                                              :config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] * 0
+        mask[:,config.wafer_border + config.wafer_mask_height:config.wafer_border + config.wafer_mask_height
+            + config.wafer_silicon_size] = mask[:,config.wafer_border + config.wafer_mask_height:config.wafer_border +
+            config.wafer_mask_height + config.wafer_silicon_size] * 0
+        mask[config.wafer_left_area:config.wafer_right_area,
+        :config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] = mask[
+                                                                                       config.wafer_left_area:config.wafer_right_area,
+                                                                                       :config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] * 0
         config.wafer_is_full = mask + is_full
-        config.wafer_counter_arr = np.repeat(counter_arr.reshape(1, counter_arr.shape[0],counter_arr.shape[1]),4,axis=0)
+        config.wafer_counter_arr = np.repeat(counter_arr.reshape(1, counter_arr.shape[0], counter_arr.shape[1]), 4,
+                                             axis=0)
         config.wafer_counter_arr[1] = config.wafer_counter_arr[1] * 0
         config.wafer_counter_arr[2] = config.wafer_counter_arr[2] * 0
         config.wafer_counter_arr[3] = config.wafer_counter_arr[3] * 0
 
         config.wafer_counter_arr[0] = config.wafer_counter_arr[0] - mask * config.wafer_Si_num
-        self.master= master
+        config.wafer_border_arr = np.ones((config.wafer_xsize, config.wafer_ysize,5))*0.5
+        #config.wafer_border_arr[:, config.wafer_border] = config.wafer_border_arr[:, config.wafer_border]*2
+        for i in range(config.wafer_xsize):
+            config.wafer_border_arr[i, config.wafer_border, 0] = 1.0
+            if i==0:
+                config.wafer_border_arr[i, config.wafer_border, 1:] = [-1,-1, i+1, config.wafer_border]
+            elif i==config.wafer_xsize:
+                config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border, -1, -1]
+            else:
+                config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border,
+                                                                       i + 1, config.wafer_border]
+
+
+        config.wafer_border_arr[:, :config.wafer_border - 0, :] = config.wafer_border_arr[:, :config.wafer_border - 0, :] * (
+            -2.0)
+        config.wafer_border_arr[:, config.wafer_border + 1:, :] = config.wafer_border_arr[:, config.wafer_border + 1:, :] * (
+            0.0)
 
     def run(self, num_iter, num_per_iter):
         self.master.contPanel.progress_bar["maximum"] = num_iter
@@ -41,7 +66,7 @@ class WaferGenerator:
                 R = 1000
             else:
                 R = config.y_cl/config.y_cl_plus
-            config.wafer_counter_arr, config.wafer_is_full = process_particles(config.wafer_counter_arr, config.wafer_is_full, params, config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize, R, config.otn_const)
+            process_particles(config.wafer_counter_arr, config.wafer_is_full, config.wafer_border_arr, params, config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize, R, config.otn_const)
             t3 = time.time()
 
             self.master.contPanel.progress_var.set(i+1)

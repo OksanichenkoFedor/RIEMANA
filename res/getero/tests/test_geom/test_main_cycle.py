@@ -28,8 +28,10 @@ def test_silicon_reaction(is_add, curr_counter, prev_counter, curr_farr, prev_fa
     return curr_counter, prev_counter, curr_farr, prev_farr
 
 
-def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize, R, otn_const):
+def process_one_particle(counter_arr, is_full_arr, border_layer,  params, Si_num, xsize, ysize, R, otn_const):
     arr_x, arr_y, rarr_x, rarr_y = [], [], [], []
+    border_layer = np.insert(border_layer,2,[1,1],axis=0)
+    border_layer = border_layer[2:3]
     curr_x = params[0]
     curr_y = params[1]
     is_on_horiz = params[2]
@@ -76,7 +78,7 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize,
                 redepo_params[1] = curr_y
                 redepo_params[2] = is_on_horiz
                 counter_arr, is_full_arr, arr_x_1, \
-                arr_y_1, arr_x_2, arr_y_2 = process_one_particle(counter_arr, is_full_arr,
+                arr_y_1, arr_x_2, arr_y_2 = process_one_particle(counter_arr, is_full_arr, border_layer,
                                                                  redepo_params, Si_num, xsize, ysize, R, otn_const)
                 rarr_x = rarr_x + arr_x_1 + arr_x_2
                 rarr_y = rarr_y + arr_y_1 + arr_y_2
@@ -149,7 +151,7 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize,
     return counter_arr, is_full_arr, arr_x, arr_y, rarr_x, rarr_y
 
 
-def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, y0, R, otn_const):
+def process_particles(counter_arr, is_full_arr, border_layer,  params_arr, Si_num, xsize, ysize, y0, R, otn_const):
     arr_x, arr_y, rarr_x, rarr_y = [], [], [], []
     for i in range(len(params_arr)):
         curr_x = params_arr[i][0]
@@ -161,7 +163,7 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
         curr_params_arr = [curr_x, curr_y, is_on_horiz, curr_en, curr_angle, curr_type]
 
         counter_arr, is_full_arr, arr_x_1, \
-        arr_y_1, rarr_x_1, rarr_y_1 = process_one_particle(counter_arr, is_full_arr, curr_params_arr,
+        arr_y_1, rarr_x_1, rarr_y_1 = process_one_particle(counter_arr, is_full_arr, border_layer,  curr_params_arr,
                                                            Si_num, xsize, ysize, R, otn_const)
         arr_x = arr_x + arr_x_1
         arr_y = arr_y + arr_y_1
@@ -171,7 +173,7 @@ def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize
     return counter_arr, is_full_arr, arr_x, arr_y, rarr_x, rarr_y
 
 
-def test_process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, y0, axis):
+def test_process_particles(counter_arr, is_full_arr, border_layer, params_arr, Si_num, xsize, ysize, y0, axis):
     for i in range(len(params_arr)):
         params = params_arr[i]
         unfound = True

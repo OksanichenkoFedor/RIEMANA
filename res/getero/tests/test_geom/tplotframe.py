@@ -52,13 +52,16 @@ class TestPlotFrame(Frame):
         multiplier = 0.005
         wafer_Si_num = 1
         wafer_border = int(500 * multiplier)
+        config.wafer_border = wafer_border
         wafer_xsize = int(2000 * multiplier)
         config.wafer_xsize = wafer_xsize
         wafer_ysize = int(1800 * multiplier)
         config.wafer_ysize = wafer_ysize
         wafer_left_area = int(800 * multiplier)
+        config.wafer_left_area = wafer_left_area
         wafer_right_area = int(1200 * multiplier)
         wafer_mask_height = int(100 * multiplier)
+        config.wafer_mask_height = wafer_mask_height
         wafer_y0 = 0
         wafer_silicon_size = int(800 * multiplier)
 
@@ -81,6 +84,11 @@ class TestPlotFrame(Frame):
         config.wafer_Si_num = wafer_Si_num
 
         config.wafer_counter_arr[0] = config.wafer_counter_arr[0] - mask * config.wafer_Si_num
+
+        config.wafer_border_layer = []
+        for i in range(mask.shape[0]):
+            config.wafer_border_layer.append([i, config.wafer_border])
+
     def plot(self):
         self.replot()
 
@@ -97,6 +105,11 @@ class TestPlotFrame(Frame):
             self.ax.add_patch(circle1)
         elif self.found == 2:
             self.ax.arrow(self.x1-0.5, self.y1-0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g", linewidth=1)
+        for i in range(len(config.wafer_border_layer)):
+            x,y = config.wafer_border_layer[i]
+            print(x, y)
+            circle11 = plt.Circle((x, y), 0.1, color='k')
+            self.ax.add_patch(circle11)
         self.ax.grid(True)
         self.canvas.draw()
 

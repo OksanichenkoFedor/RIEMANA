@@ -15,7 +15,7 @@ from res.getero.algorithm.utils import straight_reflection
 def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr,
                      Si_num, is_on_horiz, curr_angle, curr_en, R, otn_const):
     # Основное вещество (идёт активная реакция)
-    print("silicon reaction: ",curr_type)
+    #print("silicon reaction: ",curr_type)
     if curr_type == 0:
         # радикал Хлора
         if curr_en < E_th_Cl_ie:
@@ -48,19 +48,19 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
         return ans
     elif curr_type == 4:
         # Si попытка переосаждения
-        print("Si r")
+        #print("Si r")
         ans = Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
                                   prev_farr, Si_num, is_on_horiz, curr_angle, curr_en)
         return ans
     elif curr_type == 5:
         # SiCl попытка переосаждения
-        print("SiCl")
+        #print("SiCl")
         ans = SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
                         prev_farr, Si_num, is_on_horiz, curr_angle, curr_en)
         return ans
     elif curr_type == 6:
         # SiCl2 попытка переосаждения
-        print("SiCl2")
+        #print("SiCl2")
         ans = SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
                         prev_farr, Si_num, is_on_horiz, curr_angle, curr_en)
         return ans

@@ -22,7 +22,6 @@ def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_angle = isotropic_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
-    print("Si react")
     is_react = True
     if curr_reaction == 0:
         curr_counter[0] += 1

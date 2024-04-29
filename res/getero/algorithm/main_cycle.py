@@ -5,10 +5,18 @@ from res.getero.algorithm.space_orientation import find_prev, give_next_cell
 
 from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.mask_reactions import mask_reaction
+from res.getero.algorithm.dynamic_profile import find_index
 
 
 @njit()
-def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize, R, otn_const):
+def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_num, xsize, ysize, R, otn_const):
+    #border_layer = np.insert(border_layer, 2, [1, 1], axis=0)
+    #border_layer = border_layer[2:3]
+    A = []
+    for i in range(3):
+        A.append(1)
+    A = np.array(A)
+    #print(A)
     curr_x = params[0]
     curr_y = params[1]
     is_on_horiz = params[2]
@@ -48,14 +56,42 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize,
                 print("Пустая не пустая!!!")
                 print(curr_att_x, curr_att_y)
                 print("---")
-            new_type, curr_counter, prev_counter, curr_farr, prev_farr, is_react, new_angle, new_en, is_redepo, \
-            redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_num,
-                                                 is_on_horiz, curr_angle, curr_en, R, otn_const)
+            new_type, new_curr_counter, new_prev_counter, new_curr_farr, new_prev_farr, is_react, new_angle, \
+            new_en, is_redepo, redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr,
+                                                                prev_farr, Si_num, is_on_horiz, curr_angle, curr_en,
+                                                                R, otn_const)
 
-            counter_arr[:, curr_att_x, curr_att_y] = curr_counter
-            counter_arr[:, prev_att_x, prev_att_y] = prev_counter
-            is_full_arr[curr_att_x, curr_att_y] = curr_farr
-            is_full_arr[prev_att_x, prev_att_y] = prev_farr
+            #ind = find_index(border_layer, curr_att_x, curr_att_y)
+            #print("Index in border layer: ",ind)
+
+            if new_curr_farr!=curr_farr:
+                #удаление
+                if new_curr_farr:
+                    print("Непредсказуемое удаление!!!")
+                border_layer_arr[curr_att_x, curr_att_y, 0] = -1.0
+                if curr_att_x>0:
+                    if border_layer_arr[curr_att_x - 1, curr_att_y, 0] == 0:
+                        border_layer_arr[curr_att_x - 1, curr_att_y, 0] = 1.0
+                if curr_att_x<xsize-1:
+                    if border_layer_arr[curr_att_x + 1, curr_att_y, 0] == 0:
+                        border_layer_arr[curr_att_x + 1, curr_att_y, 0] = 1.0
+                if curr_att_y>0:
+                    if border_layer_arr[curr_att_x, curr_att_y - 1, 0] == 0:
+                        border_layer_arr[curr_att_x, curr_att_y - 1, 0] = 1.0
+                if curr_att_y<ysize-1:
+                    if border_layer_arr[curr_att_x, curr_att_y + 1, 0] == 0:
+                        border_layer_arr[curr_att_x, curr_att_y + 1, 0] = 1.0
+
+            if new_prev_farr!=prev_farr:
+                #восстановление частицы
+                #TODO допилить нормальное востановление частицы(надо барать из груничных точек ту, которая вошла вовнутрь)
+                if new_prev_farr == 0:
+                    print("Непредсказуемое восстановление!!!")
+                border_layer_arr[curr_att_x, curr_att_y, 0] = 1.0
+            counter_arr[:, curr_att_x, curr_att_y] = new_curr_counter
+            counter_arr[:, prev_att_x, prev_att_y] = new_prev_counter
+            is_full_arr[curr_att_x, curr_att_y] = new_curr_farr
+            is_full_arr[prev_att_x, prev_att_y] = new_prev_farr
             curr_angle = new_angle
             curr_type = new_type
             curr_en = new_en
@@ -64,7 +100,7 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize,
                 redepo_params[0] = curr_x
                 redepo_params[1] = curr_y
                 redepo_params[2] = is_on_horiz
-                counter_arr, is_full_arr = process_one_particle(counter_arr, is_full_arr, redepo_params,
+                process_one_particle(counter_arr, is_full_arr,  border_layer_arr, redepo_params,
                                                                 Si_num, xsize, ysize, R, otn_const)
 
 
@@ -79,6 +115,8 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize,
             #    print("Wall")
 
             # Маска
+            #ind = find_index(border_layer, curr_att_x, curr_att_y)
+            #print("Index in border layer: ", ind)
             curr_angle = mask_reaction(is_on_horiz, curr_angle)
             changed_angle = True
         else:
@@ -112,15 +150,16 @@ def process_one_particle(counter_arr, is_full_arr, params, Si_num, xsize, ysize,
             elif int(curr_y) <= 1 and (curr_angle <= 1.5 * np.pi and curr_angle >= 0.5 * np.pi):
                 unfound = False
             changed_angle = False
-    return counter_arr, is_full_arr
 
 @njit()
-def process_particles(counter_arr, is_full_arr, params_arr, Si_num, xsize, ysize, R, otn_const):
+def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, otn_const):
     for i in range(len(params_arr)):
         curr_params_arr = params_arr[i]
-        counter_arr, is_full_arr = process_one_particle(counter_arr, is_full_arr, curr_params_arr, Si_num, xsize, ysize,
-                                                        R, otn_const)
-    return counter_arr, is_full_arr
+        process_one_particle(counter_arr, is_full_arr, border_layer_arr, curr_params_arr,
+                                                        Si_num, xsize, ysize, R, otn_const)
+    #return counter_arr, is_full_arr
+
+#@njit()
 
 
 
