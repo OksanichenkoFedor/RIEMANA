@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 from res.bot.simple import print_message, throw_plot
 
 import res.utils.config as config
-from res.getero.frontend.grafic_funcs import plot_cells, plot_line
+from res.getero.frontend.grafic_funcs import plot_cells, plot_line, plot_animation
 from res.getero.algorithm.dynamic_profile import give_line_arrays
 
 
@@ -46,10 +46,10 @@ class WaferPlotFrame(tk.Frame):
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
         plot_cells(self.ax, self.master.getero.counter_arr, self.master.getero.is_full,
                    self.master.getero.ysize, self.master.getero.xsize, curr_type)
-        X, Y = give_line_arrays(self.master.getero.border_arr, self.master.getero.start_x, self.master.getero.start_y,
-                                self.master.getero.end_x, self.master.getero.end_y, 1, 1, size=1)
+        X,Y = self.master.getero.profiles[-1]
         plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 1, 1)
         self.canvas.draw()
+        plot_animation(self.master.getero.profiles, self.master.getero.xsize, self.master.getero.ysize)
         end = time.time()
         print("Plot time: ", round(end-start, 3))
 
@@ -65,9 +65,9 @@ class WaferPlotFrame(tk.Frame):
         pass
 
     def send_picture(self):
-        print_message("test", 710672679)
         self.f.savefig("tmp.png")
         throw_plot("tmp.png", 710672679)
+        throw_plot("tmp.gif", 710672679)
         try:
             pass
         except:
