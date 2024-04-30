@@ -10,7 +10,8 @@ from matplotlib.figure import Figure
 from res.bot.simple import print_message, throw_plot
 
 import res.config.getero_reactions as config
-from res.getero.frontend.grafic_funcs import plot_cells
+from res.getero.frontend.grafic_funcs import plot_cells, plot_line
+from res.getero.algorithm.dynamic_profile import give_line_arrays
 
 
 class WaferPlotFrame(tk.Frame):
@@ -45,20 +46,11 @@ class WaferPlotFrame(tk.Frame):
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
         plot_cells(self.ax, config.wafer_counter_arr, config.wafer_is_full,
                    config.wafer_ysize, config.wafer_xsize, curr_type)
-        for i in range(config.wafer_border_arr.shape[0]):
-            for j in range(config.wafer_border_arr.shape[1]):
-                if config.wafer_border_arr[i,j,0]==1.0:
-                    circle11 = plt.Circle((i, j), 0.1, color='y')
-                    self.ax.add_patch(circle11)
-                #elif config.wafer_border_arr[i,j]==-1.0:
-                #    circle11 = plt.Circle((i, j), 0.1, color='r')
-                #    self.ax.add_patch(circle11)
-                #elif config.wafer_border_arr[i,j]==0.0:
-                #    circle11 = plt.Circle((i, j), 0.1, color='g')
-                #    self.ax.add_patch(circle11)
+        X, Y = give_line_arrays(config.wafer_border_arr, config.start_x, config.start_y, config.end_x, config.end_y, 1, 1, size=1)
+        plot_line(self.ax, X, Y, config.start_x, config.start_y, 1, 1)
         self.canvas.draw()
         end = time.time()
-        print("Plot time: ",round(end-start,3))
+        print("Plot time: ", round(end-start, 3))
 
 
 

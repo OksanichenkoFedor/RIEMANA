@@ -23,6 +23,8 @@ wafer_counter_arr = None
 wafer_border_arr = None
 old_wif = None
 old_wca = None
+start_x, start_y = None, None
+end_x, end_y = None, None
 
 wafer_plot_num = 0
 wafer_plot_types = ["is_cell", "Si", "SiCl", "SiCl2", "SiCl3"]

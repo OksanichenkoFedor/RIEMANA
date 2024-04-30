@@ -9,11 +9,13 @@ from matplotlib.figure import Figure
 matplotlib.use('TkAgg')
 
 import res.config.getero_reactions as config
-from res.getero.frontend.grafic_funcs import plot_cells
+from res.getero.frontend.grafic_funcs import plot_cells, plot_line
 from res.getero.algorithm.space_orientation import find_prev
 from res.getero.tests.test_geom.test_main_cycle import test_process_particles, process_particles
 
 from res.getero.algorithm.types_of_particle import types
+
+from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays
 
 
 class TestPlotFrame(Frame):
@@ -63,7 +65,7 @@ class TestPlotFrame(Frame):
         wafer_mask_height = int(100 * multiplier)
         config.wafer_mask_height = wafer_mask_height
         wafer_y0 = 0
-        wafer_silicon_size = int(800 * multiplier)
+        wafer_silicon_size = int(1200 * multiplier)
 
         is_full = np.fromfunction(lambda i, j: j >= wafer_border, (wafer_xsize, wafer_ysize),
                                   dtype=int).astype(int)
@@ -85,9 +87,29 @@ class TestPlotFrame(Frame):
 
         config.wafer_counter_arr[0] = config.wafer_counter_arr[0] - mask * config.wafer_Si_num
 
-        config.wafer_border_layer = []
-        for i in range(mask.shape[0]):
-            config.wafer_border_layer.append([i, config.wafer_border])
+        config.wafer_border_arr = np.ones((config.wafer_xsize, config.wafer_ysize, 5)) * 0.5
+        # config.wafer_border_arr[:, config.wafer_border] = config.wafer_border_arr[:, config.wafer_border]*2
+        for i in range(config.wafer_xsize):
+            config.wafer_border_arr[i, config.wafer_border, 0] = 1.0
+            if i == 0:
+                config.wafer_border_arr[i, config.wafer_border, 1:] = [-1, -1, i + 1, config.wafer_border]
+                config.start_x, config.start_y = i, config.wafer_border
+            elif i == config.wafer_xsize - 1:
+                config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border, -1, -1]
+                config.end_x, config.end_y = i, config.wafer_border
+            else:
+                config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border,
+                                                                       i + 1, config.wafer_border]
+
+        config.wafer_border_arr[:, :config.wafer_border - 0, :] = config.wafer_border_arr[:, :config.wafer_border - 0,
+                                                                  :] * (
+                                                                      -2.0)
+        config.wafer_border_arr[:, config.wafer_border + 1:, :] = config.wafer_border_arr[:, config.wafer_border + 1:,
+                                                                  :] * (
+                                                                      0.0)
+
+        config.wafer_border_arr = config.wafer_border_arr.astype(int)
+        print("---")
 
     def plot(self):
         self.replot()
@@ -105,11 +127,21 @@ class TestPlotFrame(Frame):
             self.ax.add_patch(circle1)
         elif self.found == 2:
             self.ax.arrow(self.x1-0.5, self.y1-0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g", linewidth=1)
-        for i in range(len(config.wafer_border_layer)):
-            x,y = config.wafer_border_layer[i]
-            print(x, y)
-            circle11 = plt.Circle((x, y), 0.1, color='k')
-            self.ax.add_patch(circle11)
+        X, Y = give_line_arrays(config.wafer_border_arr, config.start_x, config.start_y, config.end_x, config.end_y, 1.5,
+                                1.5, size=1)
+        plot_line(self.ax, X, Y, config.start_x, config.start_y, 1.5, 1.5)
+
+        for x in range(config.wafer_border_arr.shape[0]):
+            for y in range(config.wafer_border_arr.shape[1]):
+                color = "g"
+                if config.wafer_border_arr[x, y, 0]==1:
+                    color = (0.5,0,0.5)
+                curr_str0 = "curr: " + str(int(x)) + "," + str(int(y))
+                curr_str1 = "prev: " + str(int(config.wafer_border_arr[x, y, 1])) + "," + str(int(config.wafer_border_arr[x, y, 2]))
+                curr_str2 = "next: " + str(int(config.wafer_border_arr[x, y, 3])) + "," + str(int(config.wafer_border_arr[x, y, 4]))
+                self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=6)
+                self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=6)
+                self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=6)
         self.ax.grid(True)
         self.canvas.draw()
 
@@ -163,9 +195,9 @@ class TestPlotFrame(Frame):
                 R = config.y_cl/config.y_cl_plus
 
             config.wafer_counter_arr, config.wafer_is_full, \
-            arr_x, arr_y, rarr_x, rarr_y = process_particles(config.wafer_counter_arr, config.wafer_is_full, params_arr,
-                                             config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize,
-                                             self.y1, R, config.otn_const)
+            arr_x, arr_y, rarr_x, rarr_y = process_particles(config.wafer_counter_arr, config.wafer_is_full,
+                                             config.wafer_border_arr, params_arr, config.wafer_Si_num,
+                                             config.wafer_xsize, config.wafer_ysize, self.y1, R, config.otn_const)
             self.recheck_cell()
             self.replot()
 
@@ -199,6 +231,7 @@ class TestPlotFrame(Frame):
         elif event.key == "d":
             config.wafer_counter_arr[:, config.test_x, config.test_y] = np.array([0,0,0,0])
             config.wafer_is_full[config.test_x, config.test_y] = 0
+            delete_point(config.wafer_border_arr,config.test_x, config.test_y)
         else:
             return None
 

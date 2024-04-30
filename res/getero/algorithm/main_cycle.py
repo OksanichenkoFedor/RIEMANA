@@ -5,18 +5,12 @@ from res.getero.algorithm.space_orientation import find_prev, give_next_cell
 
 from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.mask_reactions import mask_reaction
-from res.getero.algorithm.dynamic_profile import find_index
+from res.getero.algorithm.dynamic_profile import delete_point
 
 
 @njit()
 def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_num, xsize, ysize, R, otn_const):
-    #border_layer = np.insert(border_layer, 2, [1, 1], axis=0)
-    #border_layer = border_layer[2:3]
-    A = []
-    for i in range(3):
-        A.append(1)
-    A = np.array(A)
-    #print(A)
+    #arr_x, arr_y, rarr_x, rarr_y = [], [], [], []
     curr_x = params[0]
     curr_y = params[1]
     is_on_horiz = params[2]
@@ -66,25 +60,30 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
 
             if new_curr_farr!=curr_farr:
                 #удаление
+                #0 - внутри
+                #1 - граница
+                #-1 - снаружи
+                delete_point(border_layer_arr, curr_att_x, curr_att_y)
                 if new_curr_farr:
                     print("Непредсказуемое удаление!!!")
-                border_layer_arr[curr_att_x, curr_att_y, 0] = -1.0
-                if curr_att_x>0:
-                    if border_layer_arr[curr_att_x - 1, curr_att_y, 0] == 0:
-                        border_layer_arr[curr_att_x - 1, curr_att_y, 0] = 1.0
-                if curr_att_x<xsize-1:
-                    if border_layer_arr[curr_att_x + 1, curr_att_y, 0] == 0:
-                        border_layer_arr[curr_att_x + 1, curr_att_y, 0] = 1.0
-                if curr_att_y>0:
-                    if border_layer_arr[curr_att_x, curr_att_y - 1, 0] == 0:
-                        border_layer_arr[curr_att_x, curr_att_y - 1, 0] = 1.0
-                if curr_att_y<ysize-1:
-                    if border_layer_arr[curr_att_x, curr_att_y + 1, 0] == 0:
-                        border_layer_arr[curr_att_x, curr_att_y + 1, 0] = 1.0
+                #border_layer_arr[curr_att_x, curr_att_y, 0] = -1.0
+                #if curr_att_x>0:
+                #    if border_layer_arr[curr_att_x - 1, curr_att_y, 0] == 0:
+                #        border_layer_arr[curr_att_x - 1, curr_att_y, 0] = 1.0
+                #if curr_att_x<xsize-1:
+                #    if border_layer_arr[curr_att_x + 1, curr_att_y, 0] == 0:
+                #        border_layer_arr[curr_att_x + 1, curr_att_y, 0] = 1.0
+                #if curr_att_y>0:
+                #    if border_layer_arr[curr_att_x, curr_att_y - 1, 0] == 0:
+                #        border_layer_arr[curr_att_x, curr_att_y - 1, 0] = 1.0
+                #if curr_att_y<ysize-1:
+                #    if border_layer_arr[curr_att_x, curr_att_y + 1, 0] == 0:
+                #        border_layer_arr[curr_att_x, curr_att_y + 1, 0] = 1.0
 
             if new_prev_farr!=prev_farr:
                 #восстановление частицы
-                #TODO допилить нормальное востановление частицы(надо барать из груничных точек ту, которая вошла вовнутрь)
+                print("Восстановление, код нёедописан!!!")
+                #TODO допилить нормальное востановление частицы(надо барать из граничных точек ту, которая вошла вовнутрь)
                 if new_prev_farr == 0:
                     print("Непредсказуемое восстановление!!!")
                 border_layer_arr[curr_att_x, curr_att_y, 0] = 1.0
@@ -100,8 +99,12 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
                 redepo_params[0] = curr_x
                 redepo_params[1] = curr_y
                 redepo_params[2] = is_on_horiz
-                process_one_particle(counter_arr, is_full_arr,  border_layer_arr, redepo_params,
-                                                                Si_num, xsize, ysize, R, otn_const)
+                #arr_x_1, arr_y_1, arr_x_2, arr_y_2 = process_one_particle(counter_arr, is_full_arr,  border_layer_arr,
+                #                                                    redepo_params, Si_num, xsize, ysize, R, otn_const)
+                process_one_particle(counter_arr, is_full_arr, border_layer_arr, redepo_params, Si_num, xsize, ysize, R,
+                                     otn_const)
+                #rarr_x = rarr_x + arr_x_1 + arr_x_2
+                #rarr_y = rarr_y + arr_y_1 + arr_y_2
 
 
 
@@ -111,22 +114,17 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
                 changed_angle = True
 
         elif is_full_arr[curr_att_x, curr_att_y] == 2.0:
-            #if curr_type == 6:
-            #    print("Wall")
-
             # Маска
-            #ind = find_index(border_layer, curr_att_x, curr_att_y)
-            #print("Index in border layer: ", ind)
             curr_angle = mask_reaction(is_on_horiz, curr_angle)
             changed_angle = True
         else:
-            #if curr_type == 6:
-            #    print("Move")
             prev_x = curr_x
             prev_y = curr_y
 
             curr_x, curr_y, new_angle, new_is_on_horiz = give_next_cell(prev_x, prev_y, curr_angle, is_on_horiz)
 
+            #arr_x.append(curr_x - 0.5)
+            #arr_y.append(curr_y - 0.5)
 
             curr_angle = new_angle
             is_on_horiz = new_is_on_horiz
@@ -142,6 +140,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
 
             curr_x, curr_y, new_angle, new_is_on_horiz = give_next_cell(prev_x, prev_y, curr_angle, is_on_horiz)
 
+            #arr_x.append(curr_x - 0.5)
+            #arr_y.append(curr_y - 0.5)
+
             curr_angle = new_angle
             is_on_horiz = new_is_on_horiz
 
@@ -150,14 +151,22 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
             elif int(curr_y) <= 1 and (curr_angle <= 1.5 * np.pi and curr_angle >= 0.5 * np.pi):
                 unfound = False
             changed_angle = False
+    #return arr_x, arr_y, rarr_x, rarr_y
 
 @njit()
 def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, otn_const):
+    #arr_x, arr_y, rarr_x, rarr_y = [], [], [], []
     for i in range(len(params_arr)):
         curr_params_arr = params_arr[i]
-        process_one_particle(counter_arr, is_full_arr, border_layer_arr, curr_params_arr,
-                                                        Si_num, xsize, ysize, R, otn_const)
-    #return counter_arr, is_full_arr
+        #arr_x_1, arr_y_1, rarr_x_1, rarr_y_1 = \
+        process_one_particle(counter_arr, is_full_arr, border_layer_arr,
+                                                                curr_params_arr, Si_num, xsize, ysize, R, otn_const)
+        #arr_x = arr_x + arr_x_1
+        #arr_y = arr_y + arr_y_1
+        #rarr_x = rarr_x + rarr_x_1
+        #rarr_y = rarr_y + rarr_y_1
+
+    #return arr_x, arr_y, rarr_x, rarr_y
 
 #@njit()
 

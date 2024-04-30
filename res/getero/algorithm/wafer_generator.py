@@ -39,17 +39,24 @@ class WaferGenerator:
             config.wafer_border_arr[i, config.wafer_border, 0] = 1.0
             if i==0:
                 config.wafer_border_arr[i, config.wafer_border, 1:] = [-1,-1, i+1, config.wafer_border]
-            elif i==config.wafer_xsize:
+                config.start_x, config.start_y = i, config.wafer_border
+            elif i==config.wafer_xsize-1:
                 config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border, -1, -1]
+                config.end_x, config.end_y = i, config.wafer_border
             else:
                 config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border,
                                                                        i + 1, config.wafer_border]
+
 
 
         config.wafer_border_arr[:, :config.wafer_border - 0, :] = config.wafer_border_arr[:, :config.wafer_border - 0, :] * (
             -2.0)
         config.wafer_border_arr[:, config.wafer_border + 1:, :] = config.wafer_border_arr[:, config.wafer_border + 1:, :] * (
             0.0)
+
+        config.wafer_border_arr = config.wafer_border_arr.astype(int)
+        print("---")
+
 
     def run(self, num_iter, num_per_iter):
         self.master.contPanel.progress_bar["maximum"] = num_iter
