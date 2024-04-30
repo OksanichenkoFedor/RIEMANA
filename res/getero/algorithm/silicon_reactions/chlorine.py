@@ -4,7 +4,8 @@ import numpy as np
 from res.getero.reaction_consts.sputtering_clorine import E_th_cl_sicl0_sp, E_th_cl_sicl1_sp, \
     E_th_cl_sicl2_sp, E_th_cl_sicl3_sp, \
     K_sp_cl_sicl0, K_sp_cl_sicl1, K_sp_cl_sicl2, K_sp_cl_sicl3
-from res.getero.reaction_consts.ion_etching_clorine import E_th_Cl_ie, K_ie_cl_sicl, K_ie_cl_sicl2, K_ie_cl_sicl3
+from res.getero.reaction_consts.ion_etching_clorine import E_th_Cl_ie, K_ie_cl_sicl, K_ie_cl_sicl2, K_ie_cl_sicl3, \
+                                                           otn_const
 from res.getero.reaction_consts.etching_clorine import gamma_Cl_A, gamma_Cl_B, gamma_Cl_C, gamma_Cl_D
 
 from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection
@@ -62,7 +63,7 @@ def clorine_etching(curr_type, curr_counter, prev_counter, curr_farr,
 
 @njit()
 def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
-                        prev_farr, Si_num, is_on_horiz, curr_angle, curr_en, R, otn_const):
+                        prev_farr, Si_num, is_on_horiz, curr_angle, curr_en, R):
     c_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]
 
     p_sicl1_ie = otn_const * np.log(R) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl * curr_counter[

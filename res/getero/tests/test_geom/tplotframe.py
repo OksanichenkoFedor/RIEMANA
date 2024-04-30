@@ -8,14 +8,13 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 matplotlib.use('TkAgg')
 
-import res.config.getero_reactions as config
+import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
-from res.getero.algorithm.space_orientation import find_prev
-from res.getero.tests.test_geom.test_main_cycle import test_process_particles, process_particles
-
-from res.getero.algorithm.types_of_particle import types
+from res.getero.algorithm.main_cycle import process_particles
 
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays
+
+from res.getero.algorithm.wafer_generator import generate_wafer
 
 
 class TestPlotFrame(Frame):
@@ -34,7 +33,7 @@ class TestPlotFrame(Frame):
         self.canvas.mpl_connect("button_press_event", self.click_mouse_event)
         self.canvas.mpl_connect("button_release_event", self.unclick_mouse_event)
         self.canvas.mpl_connect('key_press_event', self.click_keyboard)
-        self.generate_field()
+        generate_wafer(self, 0.005, 1)
         self.toolbarFrame = tk.Frame(master=self)
         self.toolbarFrame.grid(row=1, columnspan=2, sticky="w")
         self.toolbar1 = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
@@ -46,70 +45,15 @@ class TestPlotFrame(Frame):
         self.y1 = None
         self.y2 = None
         self.clicked = False
+        self.test_x = 0
+        self.test_y = 0
+
+        self.y_cl_plus = 0.1
+        self.y_cl = 0.8
+
+        self.test_type = 0
 
         self.plot()
-
-
-    def generate_field(self):
-        multiplier = 0.005
-        wafer_Si_num = 1
-        wafer_border = int(500 * multiplier)
-        config.wafer_border = wafer_border
-        wafer_xsize = int(2000 * multiplier)
-        config.wafer_xsize = wafer_xsize
-        wafer_ysize = int(1800 * multiplier)
-        config.wafer_ysize = wafer_ysize
-        wafer_left_area = int(800 * multiplier)
-        config.wafer_left_area = wafer_left_area
-        wafer_right_area = int(1200 * multiplier)
-        wafer_mask_height = int(100 * multiplier)
-        config.wafer_mask_height = wafer_mask_height
-        wafer_y0 = 0
-        wafer_silicon_size = int(1200 * multiplier)
-
-        is_full = np.fromfunction(lambda i, j: j >= wafer_border, (wafer_xsize, wafer_ysize),
-                                  dtype=int).astype(int)
-        counter_arr = is_full.copy() * wafer_Si_num
-        mask = np.ones((wafer_xsize, wafer_ysize))
-        mask[:, :wafer_border] = mask[:, :wafer_border] * 0
-        mask[:,
-        wafer_border + wafer_mask_height:wafer_border + wafer_mask_height + wafer_silicon_size] = mask[:, wafer_border + wafer_mask_height:wafer_border + wafer_mask_height + wafer_silicon_size] * 0
-        mask[wafer_left_area:wafer_right_area,:wafer_border + wafer_mask_height + wafer_silicon_size] = mask[
-                                                                                       wafer_left_area:wafer_right_area,
-                                                                                       :wafer_border + wafer_mask_height + wafer_silicon_size] * 0
-        config.wafer_is_full = mask + is_full
-        config.wafer_counter_arr = np.repeat(counter_arr.reshape(1, counter_arr.shape[0], counter_arr.shape[1]), 4,
-                                             axis=0)
-        config.wafer_counter_arr[1] = config.wafer_counter_arr[1] * 0
-        config.wafer_counter_arr[2] = config.wafer_counter_arr[2] * 0
-        config.wafer_counter_arr[3] = config.wafer_counter_arr[3] * 0
-        config.wafer_Si_num = wafer_Si_num
-
-        config.wafer_counter_arr[0] = config.wafer_counter_arr[0] - mask * config.wafer_Si_num
-
-        config.wafer_border_arr = np.ones((config.wafer_xsize, config.wafer_ysize, 5)) * 0.5
-        # config.wafer_border_arr[:, config.wafer_border] = config.wafer_border_arr[:, config.wafer_border]*2
-        for i in range(config.wafer_xsize):
-            config.wafer_border_arr[i, config.wafer_border, 0] = 1.0
-            if i == 0:
-                config.wafer_border_arr[i, config.wafer_border, 1:] = [-1, -1, i + 1, config.wafer_border]
-                config.start_x, config.start_y = i, config.wafer_border
-            elif i == config.wafer_xsize - 1:
-                config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border, -1, -1]
-                config.end_x, config.end_y = i, config.wafer_border
-            else:
-                config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border,
-                                                                       i + 1, config.wafer_border]
-
-        config.wafer_border_arr[:, :config.wafer_border - 0, :] = config.wafer_border_arr[:, :config.wafer_border - 0,
-                                                                  :] * (
-                                                                      -2.0)
-        config.wafer_border_arr[:, config.wafer_border + 1:, :] = config.wafer_border_arr[:, config.wafer_border + 1:,
-                                                                  :] * (
-                                                                      0.0)
-
-        config.wafer_border_arr = config.wafer_border_arr.astype(int)
-        print("---")
 
     def plot(self):
         self.replot()
@@ -120,25 +64,25 @@ class TestPlotFrame(Frame):
         self.ax.set_ylabel('y')
         #self.ax.plot([1,2,3],[1,2,3])
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
-        plot_cells(self.ax, config.wafer_counter_arr, config.wafer_is_full,
-                   config.wafer_ysize, config.wafer_xsize, curr_type, True, config.test_x, config.test_y)
+        plot_cells(self.ax, self.counter_arr, self.is_full,
+                   self.ysize, self.xsize, curr_type, True, self.test_x, self.test_y)
         if self.found == 1:
             circle1 = plt.Circle((self.x1-0.5, self.y1-0.5), 0.2, color='r')
             self.ax.add_patch(circle1)
         elif self.found == 2:
             self.ax.arrow(self.x1-0.5, self.y1-0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g", linewidth=1)
-        X, Y = give_line_arrays(config.wafer_border_arr, config.start_x, config.start_y, config.end_x, config.end_y, 1.5,
+        X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5,
                                 1.5, size=1)
-        plot_line(self.ax, X, Y, config.start_x, config.start_y, 1.5, 1.5)
+        plot_line(self.ax, X, Y, self.start_x, self.start_y, 1.5, 1.5)
 
-        for x in range(config.wafer_border_arr.shape[0]):
-            for y in range(config.wafer_border_arr.shape[1]):
+        for x in range(self.border_arr.shape[0]):
+            for y in range(self.border_arr.shape[1]):
                 color = "g"
-                if config.wafer_border_arr[x, y, 0]==1:
+                if self.border_arr[x, y, 0]==1:
                     color = (0.5,0,0.5)
                 curr_str0 = "curr: " + str(int(x)) + "," + str(int(y))
-                curr_str1 = "prev: " + str(int(config.wafer_border_arr[x, y, 1])) + "," + str(int(config.wafer_border_arr[x, y, 2]))
-                curr_str2 = "next: " + str(int(config.wafer_border_arr[x, y, 3])) + "," + str(int(config.wafer_border_arr[x, y, 4]))
+                curr_str1 = "prev: " + str(int(self.border_arr[x, y, 1])) + "," + str(int(self.border_arr[x, y, 2]))
+                curr_str2 = "next: " + str(int(self.border_arr[x, y, 3])) + "," + str(int(self.border_arr[x, y, 4]))
                 self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=6)
                 self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=6)
                 self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=6)
@@ -187,17 +131,16 @@ class TestPlotFrame(Frame):
         elif self.found==2:
             self.replot()
             curr_en = 0
-            params_arr = [[self.x1, curr_en, self.angle, config.test_type]]
+            params_arr = [[self.x1, self.y1, 1, curr_en, self.angle, self.test_type]]
 
-            if config.y_cl_plus==0.0:
+            if self.y_cl_plus==0.0:
                 R = 1000
             else:
-                R = config.y_cl/config.y_cl_plus
+                R = self.y_cl/self.y_cl_plus
 
-            config.wafer_counter_arr, config.wafer_is_full, \
-            arr_x, arr_y, rarr_x, rarr_y = process_particles(config.wafer_counter_arr, config.wafer_is_full,
-                                             config.wafer_border_arr, params_arr, config.wafer_Si_num,
-                                             config.wafer_xsize, config.wafer_ysize, self.y1, R, config.otn_const)
+            arr_x, arr_y, rarr_x, rarr_y = process_particles(self.counter_arr, self.is_full,
+                                             self.border_arr, params_arr, self.Si_num,
+                                             self.xsize, self.ysize, R, test=True)
             self.recheck_cell()
             self.replot()
 
@@ -214,24 +157,24 @@ class TestPlotFrame(Frame):
         #print('Key pressed:', event.key)
         if event.key == "right":
             #print("1")
-            if config.test_x<config.wafer_xsize:
-                config.test_x+=1
+            if self.test_x<self.xsize:
+                self.test_x+=1
         elif event.key == "left":
             #print("2")
-            if config.test_x>0:
-                config.test_x-=1
+            if self.test_x>0:
+                self.test_x-=1
         elif event.key == "down":
             #print("3")
-            if config.test_y<config.wafer_ysize:
-                config.test_y+=1
+            if self.test_y<self.ysize:
+                self.test_y+=1
         elif event.key == "up":
             #print("4")
-            if config.test_y>0:
-                config.test_y-=1
+            if self.test_y>0:
+                self.test_y-=1
         elif event.key == "d":
-            config.wafer_counter_arr[:, config.test_x, config.test_y] = np.array([0,0,0,0])
-            config.wafer_is_full[config.test_x, config.test_y] = 0
-            delete_point(config.wafer_border_arr,config.test_x, config.test_y)
+            self.counter_arr[:, self.test_x, self.test_y] = np.array([0,0,0,0])
+            self.is_full[self.test_x, self.test_y] = 0
+            delete_point(self.border_arr,self.test_x, self.test_y)
         else:
             return None
 
@@ -243,10 +186,10 @@ class TestPlotFrame(Frame):
 
 
     def recheck_cell(self):
-        self.master.contPanel.si_lbl["text"] = "Si: " + str(config.wafer_counter_arr[0][config.test_x, config.test_y])
+        self.master.contPanel.si_lbl["text"] = "Si: " + str(self.counter_arr[0][self.test_x, self.test_y])
         self.master.contPanel.sicl_lbl["text"] = "SiCl: " + str(
-            config.wafer_counter_arr[1][config.test_x, config.test_y])
+            self.counter_arr[1][self.test_x, self.test_y])
         self.master.contPanel.sicl2_lbl["text"] = "SiCl2: " + str(
-            config.wafer_counter_arr[2][config.test_x, config.test_y])
+            self.counter_arr[2][self.test_x, self.test_y])
         self.master.contPanel.sicl3_lbl["text"] = "SiCl3: " + str(
-            config.wafer_counter_arr[3][config.test_x, config.test_y])
+            self.counter_arr[3][self.test_x, self.test_y])

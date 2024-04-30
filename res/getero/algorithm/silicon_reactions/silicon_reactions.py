@@ -13,7 +13,7 @@ from res.getero.algorithm.utils import straight_reflection
 
 @njit()
 def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr,
-                     Si_num, is_on_horiz, curr_angle, curr_en, R, otn_const):
+                     Si_num, is_on_horiz, curr_angle, curr_en, R):
     # Основное вещество (идёт активная реакция)
     #print("silicon reaction: ",curr_type)
     if curr_type == 0:
@@ -27,7 +27,7 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
             return ans
         else:
             ans = clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
-                                   prev_farr, Si_num, is_on_horiz, curr_angle, curr_en, R, otn_const)
+                                   prev_farr, Si_num, is_on_horiz, curr_angle, curr_en, R)
 
             return ans
     elif curr_type == 9:
@@ -38,7 +38,7 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
     elif curr_type == 2:
         # ион Cl_plus
         ans = clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
-                            prev_farr, Si_num, is_on_horiz, curr_angle, curr_en, R, otn_const)
+                            prev_farr, Si_num, is_on_horiz, curr_angle, curr_en, R)
 
         return ans
     elif curr_type == 3:

@@ -6,7 +6,7 @@ from tkinter import Entry, Label, BOTH
 
 from res.getero.algorithm.types_of_particle import types
 
-import res.config.getero_reactions as config
+#import res.config.getero_reactions as config
 
 
 class TestControlPanel(Frame):
@@ -49,7 +49,7 @@ class TestControlPanel(Frame):
             status.set("Correct value")
             colr.configure(fg="green")
             types_inv = {v: k for k, v in types.items()}
-            config.test_type = types_inv[res]
+            self.master.plotF.test_type = types_inv[res]
             self.master.plotF.canvas.get_tk_widget().focus_force()
         else:
             status.set("Enter the correct type")

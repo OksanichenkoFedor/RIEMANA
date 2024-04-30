@@ -1,4 +1,4 @@
-import res.config.getero_reactions as config
+# import res.config.getero_reactions as config
 import numpy as np
 from res.getero.algorithm.main_cycle import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
@@ -7,78 +7,89 @@ from tqdm import trange
 
 
 class WaferGenerator:
-    def __init__(self, master):
+    def __init__(self, master, multiplier, Si_num):
         self.master = master
-        self.generate_wafer()
+        generate_wafer(self,multiplier, Si_num)
 
 
-    def generate_wafer(self):
-        is_full = np.fromfunction(lambda i, j: j >= config.wafer_border, (config.wafer_xsize, config.wafer_ysize),
-                                  dtype=int).astype(int)
-        counter_arr = is_full.copy() * config.wafer_Si_num
-        mask = np.ones((config.wafer_xsize, config.wafer_ysize))
-        mask[:, :config.wafer_border] = mask[:, :config.wafer_border] * 0
-        mask[:,config.wafer_border + config.wafer_mask_height:config.wafer_border + config.wafer_mask_height
-            + config.wafer_silicon_size] = mask[:,config.wafer_border + config.wafer_mask_height:config.wafer_border +
-            config.wafer_mask_height + config.wafer_silicon_size] * 0
-        mask[config.wafer_left_area:config.wafer_right_area,
-        :config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] = mask[
-                                                                                       config.wafer_left_area:config.wafer_right_area,
-                                                                                       :config.wafer_border + config.wafer_mask_height + config.wafer_silicon_size] * 0
-        config.wafer_is_full = mask + is_full
-        config.wafer_counter_arr = np.repeat(counter_arr.reshape(1, counter_arr.shape[0], counter_arr.shape[1]), 4,
-                                             axis=0)
-        config.wafer_counter_arr[1] = config.wafer_counter_arr[1] * 0
-        config.wafer_counter_arr[2] = config.wafer_counter_arr[2] * 0
-        config.wafer_counter_arr[3] = config.wafer_counter_arr[3] * 0
-
-        config.wafer_counter_arr[0] = config.wafer_counter_arr[0] - mask * config.wafer_Si_num
-        config.wafer_border_arr = np.ones((config.wafer_xsize, config.wafer_ysize,5))*0.5
-        #config.wafer_border_arr[:, config.wafer_border] = config.wafer_border_arr[:, config.wafer_border]*2
-        for i in range(config.wafer_xsize):
-            config.wafer_border_arr[i, config.wafer_border, 0] = 1.0
-            if i==0:
-                config.wafer_border_arr[i, config.wafer_border, 1:] = [-1,-1, i+1, config.wafer_border]
-                config.start_x, config.start_y = i, config.wafer_border
-            elif i==config.wafer_xsize-1:
-                config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border, -1, -1]
-                config.end_x, config.end_y = i, config.wafer_border
-            else:
-                config.wafer_border_arr[i, config.wafer_border, 1:] = [i - 1, config.wafer_border,
-                                                                       i + 1, config.wafer_border]
-
-
-
-        config.wafer_border_arr[:, :config.wafer_border - 0, :] = config.wafer_border_arr[:, :config.wafer_border - 0, :] * (
-            -2.0)
-        config.wafer_border_arr[:, config.wafer_border + 1:, :] = config.wafer_border_arr[:, config.wafer_border + 1:, :] * (
-            0.0)
-
-        config.wafer_border_arr = config.wafer_border_arr.astype(int)
-        print("---")
-
+    def change_plasma_params(self, params):
+        self.y_ar_plus = params["y_ar_plus"]
+        self.y_cl = params["y_cl"]
+        self.y_cl_plus = params["y_cl_plus"]
+        self.T_i = params["T_i"]
+        self.T_e = params["T_e"]
 
     def run(self, num_iter, num_per_iter):
         self.master.contPanel.progress_bar["maximum"] = num_iter
-        config.old_wif = config.wafer_is_full.copy()
-        config.old_wca = config.wafer_counter_arr.copy()
+        self.old_wif = self.is_full.copy()
+        self.old_wca = self.counter_arr.copy()
         self.master.style.configure("LabeledProgressbar", text=str(1) + "/" + str(num_iter))
         for i in trange(num_iter):
-            #plot_cells(ax, is_full, config.ysize, config.xsize)
             t1 = time.time()
-            params = generate_particles(num_per_iter, config.wafer_xsize, y_ar_plus=config.y_ar_plus, y_cl=config.y_cl,
-                                        y_cl_plus=config.y_cl_plus, T_i=config.T_i, T_e=config.T_e, y0=config.wafer_y0)
+            params = generate_particles(num_per_iter, self.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
+                                        y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.T_e, y0=self.y0)
             t2 = time.time()
-            if config.y_cl_plus==0.0:
+            if self.y_cl_plus == 0.0:
                 R = 1000
             else:
-                R = config.y_cl/config.y_cl_plus
-            process_particles(config.wafer_counter_arr, config.wafer_is_full, config.wafer_border_arr, params, config.wafer_Si_num, config.wafer_xsize, config.wafer_ysize, R, config.otn_const)
+                R = self.y_cl / self.y_cl_plus
+            process_particles(self.counter_arr, self.is_full, self.border_arr, params, self.Si_num, self.xsize,
+                              self.ysize, R, test=False)
             t3 = time.time()
 
-            self.master.contPanel.progress_var.set(i+1)
+            self.master.contPanel.progress_var.set(i + 1)
             self.master.contPanel.progress_bar.update()
-            self.master.style.configure("LabeledProgressbar", text=str(i+2)+"/"+str(num_iter))
+            self.master.style.configure("LabeledProgressbar", text=str(i + 2) + "/" + str(num_iter))
 
         self.master.style.configure("LabeledProgressbar", text="0/0")
         self.master.contPanel.progress_var.set(0)
+
+
+def generate_wafer(object, multiplier, Si_num):
+    object.multiplier = multiplier
+    object.Si_num = Si_num
+    object.border = int(500 * object.multiplier)
+    object.xsize = int(2000 * object.multiplier)
+    object.ysize = int(2400 * object.multiplier)
+    object.left_area = int(800 * object.multiplier)
+    object.right_area = int(1200 * object.multiplier)
+    object.mask_height = int(100 * object.multiplier)
+    object.y0 = 0
+    object.silicon_size = int(1600 * object.multiplier)
+
+    object.is_full = np.fromfunction(lambda i, j: j >= object.border, (object.xsize, object.ysize), dtype=int).astype(int)
+    object.counter_arr = object.is_full.copy() * object.Si_num
+    object.mask = np.ones((object.xsize, object.ysize))
+    object.mask[:, :object.border] = object.mask[:, :object.border] * 0
+    object.mask[:, object.border + object.mask_height:object.border + object.mask_height + object.silicon_size] = object.mask[:,
+                                                                           object.border + object.mask_height:object.border +
+                                                                           object.mask_height + object.silicon_size] * 0
+    object.mask[object.left_area:object.right_area,:object.border + object.mask_height + object.silicon_size] = \
+            object.mask[object.left_area:object.right_area, :object.border + object.mask_height + object.silicon_size] * 0
+    object.is_full = object.mask + object.is_full
+    object.counter_arr = np.repeat(object.counter_arr.reshape(1, object.counter_arr.shape[0], object.counter_arr.shape[1]),
+                                     4, axis=0)
+    object.counter_arr[1] = object.counter_arr[1] * 0
+    object.counter_arr[2] = object.counter_arr[2] * 0
+    object.counter_arr[3] = object.counter_arr[3] * 0
+
+    object.counter_arr[0] = object.counter_arr[0] - object.mask * object.Si_num
+    object.border_arr = np.ones((object.xsize, object.ysize, 5)) * 0.5
+    for i in range(object.xsize):
+        object.border_arr[i, object.border, 0] = 1.0
+        if i == 0:
+            object.border_arr[i, object.border, 1:] = [-1, -1, i + 1, object.border]
+            object.start_x, object.start_y = i, object.border
+        elif i == object.xsize - 1:
+            object.border_arr[i, object.border, 1:] = [i - 1, object.border, -1, -1]
+            object.end_x, object.end_y = i, object.border
+        else:
+            object.border_arr[i, object.border, 1:] = [i - 1, object.border, i + 1, object.border]
+
+    object.border_arr[:, :object.border - 0, :] = object.border_arr[:, :object.border - 0, :] * (
+            -2.0)
+    object.border_arr[:, object.border + 1:, :] = object.border_arr[:, object.border + 1:, :] * (
+            0.0)
+
+    object.border_arr = object.border_arr.astype(int)
+    print("---")

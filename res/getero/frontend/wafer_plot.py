@@ -9,7 +9,7 @@ from matplotlib.figure import Figure
 
 from res.bot.simple import print_message, throw_plot
 
-import res.config.getero_reactions as config
+import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
 from res.getero.algorithm.dynamic_profile import give_line_arrays
 
@@ -44,10 +44,11 @@ class WaferPlotFrame(tk.Frame):
         self.ax.set_xlabel('x')
         self.ax.set_ylabel('y')
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
-        plot_cells(self.ax, config.wafer_counter_arr, config.wafer_is_full,
-                   config.wafer_ysize, config.wafer_xsize, curr_type)
-        X, Y = give_line_arrays(config.wafer_border_arr, config.start_x, config.start_y, config.end_x, config.end_y, 1, 1, size=1)
-        plot_line(self.ax, X, Y, config.start_x, config.start_y, 1, 1)
+        plot_cells(self.ax, self.master.getero.counter_arr, self.master.getero.is_full,
+                   self.master.getero.ysize, self.master.getero.xsize, curr_type)
+        X, Y = give_line_arrays(self.master.getero.border_arr, self.master.getero.start_x, self.master.getero.start_y,
+                                self.master.getero.end_x, self.master.getero.end_y, 1, 1, size=1)
+        plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 1, 1)
         self.canvas.draw()
         end = time.time()
         print("Plot time: ", round(end-start, 3))

@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import Entry, Label
 from tkinter.ttk import Progressbar
 
-import res.config.getero_reactions as config
+import res.utils.config as config
 from res.getero.algorithm.wafer_generator import WaferGenerator
 from res.getero.frontend.wafer_plot import WaferPlotFrame
 
@@ -21,7 +21,8 @@ class AppFrame(Frame):
                                           ("LabeledProgressbar.label",  # label inside the bar
                                            {"sticky": ""})],
                              })])
-        self.getero = WaferGenerator(self)
+        self.getero = WaferGenerator(self,config.multiplier, config.Si_num)
+        self.getero.change_plasma_params(config.plasma_params)
         self.initUI()
 
     def initUI(self):
@@ -76,11 +77,11 @@ class ControlPanel(Frame):
         self.progress_var = tk.IntVar()
         self.bsim = tk.Button(self, text="Simulate", width=14, state=tk.NORMAL,
                               command=self.simulate)
-        self.bsim.grid(row=4, column=0)
+        self.bsim.grid(row=4, column=0, columnspan=2)
 
-        self.bback = tk.Button(self, text="Back", width=14, state=tk.DISABLED,
-                               command=self.go_back)
-        self.bback.grid(row=4, column=1)
+        #self.bback = tk.Button(self, text="Back", width=14, state=tk.DISABLED,
+        #                       command=self.go_back)
+        #self.bback.grid(row=4, column=1)
 
         self.progress_bar = Progressbar(self, orient="horizontal", maximum=10, mode="determinate",
                                         var=self.progress_var, style="LabeledProgressbar")
@@ -99,17 +100,17 @@ class ControlPanel(Frame):
         self.master.plotF.replot()
         self.master.plotF.send_picture()
         self.wakeUp()
-        self.bback.config(state=tk.NORMAL)
+        #self.bback.config(state=tk.NORMAL)
 
-    def go_back(self):
-        self.sleep()
-        print("Back!!!")
-        print(config.wafer_is_full is config.old_wif)
-        config.wafer_is_full = config.old_wif.copy()
-        config.wafer_counter_arr = config.old_wca.copy()
-        self.master.plotF.replot()
-        self.wakeUp()
-        self.bback.config(state=tk.DISABLED)
+    #def go_back(self):
+    #    self.sleep()
+    #    print("Back!!!")
+    #    print(config.wafer_is_full is config.old_wif)
+    #    config.wafer_is_full = config.old_wif.copy()
+    #    config.wafer_counter_arr = config.old_wca.copy()
+    #    self.master.plotF.replot()
+    #    self.wakeUp()
+    #    self.bback.config(state=tk.DISABLED)
 
     def num_iter_callback(self, name, index, mode, status, colr, value):
         good_value = False
@@ -151,14 +152,14 @@ class ControlPanel(Frame):
 
     def sleep(self):
         self.bsim.config(state=tk.DISABLED)
-        self.bback.config(state=tk.DISABLED)
+        #self.bback.config(state=tk.DISABLED)
         self.bchange_type.config(state=tk.DISABLED)
         self.num_iter_ent.config(state=tk.DISABLED)
         self.num_per_iter_ent.config(state=tk.DISABLED)
 
     def wakeUp(self):
         self.bsim.config(state=tk.NORMAL)
-        self.bback.config(state=tk.NORMAL)
+        #self.bback.config(state=tk.NORMAL)
         self.bchange_type.config(state=tk.NORMAL)
         self.num_iter_ent.config(state=tk.NORMAL)
         self.num_per_iter_ent.config(state=tk.NORMAL)
