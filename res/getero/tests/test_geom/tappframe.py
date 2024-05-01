@@ -1,7 +1,5 @@
-
 from tkinter.ttk import Frame, Style
 from tkinter import BOTH
-
 from res.getero.tests.test_geom.tplotframe import TestPlotFrame
 from res.getero.tests.test_geom.tcpanel import TestControlPanel
 
@@ -19,7 +17,6 @@ class TestAppFrame(Frame):
                                           ("LabeledProgressbar.label",  # label inside the bar
                                            {"sticky": ""})],
                              })])
-        #self.getero = WaferGenerator(self)
         self.initUI()
 
     def initUI(self):

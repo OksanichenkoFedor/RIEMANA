@@ -15,7 +15,7 @@ def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
     curr_reaction = custom_choise([p_Si_redepo, p_refl])
 
     is_redepo = False
-    redepo_params = np.zeros((6))
+    redepo_params = np.zeros((8))
 
     if curr_reaction == 1:
         is_react = False
@@ -27,7 +27,7 @@ def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[0] += 1
 
     if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] >= 2 * Si_num:
-        print("fffffffffffff2")
+        #print("fffffffffffff2")
         prev_farr = 1
         prev_counter[0], prev_counter[1], prev_counter[2], prev_counter[3] = curr_counter[0] / 2, curr_counter[1] / 2, \
                                                                              curr_counter[2] / 2, curr_counter[3] / 2
@@ -52,7 +52,7 @@ def SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
     curr_reaction = custom_choise([p_A, p_B, p_C, p_D, p_refl])
 
     is_redepo = False
-    redepo_params = np.zeros((6))
+    redepo_params = np.zeros((8))
 
     if curr_reaction == 4:
         is_react = False
@@ -71,7 +71,7 @@ def SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[1] += 1
 
     if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] >= 2 * Si_num:
-        print("fffffffffffff3")
+        #print("fffffffffffff3")
         prev_farr = 1
         prev_counter[0], prev_counter[1], prev_counter[2], prev_counter[3] = curr_counter[0] / 2, curr_counter[1] / 2, \
                                                                              curr_counter[2] / 2, curr_counter[3] / 2
@@ -95,11 +95,11 @@ def SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
     p_C = gamma_SiCl2_SiCl_redepo * curr_counter[2] / p_sum
     p_D = gamma_SiCl3_SiCl_redepo * curr_counter[3] / p_sum
     p_refl = 1.0 - p_A - p_B - p_C - p_D
-
+    #print("SiCl2: ",p_A, p_B, p_C, p_D)
     curr_reaction = custom_choise([p_A, p_B, p_C, p_D, p_refl])
-
+    #print(curr_reaction)
     is_redepo = False
-    redepo_params = np.zeros((6))
+    redepo_params = np.zeros((8))
 
     if curr_reaction == 4:
         is_react = False

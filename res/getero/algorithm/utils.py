@@ -1,9 +1,12 @@
-from numba import njit
+from numba import jit, njit
 import numpy as np
+import res.utils.config as config
+
+
 
 @njit()
 def custom_choise(Ps):
-    #print(Ps)
+    #np.random.seed(config.seed)
     num = np.random.random()
     sum = 0
     for i in range(len(Ps)):
@@ -24,14 +27,13 @@ def straight_reflection(curr_angle, is_on_horiz):
 
 @njit()
 def generate_cos_point():
+    #np.random.seed(config.seed)
     a = 2*np.random.random()-1
     x = np.arcsin(a)
     return x
 
 @njit()
 def isotropic_reflection(curr_angle, is_on_horiz):
-    #print("isotropic_reflection")
-    #print(is_on_horiz, curr_angle/np.pi)
     dop_angle = generate_cos_point()
     if is_on_horiz:
         if curr_angle<np.pi*0.5 or curr_angle>np.pi*1.5:

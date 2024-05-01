@@ -3,6 +3,7 @@ import numpy as np
 import tkinter as tk
 import matplotlib
 from tkinter.ttk import Frame, Style
+import time
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
@@ -12,7 +13,7 @@ import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
 from res.getero.algorithm.main_cycle import process_particles
 
-from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays
+from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays, create_point
 
 from res.getero.algorithm.wafer_generator import generate_wafer
 
@@ -33,7 +34,7 @@ class TestPlotFrame(Frame):
         self.canvas.mpl_connect("button_press_event", self.click_mouse_event)
         self.canvas.mpl_connect("button_release_event", self.unclick_mouse_event)
         self.canvas.mpl_connect('key_press_event', self.click_keyboard)
-        generate_wafer(self, 0.005, 1)
+        generate_wafer(self, 0.02, 1, fill_sicl3=True)
         self.toolbarFrame = tk.Frame(master=self)
         self.toolbarFrame.grid(row=1, columnspan=2, sticky="w")
         self.toolbar1 = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
@@ -55,6 +56,7 @@ class TestPlotFrame(Frame):
 
         self.plot()
 
+
     def plot(self):
         self.replot()
 
@@ -71,21 +73,21 @@ class TestPlotFrame(Frame):
             self.ax.add_patch(circle1)
         elif self.found == 2:
             self.ax.arrow(self.x1-0.5, self.y1-0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g", linewidth=1)
-        X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5,
-                                1.5, size=1)
-        plot_line(self.ax, X, Y, self.start_x, self.start_y, 1.5, 1.5)
+        X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 0,
+                                0, size=1)
+        plot_line(self.ax, X, Y, self.start_x, self.start_y, 0, 0)
 
         for x in range(self.border_arr.shape[0]):
             for y in range(self.border_arr.shape[1]):
                 color = "g"
                 if self.border_arr[x, y, 0]==1:
-                    color = (0.5,0,0.5)
+                    color = (0.5, 0, 0.5)
                 curr_str0 = "curr: " + str(int(x)) + "," + str(int(y))
                 curr_str1 = "prev: " + str(int(self.border_arr[x, y, 1])) + "," + str(int(self.border_arr[x, y, 2]))
                 curr_str2 = "next: " + str(int(self.border_arr[x, y, 3])) + "," + str(int(self.border_arr[x, y, 4]))
-                self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=6)
-                self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=6)
-                self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=6)
+                #self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
+                #self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
+                #self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
         self.ax.grid(True)
         self.canvas.draw()
 
@@ -130,8 +132,9 @@ class TestPlotFrame(Frame):
             self.replot()
         elif self.found==2:
             self.replot()
-            curr_en = 0
-            params_arr = [[self.x1, self.y1, 1, curr_en, self.angle, self.test_type]]
+            curr_en = 13
+            self.test_type = 4
+            params_arr = [[self.x1, self.y1, 1, curr_en, self.angle, self.test_type, int(self.x1), self.y1]]
 
             if self.y_cl_plus==0.0:
                 R = 1000
@@ -140,7 +143,7 @@ class TestPlotFrame(Frame):
 
             arr_x, arr_y, rarr_x, rarr_y = process_particles(self.counter_arr, self.is_full,
                                              self.border_arr, params_arr, self.Si_num,
-                                             self.xsize, self.ysize, R, test=True)
+                                             self.xsize, self.ysize, R, True)
             self.recheck_cell()
             self.replot()
 
@@ -175,6 +178,33 @@ class TestPlotFrame(Frame):
             self.counter_arr[:, self.test_x, self.test_y] = np.array([0,0,0,0])
             self.is_full[self.test_x, self.test_y] = 0
             delete_point(self.border_arr,self.test_x, self.test_y)
+        elif event.key == "r":
+            print("reconstruct")
+            f = open("del4.txt")
+            A = f.readlines()
+            f.close()
+            for line in A[:]:
+                line = line.split()
+                if len(line)==3:
+                    x = int(line[1])
+                    y = int(line[2])
+                    self.counter_arr[:, x, y] = np.array([0, 0, 0, 0])
+                    self.is_full[x, y] = 0
+                    delete_point(self.border_arr, x, y)
+                    #time.sleep(0.05)
+                    print("Delete: ",x,y)
+                    #self.replot()
+                elif len(line)==6:
+                    prev_x = int(line[1])
+                    prev_y = int(line[2])
+                    curr_x = int(line[4])
+                    curr_y = int(line[5])
+                    self.counter_arr[:, prev_x, prev_y] = np.array([0, 0, 0, 1])
+                    self.is_full[prev_x, prev_y] = 1
+                    create_point(self.border_arr, prev_x, prev_y, curr_x, curr_y)
+                    print("Create: ", prev_x, prev_y, " from: ", curr_x, curr_y)
+            self.replot()
+
         else:
             return None
 

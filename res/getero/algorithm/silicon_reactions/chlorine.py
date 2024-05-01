@@ -26,7 +26,7 @@ def clorine_etching(curr_type, curr_counter, prev_counter, curr_farr,
     curr_reaction = custom_choise([p_A, p_B, p_C, p_D, p_refl])
 
     is_redepo = False
-    redepo_params = np.zeros((6))
+    redepo_params = np.zeros((8))
 
     if curr_reaction == 4:
         is_react = False
@@ -49,7 +49,7 @@ def clorine_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[3] -= 1
         is_redepo = True
         redepo_angle = isotropic_reflection(curr_angle, is_on_horiz)
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 8])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 8, 0, 0])
 
     # TODO разобраться с нормальным уничтожением ячейки
 
@@ -86,7 +86,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         # никакой реакции не будет, пока что будем считать, что это отражение
         is_react = False
         is_redepo = False
-        redepo_params = np.zeros((6))
+        redepo_params = np.zeros((8))
         curr_type = 0  # ион хлора нейтрализуется
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
@@ -108,7 +108,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
     if curr_reaction == 7:
         is_react = False
         is_redepo = False
-        redepo_params = np.zeros((6))
+        redepo_params = np.zeros((8))
         curr_type = 0  # ион хлора нейтрализуется
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
@@ -122,7 +122,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[0] -= 1
         is_redepo = True
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 4])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 4, 0, 0])
         # TODO угол выбитых частиц
     elif curr_reaction == 1:
         # sp: SiCl_s -> SiCl_g
@@ -133,7 +133,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[1] -= 1
         is_redepo = True
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 5])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 5, 0, 0])
     elif curr_reaction == 2:
         # sp: SiCl2_s -> SiCl2_g
         curr_en = curr_en - E_th_cl_sicl2_sp
@@ -143,7 +143,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[2] -= 1
         is_redepo = True
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6, 0, 0])
     elif curr_reaction == 3:
         # sp: SiCl3_s -> SiCl3_g
         curr_en = curr_en - E_th_cl_sicl3_sp
@@ -153,7 +153,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[3] -= 1
         is_redepo = True
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 7])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 7, 0, 0])
         # TODO угол выбитых частиц
     elif curr_reaction == 4:
         # i-etch: SiCl_s -> SiCl2_g
@@ -161,7 +161,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[1] -= 1
         is_redepo = True
         redepo_angle = isotropic_reflection(curr_angle, is_on_horiz)
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6, 0, 0])
         # TODO угол выбитых частиц
     elif curr_reaction == 5:
         # i-etch: SiCl2_s + Si_s -> SiCl2_g + SiCl_s
@@ -171,7 +171,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[1] += 1
         is_redepo = True
         redepo_angle = isotropic_reflection(curr_angle, is_on_horiz)
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6, 0, 0])
         # TODO угол выбитых частиц
     elif curr_reaction == 6:
         # i-etch: SiCl3_s -> SiCl4_g
@@ -179,7 +179,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[3] -= 1
         is_redepo = True
         redepo_angle = isotropic_reflection(curr_angle, is_on_horiz)
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 8])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 8, 0, 0])
         # TODO угол выбитых частиц
 
     # TODO разобраться с нормальным уничтожением ячейки

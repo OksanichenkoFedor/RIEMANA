@@ -44,7 +44,7 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
     if curr_reaction==4:
         is_react = False
         is_redepo = False
-        redepo_params = np.zeros((6))
+        redepo_params = np.zeros((8))
         curr_type = 9 # ион аргона нейтрализуется
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
@@ -58,7 +58,7 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[0] -= 1
         is_redepo = True
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 4])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 4, 0, 0])
     elif curr_reaction==1:
         # sp: SiCl_s -> SiCl_g
         curr_en = curr_en - E_th_ar_sicl1_sp
@@ -69,7 +69,7 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[1] -= 1
         is_redepo = True
 
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 5])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 5, 0, 0])
     elif curr_reaction==2:
         # sp: SiCl2_s -> SiCl2_g
         curr_en = curr_en - E_th_ar_sicl2_sp
@@ -79,7 +79,7 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[2] -= 1
         is_redepo = True
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6, 0, 0])
     elif curr_reaction==3:
         # sp: SiCl3_s -> SiCl3_g
         curr_en = curr_en - E_th_ar_sicl3_sp
@@ -89,7 +89,7 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         curr_counter[3] -= 1
         is_redepo = True
-        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 7])
+        redepo_params = np.array([0, 0, 0, 0, redepo_angle, 7, 0, 0])
 
     # TODO разобраться с нормальным уничтожением ячейки
 

@@ -1,12 +1,8 @@
-import numpy as np
 import tkinter as tk
-from tkinter import Tk
-from tkinter.ttk import Frame, Style
-from tkinter import Entry, Label, BOTH
+from tkinter.ttk import Frame
+from tkinter import Entry, Label
 
 from res.getero.algorithm.types_of_particle import types
-
-#import res.config.getero_reactions as config
 
 
 class TestControlPanel(Frame):

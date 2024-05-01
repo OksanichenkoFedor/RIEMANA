@@ -28,7 +28,7 @@ def ion_etching(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_
     if p_sum == 0:
         is_react = False
         is_redepo = False
-        redepo_params = np.zeros((6))
+        redepo_params = np.zeros((8))
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
@@ -52,7 +52,7 @@ def ion_etching(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_
         # Отражение
         is_react = False
         is_redepo = False
-        redepo_params = np.zeros((6))
+        redepo_params = np.zeros((8))
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
@@ -82,7 +82,7 @@ def ion_etching(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_
     curr_angle = straight_reflection(curr_angle, is_on_horiz)
 
     is_redepo = True
-    redepo_params = np.array([0, 0, 0, 0, redepo_angle, redepo_type])
+    redepo_params = np.array([0, 0, 0, 0, redepo_angle, redepo_type, 0, 0])
 
     if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] <= 0:
         curr_farr = 0

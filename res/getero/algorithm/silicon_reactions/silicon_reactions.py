@@ -8,7 +8,7 @@ from res.getero.algorithm.silicon_reactions.chlorine import clorine_etching, clo
 from res.getero.algorithm.silicon_reactions.argon import argon_sputtering
 from res.getero.algorithm.silicon_reactions.silicon_redepo import Si_redepo, SiCl_redepo, SiCl2_redepo
 
-from res.getero.algorithm.utils import straight_reflection
+from res.getero.algorithm.utils import straight_reflection, isotropic_reflection
 
 
 @njit()
@@ -70,8 +70,12 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
     elif curr_type == 8:
         # SiCl4 попытка переосаждения
         #print("dsdsdsdsdsds")
+
+        #print(curr_angle/np.pi, is_on_horiz)
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
+        #print(curr_angle / np.pi)
+        #print("---")
     elif curr_type == 1:
         print("Cl2_plus")
         #int("ffdfdfdf")
-    return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, False, curr_angle, curr_en, False, np.zeros((6))
+    return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, False, curr_angle, curr_en, False, np.zeros((8))

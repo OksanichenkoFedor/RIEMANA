@@ -2,6 +2,9 @@ import matplotlib
 import tkinter as tk
 import matplotlib.pyplot as plt
 import time
+import numpy as np
+from res.utils.config import seed
+np.random.seed(seed)
 
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -21,7 +24,7 @@ class WaferPlotFrame(tk.Frame):
         self.initUI()
 
     def initUI(self):
-        self.f = Figure(figsize=(9, 9), dpi=100, tight_layout=True)
+        self.f = Figure(figsize=(15, 15), dpi=100, tight_layout=True)
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=0, columnspan=2)
@@ -38,7 +41,7 @@ class WaferPlotFrame(tk.Frame):
     def plot(self):
         self.replot()
 
-    def replot(self):
+    def replot(self, num=0):
         start = time.time()
         self.ax.clear()
         self.ax.set_xlabel('x')
@@ -47,11 +50,23 @@ class WaferPlotFrame(tk.Frame):
         plot_cells(self.ax, self.master.getero.counter_arr, self.master.getero.is_full,
                    self.master.getero.ysize, self.master.getero.xsize, curr_type)
         X,Y = self.master.getero.profiles[-1]
-        plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 1, 1)
+        plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 0, 0)
+        x_major_ticks = np.arange(0, self.master.getero.xsize, 10)+0.5
+        x_minor_ticks = np.arange(0, self.master.getero.xsize, 1)+0.5
+        y_major_ticks = np.arange(0, self.master.getero.ysize, 10)+0.5
+        y_minor_ticks = np.arange(0, self.master.getero.ysize, 1)+0.5
+        self.ax.set_xticks(x_major_ticks)
+        self.ax.set_xticks(x_minor_ticks, minor=True)
+        self.ax.set_yticks(y_major_ticks)
+        self.ax.set_yticks(y_minor_ticks, minor=True)
+        self.ax.grid(which='minor', alpha=0.2)
+        self.ax.grid(which='major', alpha=0.8)
+        self.ax.get_xaxis().set_visible(False)
+        self.ax.get_yaxis().set_visible(False)
         self.canvas.draw()
-        plot_animation(self.master.getero.profiles, self.master.getero.xsize, self.master.getero.ysize)
+        plot_animation(self.master.getero.profiles, self.master.getero.xsize, self.master.getero.ysize,num)
         end = time.time()
-        print("Plot time: ", round(end-start, 3))
+        #print("Plot time: ", round(end-start, 3))
 
 
 
