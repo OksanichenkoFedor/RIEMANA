@@ -10,14 +10,33 @@ import numpy as np
 def generate_point(axis):
     start_x = 0
     start_y = 0
-    add_x, add_y = 0, np.random.random()
+
     is_on_horiz = np.random.randint(0, 2)
     if is_on_horiz:
-        add_x, add_y = add_y, add_x
+        add_x = np.random.random()
+        add_y = np.random.randint(0, 2)
+        if add_y == 0:
+            angle = np.random.random() * np.pi * 2
+            while angle > 0.5*np.pi and angle < 1.5*np.pi:
+                angle = np.random.random() * np.pi * 2
+        elif add_y == 1:
+            angle = np.random.random() * np.pi * 2
+            while angle < 0.5 * np.pi or angle > 1.5 * np.pi:
+                angle = np.random.random() * np.pi * 2
+    else:
+        add_y = np.random.random()
+        add_x = np.random.randint(0, 2)
+        if add_x == 0:
+            angle = np.random.random() * np.pi * 2
+            while angle > np.pi:
+                angle = np.random.random() * np.pi * 2
+        elif add_x == 1:
+            angle = np.random.random() * np.pi * 2
+            while angle < np.pi:
+                angle = np.random.random() * np.pi * 2
 
     x = start_x + add_x
     y = start_y + add_y
-    angle = np.random.random() * np.pi * 2
     #print("---")
     #print(x, y, is_on_horiz)
     new_x, new_y, new_is_on_horiz = give_next_cell(x, y, angle, is_on_horiz)
@@ -34,8 +53,8 @@ def generate_point(axis):
     axis.arrow(x, y, 0.5 * np.sin(angle), 0.5 * np.cos(angle), color="g", linewidth=1)
 
 
-y_size = 5
-x_size = 5
+y_size = 3
+x_size = 3
 fig, axes = plt.subplots(y_size, x_size, figsize=(4 * x_size, 4 * y_size))
 
 for i in range(x_size):

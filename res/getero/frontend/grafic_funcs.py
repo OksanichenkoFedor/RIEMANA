@@ -73,6 +73,6 @@ def plot_animation(profiles, xsize, ysize, num):
 
 
     ani = animation.FuncAnimation(fig=fig, func=update, frames=len(profiles), interval=50)
-    ani.save("files/tmp"+str(num)+".gif")
+    ani.save("files/tmp"+str(num)+".gif", writer='pillow')
 
     #plt.show()

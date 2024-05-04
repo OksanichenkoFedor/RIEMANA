@@ -1,7 +1,7 @@
 from tkinter.ttk import Frame, Style
 from tkinter import BOTH
-from res.getero.tests.test_geom.tplotframe import TestPlotFrame
-from res.getero.tests.test_geom.tcpanel import TestControlPanel
+from res.getero.tests.test_geom_files.tplotframe import TestPlotFrame
+from res.getero.tests.test_geom_files.tcpanel import TestControlPanel
 
 
 

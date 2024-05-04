@@ -28,6 +28,7 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
         redepo_params = np.zeros((6))
         curr_type = 9  # ион аргона нейтрализуется
         curr_angle = straight_reflection(curr_angle, is_on_horiz)
+        #curr_angle = isotropic_reflection(curr_angle, is_on_horiz)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
                is_react, curr_angle, curr_en, is_redepo, redepo_params
 

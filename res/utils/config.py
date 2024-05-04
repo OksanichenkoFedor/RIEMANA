@@ -9,7 +9,7 @@ parallel = False
 
 seed = 40
 
-multiplier = 0.02 # 0.2 примерно топология 180 нм
+multiplier = 0.05 # 0.2 примерно топология 180 нм
 
 Si_num = 84
 cell_size = 2.5  # nanometers
@@ -17,8 +17,8 @@ cell_size = 2.5  # nanometers
 wafer_plot_num = 0
 wafer_plot_types = ["is_cell", "Si", "SiCl", "SiCl2", "SiCl3"]
 
-num_iter = 2500
-num_per_iter = 400
+num_iter = 3100
+num_per_iter = 2500
 
 
 plasma_params = {

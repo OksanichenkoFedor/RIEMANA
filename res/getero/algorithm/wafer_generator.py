@@ -38,13 +38,18 @@ class WaferGenerator:
                 R = 1000
             else:
                 R = self.y_cl / self.y_cl_plus
-            process_particles(self.counter_arr, self.is_full, self.border_arr, params, self.Si_num, self.xsize,
+            res = process_particles(self.counter_arr, self.is_full, self.border_arr, params, self.Si_num, self.xsize,
                               self.ysize, R, test=False)
+            #if res is None:
+            #    pass
+            #else:
+            #    np.save("curr_counter_arr.npy",res)
+            #    int("fffdf")
             if i % 10 == 0:
                 X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5, 1.5,
                                         size=1)
                 self.profiles.append([X, Y])
-            if i % 500 == 0 and i!=0:
+            if i % 1000 == 0:
                 self.master.plotF.replot(i)
                 self.master.plotF.f.savefig("files/tmp"+str(i)+".png")
                 #self.master.plotF.send_picture()
