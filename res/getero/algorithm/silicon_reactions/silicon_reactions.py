@@ -66,13 +66,13 @@ def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr
         return ans
     elif curr_type == 7:
         # SiCl3 попытка переосаждения
-        curr_angle = straight_reflection(curr_angle, is_on_horiz)
+        curr_angle = isotropic_reflection(curr_angle, is_on_horiz)
     elif curr_type == 8:
         # SiCl4 попытка переосаждения
         #print("dsdsdsdsdsds")
 
         #print(curr_angle/np.pi, is_on_horiz)
-        curr_angle = straight_reflection(curr_angle, is_on_horiz)
+        curr_angle = isotropic_reflection(curr_angle, is_on_horiz)
         #print(curr_angle / np.pi)
         #print("---")
     elif curr_type == 1:
