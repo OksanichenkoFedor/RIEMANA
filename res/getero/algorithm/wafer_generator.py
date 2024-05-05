@@ -10,7 +10,7 @@ from res.getero.frontend.grafic_funcs import plot_animation
 class WaferGenerator:
     def __init__(self, master, multiplier, Si_num):
         self.master = master
-        generate_wafer(self, multiplier, Si_num)
+        generate_pure_wafer(self, multiplier, Si_num)
         X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1, 1,
                                 size=1)
         self.profiles = []
@@ -28,7 +28,7 @@ class WaferGenerator:
         self.old_wif = self.is_full.copy()
         self.old_wca = self.counter_arr.copy()
         self.master.style.configure("LabeledProgressbar", text=str(1) + "/" + str(num_iter))
-        for i in range(num_iter):
+        for i in trange(num_iter):
 
             t1 = time.time()
             params = generate_particles(num_per_iter, self.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
@@ -49,7 +49,7 @@ class WaferGenerator:
                 X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5, 1.5,
                                         size=1)
                 self.profiles.append([X, Y])
-            if i % 1000 == 0:
+            if i % 250 == 0:
                 self.master.plotF.replot(i)
                 self.master.plotF.f.savefig("files/tmp"+str(i)+".png")
                 #self.master.plotF.send_picture()
@@ -64,7 +64,7 @@ class WaferGenerator:
         self.master.contPanel.progress_var.set(0)
 
 
-def generate_wafer(object, multiplier, Si_num, fill_sicl3=False):
+def generate_pure_wafer(object, multiplier, Si_num, fill_sicl3=False):
     object.multiplier = multiplier
     object.Si_num = Si_num
     object.border = int(500 * object.multiplier)
@@ -117,11 +117,7 @@ def generate_wafer(object, multiplier, Si_num, fill_sicl3=False):
         0.0)
 
     object.border_arr = object.border_arr.astype(int)
-    print("---")
 
-
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 
 

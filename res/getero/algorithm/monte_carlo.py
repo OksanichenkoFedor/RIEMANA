@@ -4,11 +4,8 @@ np.random.seed(config.seed)
 
 
 def generate_particles(num, xsize, y_cl, y_ar_plus, y_cl_plus, T_i, T_e, y0):
-    #print("Start Monte")
-    #np.random.seed(config.seed)
-    #new_seed = np.random.randint(0, 100)
-    #np.random.seed(new_seed)
-    #config.seed = new_seed
+    if config.use_seed:
+        np.random.seed(config.seed)
     sum_y = y_cl + y_cl_plus + y_ar_plus
     curr_type = np.random.choice(3, num, p=[y_cl / sum_y, y_cl_plus / sum_y, y_ar_plus / sum_y]).reshape((-1, 1))
 
@@ -22,15 +19,12 @@ def generate_particles(num, xsize, y_cl, y_ar_plus, y_cl_plus, T_i, T_e, y0):
 
     res = np.concatenate((cl_particles, cl_plus_particles, ar_plus_particles), axis=0)
     np.random.shuffle(res)
-    #print("End Monte")
     return res
 
 
 def generate_cl(num, xsize, T_i, y0):
-    np.random.seed(config.seed)
-    #new_seed = np.random.randint(0, 100)
-    #np.random.seed(new_seed)
-    #config.seed = new_seed
+    if config.use_seed:
+        np.random.seed(config.seed)
     x = np.random.random((num, 1)) * xsize
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
@@ -44,10 +38,8 @@ def generate_cl(num, xsize, T_i, y0):
 
 
 def generate_cl_plus(num, xsize, alpha_el, T_e, y0):
-    np.random.seed(config.seed)
-    #new_seed = np.random.randint(0, 100)
-    #np.random.seed(new_seed)
-    #config.seed = new_seed
+    if config.use_seed:
+        np.random.seed(config.seed)
     x = np.random.random((num, 1)) * xsize
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
@@ -62,10 +54,8 @@ def generate_cl_plus(num, xsize, alpha_el, T_e, y0):
 
 
 def generate_ar_plus(num, xsize, alpha_el, T_e, y0):
-    np.random.seed(config.seed)
-    #new_seed = np.random.randint(0, 100)
-    #np.random.seed(new_seed)
-    #config.seed = new_seed
+    if config.use_seed:
+        np.random.seed(config.seed)
     x = np.random.random((num, 1)) * xsize
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))

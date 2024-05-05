@@ -24,7 +24,7 @@ class WaferPlotFrame(tk.Frame):
         self.initUI()
 
     def initUI(self):
-        self.f = Figure(figsize=(9, 9), dpi=100, tight_layout=True)
+        self.f = Figure(figsize=(15, 15), dpi=100, tight_layout=True)
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=0, columnspan=2)
@@ -50,7 +50,7 @@ class WaferPlotFrame(tk.Frame):
         plot_cells(self.ax, self.master.getero.counter_arr, self.master.getero.is_full,
                    self.master.getero.ysize, self.master.getero.xsize, curr_type)
         X,Y = self.master.getero.profiles[-1]
-        plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 0, 0)
+        plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 0, 0, do_points=False)
         x_major_ticks = np.arange(0, self.master.getero.xsize, 10)+0.5
         x_minor_ticks = np.arange(0, self.master.getero.xsize, 1)+0.5
         y_major_ticks = np.arange(0, self.master.getero.ysize, 10)+0.5
