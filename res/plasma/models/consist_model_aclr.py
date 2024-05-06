@@ -27,7 +27,7 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, consts,plot_error=Fal
     Deltas_T_e = []
     Deltas_n_e = []
 
-    k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12, A, B = count_simple_start(T_e, param_vector,chem_data, chem_connector)
+    k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12, A, B = count_simple_start(T_e, param_vector, chem_data, chem_connector)
 
     while (np.abs(delta_n_e) >= 10.0 ** (-15.0)) and (num <= 20):
         num += 1
@@ -51,7 +51,8 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, consts,plot_error=Fal
 
         n_vector = (n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus)
 
-        k_s, T_e_new = count_T_e(n_vector, param_vector, chem_data, chem_connector)
+        k_s, T_e_new, js = count_T_e(n_vector, param_vector, chem_data, chem_connector)
+        j_cl, j_ar_plus, j_cl_plus, j_cl2_plus = js
 
         k_1, k_2, k_3, k_4, k_5, k_13, k_9, k_10, k_11, k_12 = k_s
 
@@ -68,6 +69,7 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, consts,plot_error=Fal
             Deltas_T_e.append(np.abs(delta_T_e))
         n_cl_old = n_cl
         T_e = T_e_new
+
     n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e1, n_cl_minus = n_vector
 
     res = {
@@ -92,7 +94,11 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, consts,plot_error=Fal
         "W_el_Cl": el_parts[2],
         "W_inel_Ar": inel_parts[0],
         "W_inel_Cl2": inel_parts[1],
-        "W_inel_Cl": inel_parts[2]
+        "W_inel_Cl": inel_parts[2],
+        "j_cl": j_cl,
+        "j_ar_plus": j_ar_plus,
+        "j_cl_plus": j_cl_plus,
+        "j_cl2_plus": j_cl2_plus
     }
 
     if plot_error:

@@ -31,17 +31,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
     num = 0
     unfound_test = True
     not_max_value = True
-    #print("---------")
-    Prev_x = nb.typed.List.empty_list(nb.f8)
-    Prev_y = nb.typed.List.empty_list(nb.f8)
-    p_a_x = nb.typed.List.empty_list(nb.f8)
-    p_a_y = nb.typed.List.empty_list(nb.f8)
-    Curr_x = nb.typed.List.empty_list(nb.f8)
-    Curr_y = nb.typed.List.empty_list(nb.f8)
-    c_a_x = nb.typed.List.empty_list(nb.f8)
-    c_a_y = nb.typed.List.empty_list(nb.f8)
-    ifa_p = nb.typed.List.empty_list(nb.f8)
-    ifa_c = nb.typed.List.empty_list(nb.f8)
     while unfound and not_max_value:
 
         if max_value != -1.0:
@@ -49,25 +38,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
                 not_max_value = False
         num += 1
         curr_att_x, curr_att_y = find_next(curr_x, curr_y, prev_x, prev_y, prev_att_x, prev_att_y)
-        #print("---")
-        if prev_x is None:
-            Prev_x.append(0)
-            Prev_y.append(0)
-        else:
-            Prev_x.append(prev_x)
-            Prev_y.append(prev_y)
-        p_a_x.append(prev_att_x)
-        p_a_y.append(prev_att_y)
-        Curr_x.append(curr_x)
-        Curr_y.append(curr_y)
-        c_a_x.append(curr_att_x)
-        c_a_y.append(curr_att_y)
-        ifa_p.append(is_full_arr[prev_att_x, prev_att_y])
-        ifa_c.append(is_full_arr[curr_att_x, curr_att_y])
-        #print(prev_att_x, prev_att_y, prev_x, prev_y)
-        #print(curr_att_y, curr_att_y, curr_x, curr_y)
-        #print(is_full_arr[curr_att_x, curr_att_y], is_full_arr[prev_att_x, prev_att_y])
-        #print(prev_x, prev_y)
         if curr_type == 9.0:
             pass
             # print("---")
@@ -124,7 +94,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
                 # 0 - внутри
                 # 1 - граница
                 # -1 - снаружи
-                print("Delete: ", curr_att_x, curr_att_y)
+                #print("Delete: ", curr_att_x, curr_att_y)
                 delete_point(border_layer_arr, curr_att_x, curr_att_y)
                 if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                     print("Удаление не произведено!")
@@ -133,7 +103,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
 
             if new_prev_farr != prev_farr:
                 # восстановление частицы
-                print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
+                #print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
                 create_point(border_layer_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
             counter_arr[:, curr_att_x, curr_att_y] = new_curr_counter
             counter_arr[:, prev_att_x, prev_att_y] = new_prev_counter
@@ -216,21 +186,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
             # print("End move")
 
         if changed_angle:
-
-            if (is_full_arr[prev_att_x, prev_att_y] and unfound_test):
-                print("Everlasting reaction")
-                for i in range(len(Prev_x)):
-                    print("---")
-                    print(Prev_x[i], Prev_y[i], p_a_x[i], p_a_y[i])
-                    print(Curr_x[i], Curr_y[i], c_a_x[i], c_a_y[i])
-                    print(ifa_p[i], ifa_c[i])
-                print("После отражения мы внутри!!! ", curr_type)
-                print(prev_att_x, prev_att_y)
-                print(curr_att_y, curr_att_y)
-                print(prev_x, prev_y)
-                print([curr_x, curr_y, is_on_horiz, curr_en, curr_angle, curr_type, prev_att_x, prev_att_y])
-                print([params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7]])
-                unfound_test = False
 
             prev_x, prev_y = None, None
 

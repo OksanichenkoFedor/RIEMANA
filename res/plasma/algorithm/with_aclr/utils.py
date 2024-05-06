@@ -69,3 +69,16 @@ def count_d_c(beta_s, gamma_T, R, L, lambda_mean, v, D_i):
             (4 + R / (1 * lambda_mean) + ((0.80 * R * v) / (2.405 * 0.43 * gamma_T * D_i)) ** 2) ** (-0.5))
     d_c = (0.5 * R * L) / (R * h_L + L * h_R)
     return d_c
+
+@jit(nopython=True)
+def count_j(n_vector, param_vector, T_e):
+    n_cl, n_cl2, n_ar, n_cl_plus, n_cl2_plus, n_ar_plus, n_plus, n_e, n_cl_minus = n_vector
+    p_0, T_gas, R, L, gamma_cl, _, _, _ = param_vector
+    T_i = count_T_i(p_0, T_gas)
+    beta, gamma_T, beta_s = count_beta_s(n_e, n_cl_minus, T_e, T_i)
+    j_cl_plus = 0.25*n_cl_plus*count_v(T_e, beta_s, m_cl, gamma_T)
+    j_cl2_plus = 0.25*n_cl2_plus*count_v(T_e, beta_s, m_cl2, gamma_T)
+    j_ar_plus = 0.25*n_ar_plus*count_v(T_e, beta_s, m_ar, gamma_T)
+    j_cl = 0.25*n_cl*np.sqrt((2 * k_b * T_i) / m_cl)
+
+    return j_cl,j_ar_plus, j_cl_plus, j_cl2_plus

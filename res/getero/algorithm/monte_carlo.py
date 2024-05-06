@@ -27,7 +27,7 @@ def generate_particles(num, xsize, y_cl, y_ar_plus, y_cl_plus, T_i, T_e, y0):
 
 
 def generate_cl(num, xsize, T_i, y0):
-    np.random.seed(config.seed)
+    #np.random.seed(config.seed)
     #new_seed = np.random.randint(0, 100)
     #np.random.seed(new_seed)
     #config.seed = new_seed
@@ -44,7 +44,7 @@ def generate_cl(num, xsize, T_i, y0):
 
 
 def generate_cl_plus(num, xsize, alpha_el, T_e, y0):
-    np.random.seed(config.seed)
+    #np.random.seed(config.seed)
     #new_seed = np.random.randint(0, 100)
     #np.random.seed(new_seed)
     #config.seed = new_seed
@@ -62,7 +62,7 @@ def generate_cl_plus(num, xsize, alpha_el, T_e, y0):
 
 
 def generate_ar_plus(num, xsize, alpha_el, T_e, y0):
-    np.random.seed(config.seed)
+    #np.random.seed(config.seed)
     #new_seed = np.random.randint(0, 100)
     #np.random.seed(new_seed)
     #config.seed = new_seed

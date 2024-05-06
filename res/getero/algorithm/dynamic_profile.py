@@ -212,3 +212,12 @@ def give_line_arrays(border_layer, prev_x, prev_y, next_x, next_y, curr_x, curr_
     X.append((x) * size)
     Y.append((y) * size)
     return X, Y
+
+def give_max_y(border_layer, prev_x, prev_y, next_x, next_y):
+    x, y = prev_x, prev_y
+    y_max = y
+    while x != next_x or y != next_y:
+        y_max = max(y,y_max)
+        x, y = border_layer[x, y, 3], border_layer[x, y, 4]
+    return y_max
+
