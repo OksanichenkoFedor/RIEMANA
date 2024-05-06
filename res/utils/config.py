@@ -7,7 +7,8 @@ do_njit = True
 cache = False
 parallel = False
 
-seed = 40
+seed = 20
+use_seed= False
 
 multiplier = 0.2 # 0.2 примерно топология 180 нм
 

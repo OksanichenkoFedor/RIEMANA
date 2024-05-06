@@ -40,11 +40,13 @@ def plot_particle(params, axis, y0, alpha=1.0):
     print(10*np.sin(params[1]),10*np.cos(params[1]))
     axis.arrow(params[0]-0.5, y0-0.5, 2*np.sin(params[1]), 2*np.cos(params[1]),color=color,linewidth=2, alpha = alpha)
 
-def plot_line(axis, X, Y, prev_x, prev_y, curr_x, curr_y, size=1):
-    circ = Circle(((prev_x - curr_x)*size, (prev_y - curr_y)*size), 0.2*size, color="r")
+def plot_line(axis, X, Y, prev_x, prev_y, curr_x, curr_y, size=1, do_points=True):
+    #print(do_points)
+    circ = Circle(((prev_x + curr_x)*size, (prev_y + curr_y)*size), 0.4*size, color="r")
     axis.add_patch(circ)
-    axis.plot((np.array(X) - curr_x)*size, (np.array(Y) - curr_y)*size, color="r")
-    axis.plot((np.array(X) - curr_x) * size, (np.array(Y) - curr_y) * size, ".", color="r")
+    axis.plot((np.array(X) + curr_x)*size, (np.array(Y) + curr_y)*size, color="r")
+    if do_points:
+        axis.plot((np.array(X) + curr_x) * size, (np.array(Y) + curr_y) * size, ".", color="r")
 
 
 

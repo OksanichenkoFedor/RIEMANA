@@ -11,7 +11,7 @@ from res.getero.algorithm.dynamic_profile import delete_point, create_point
 class WaferGenerator:
     def __init__(self, master, multiplier, Si_num):
         self.master = master
-        generate_wafer(self, multiplier, Si_num)
+        generate_pure_wafer(self, multiplier, Si_num)
         X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1, 1,
                                 size=1)
         self.profiles = []
@@ -82,7 +82,7 @@ class WaferGenerator:
         self.master.contPanel.progress_var.set(0)
 
 
-def generate_wafer(object, multiplier, Si_num, fill_sicl3=False):
+def generate_pure_wafer(object, multiplier, Si_num, fill_sicl3=False):
     object.multiplier = multiplier
     object.Si_num = Si_num
     object.border = int(500 * object.multiplier)
@@ -136,7 +136,6 @@ def generate_wafer(object, multiplier, Si_num, fill_sicl3=False):
 
     object.border_arr = object.border_arr.astype(int)
 
-    clear_between_mask(object)
 
 
 def clear_between_mask(object):
