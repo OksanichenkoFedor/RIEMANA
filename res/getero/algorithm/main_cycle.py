@@ -32,16 +32,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
     num = 0
     unfound_test = True
     not_max_value = True
-    Prev_x = nb.typed.List.empty_list(nb.f8)
-    Prev_y = nb.typed.List.empty_list(nb.f8)
-    p_a_x = nb.typed.List.empty_list(nb.f8)
-    p_a_y = nb.typed.List.empty_list(nb.f8)
-    Curr_x = nb.typed.List.empty_list(nb.f8)
-    Curr_y = nb.typed.List.empty_list(nb.f8)
-    c_a_x = nb.typed.List.empty_list(nb.f8)
-    c_a_y = nb.typed.List.empty_list(nb.f8)
-    ifa_p = nb.typed.List.empty_list(nb.f8)
-    ifa_c = nb.typed.List.empty_list(nb.f8)
+
     while unfound and not_max_value:
 
         if max_value != -1.0:
@@ -49,20 +40,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
                 not_max_value = False
         num += 1
         curr_att_x, curr_att_y = find_next(curr_x, curr_y, prev_x, prev_y, prev_att_x, prev_att_y)
-        #if prev_x is None:
-        #    Prev_x.append(0)
-        #    Prev_y.append(0)
-        #else:
-        #    Prev_x.append(prev_x)
-        #    Prev_y.append(prev_y)
-        #p_a_x.append(prev_att_x)
-        #p_a_y.append(prev_att_y)
-        #Curr_x.append(curr_x)
-        #Curr_y.append(curr_y)
-        #c_a_x.append(curr_att_x)
-        #c_a_y.append(curr_att_y)
-        #ifa_p.append(is_full_arr[prev_att_x, prev_att_y])
-        #ifa_c.append(is_full_arr[curr_att_x, curr_att_y])
         if (curr_att_x == prev_att_x and curr_att_y == prev_att_y) and (not (prev_y is None)):
             pass
             print("Ахтунг!!!!")
@@ -70,7 +47,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
             print(curr_att_x, prev_att_x, curr_att_y, prev_att_y)
             print(curr_angle, curr_angle / np.pi)
             print(is_full_arr[curr_att_x, curr_att_y])
-        # print(curr_att_x, curr_att_y)
         if is_full_arr[curr_att_x, curr_att_y] == 1.0:
             if (num > 10000 and unfound_test):
                 if curr_type == 9.0:
@@ -182,22 +158,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_
                 returned_particles.append(int(curr_type))
 
         if changed_angle:
-
-            #if (is_full_arr[prev_att_x, prev_att_y] and unfound_test):
-            #    print("Everlasting reaction")
-            #    for i in range(len(Prev_x)):
-            #        print("---")
-            #        print(Prev_x[i], Prev_y[i], p_a_x[i], p_a_y[i])
-            #        print(Curr_x[i], Curr_y[i], c_a_x[i], c_a_y[i])
-            #        print(ifa_p[i], ifa_c[i])
-            #    print("После отражения мы внутри!!! ", curr_type)
-            #    print(prev_att_x, prev_att_y)
-            #    print(curr_att_y, curr_att_y)
-            #    print(prev_x, prev_y)
-            #    print([curr_x, curr_y, is_on_horiz, curr_en, curr_angle, curr_type, prev_att_x, prev_att_y])
-            #    print([params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7]])
-            #    unfound_test = False
-
             prev_x, prev_y = None, None
             if test:
                 arr_x.append(curr_x - 0.5)

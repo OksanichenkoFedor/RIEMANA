@@ -20,6 +20,10 @@ N_ar = np.zeros((N_rep, y_ar.shape[0]))
 N_ar_plus = np.zeros((N_rep, y_ar.shape[0]))
 Beta = np.zeros((N_rep, y_ar.shape[0]))
 T_e = np.zeros((N_rep, y_ar.shape[0]))
+J_cl = np.zeros((N_rep, y_ar.shape[0]))
+J_ar_plus = np.zeros((N_rep, y_ar.shape[0]))
+J_cl_plus = np.zeros((N_rep, y_ar.shape[0]))
+J_cl2_plus = np.zeros((N_rep, y_ar.shape[0]))
 Times = np.zeros((N_rep, y_ar.shape[0]))
 plot_arrays = {
     "W_el_Ar": np.zeros((N_rep, y_ar.shape[0])),
@@ -30,7 +34,20 @@ plot_arrays = {
     "W_inel_Cl": np.zeros((N_rep, y_ar.shape[0])),
 }
 consts = give_consts("data.csv", do_rand=False)
-run_consist_model(p_0=10 * 0.13333, T_gas=600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600, consts=consts)
+run = run_consist_model(p_0=10 * 0.13333, T_gas=600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600, consts=consts)
+def print_j(cres,y_ar):
+    print("---")
+    print("J_cl(y_ar=" + str(y_ar) + "): ", cres["j_cl"])
+    print("J_ar_plus(y_ar=" + str(y_ar) + "): ", cres["j_ar_plus"])
+    print("J_cl_plus(y_ar=" + str(y_ar) + "): ", cres["j_cl_plus"])
+    print("J_cl2_plus(y_ar=" + str(y_ar) + "): ", cres["j_cl2_plus"])
+
+res = run_consist_model(p_0=10 * 0.13333, T_gas=600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600, consts=consts)
+print_j(res,0.5)
+res = run_consist_model(p_0=10 * 0.13333, T_gas=600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.1, W=600, consts=consts)
+print_j(res,0.1)
+res = run_consist_model(p_0=10 * 0.13333, T_gas=600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.9, W=600, consts=consts)
+print_j(res,0.9)
 for i in trange(N_rep):
     consts = give_consts("data.csv", do_rand=True)
     for j in range(len(y_ar)):
@@ -52,6 +69,10 @@ for i in trange(N_rep):
         N_ar_plus[i, j] = res["n_ar_plus"]
         T_e[i, j] = res["T_e"]
         Beta[i, j] = res["n_cl_minus"] / res["n_e"]
+        J_cl[i, j] = res["j_cl"]
+        J_ar_plus[i, j] = res["j_ar_plus"]
+        J_cl_plus[i, j] = res["j_cl_plus"]
+        J_cl2_plus[i, j] = res["j_cl2_plus"]
         for key in plot_arrays.keys():
             plot_arrays[key][i, j] = res[key]
 
@@ -87,11 +108,12 @@ ax21.set_ylabel("$n_{Cl}, 10^{20} m^{-3}$", size=15)
 ax21.set_title("Концентрация молекул $Cl$")
 ax21.grid()
 
-plot_dov_int(ax22, y_ar, N_cl2_plus / (10.0 ** 20), "N_Cl2_plus", "r")
-plot_dov_int(ax22, y_ar, N_cl_plus / (10.0 ** 20), "N_Cl_plus", "g")
-plot_dov_int(ax22, y_ar, N_ar_plus / (10.0 ** 20), "N_Ar_plus", "b")
+plot_dov_int(ax22, y_ar, J_cl2_plus, "J_Cl2_plus", "r")
+plot_dov_int(ax22, y_ar, J_cl_plus, "J_Cl_plus", "g")
+plot_dov_int(ax22, y_ar, J_ar_plus, "J_Ar_plus", "b")
+plot_dov_int(ax22, y_ar, J_cl, "J_Cl", "k")
 ax22.set_xlabel("доля аргона", size=10)
-ax22.set_ylabel("$n_{i}, 10^{20} m^{-3}$", size=15)
+ax22.set_ylabel("$j, m^{-2}/s$", size=15)
 ax22.set_title("Концентрация ионов")
 ax22.legend()
 ax22.grid()

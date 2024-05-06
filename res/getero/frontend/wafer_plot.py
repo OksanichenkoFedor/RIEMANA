@@ -41,7 +41,7 @@ class WaferPlotFrame(tk.Frame):
     def plot(self):
         self.replot()
 
-    def replot(self, num=0):
+    def replot(self, num=0, do_plot_line = True):
         start = time.time()
         self.ax.clear()
         self.ax.set_xlabel('x')
@@ -50,7 +50,8 @@ class WaferPlotFrame(tk.Frame):
         plot_cells(self.ax, self.master.getero.counter_arr, self.master.getero.is_full,
                    self.master.getero.ysize, self.master.getero.xsize, curr_type)
         X,Y = self.master.getero.profiles[-1]
-        plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 0, 0, do_points=False)
+        if do_plot_line:
+            plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 0, 0)
         x_major_ticks = np.arange(0, self.master.getero.xsize, 10)+0.5
         x_minor_ticks = np.arange(0, self.master.getero.xsize, 1)+0.5
         y_major_ticks = np.arange(0, self.master.getero.ysize, 10)+0.5

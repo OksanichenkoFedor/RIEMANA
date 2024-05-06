@@ -3,8 +3,9 @@ from res.getero.algorithm.main_cycle import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
 import time
 from tqdm import trange
-from res.getero.algorithm.dynamic_profile import give_line_arrays
+from res.getero.algorithm.dynamic_profile import give_line_arrays, give_max_y
 from res.getero.frontend.grafic_funcs import plot_animation
+from res.getero.algorithm.dynamic_profile import delete_point, create_point
 
 
 class WaferGenerator:
@@ -17,13 +18,23 @@ class WaferGenerator:
         self.profiles.append([X, Y])
 
     def change_plasma_params(self, params):
-        self.y_ar_plus = params["y_ar_plus"]
-        self.y_cl = params["y_cl"]
-        self.y_cl_plus = params["y_cl_plus"]
+        n_full = (params["j_ar_plus"]+params["j_cl"]+params["j_cl_plus"])
+
+        self.y_ar_plus = params["j_ar_plus"]/n_full
+        self.y_cl = params["j_cl"]/n_full
+        self.y_cl_plus = params["j_cl_plus"]/n_full
+        self.cell_size = params["cell_size"]
+
+        self.N = n_full*self.xsize*self.cell_size*params["a_0"]
+        #print(self.N)
+        print(str(self.silicon_size*self.cell_size*(10**10))+" angstrem")
+
         self.T_i = params["T_i"]
-        self.T_e = params["T_e"]
+        self.U_i = params["U_i"]
 
     def run(self, num_iter, num_per_iter):
+        ftime = (num_iter*num_per_iter)/self.N
+        print("Full time: ", str(ftime)+" s.")
         self.master.contPanel.progress_bar["maximum"] = num_iter
         self.old_wif = self.is_full.copy()
         self.old_wca = self.counter_arr.copy()
@@ -32,7 +43,7 @@ class WaferGenerator:
 
             t1 = time.time()
             params = generate_particles(num_per_iter, self.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
-                                        y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.T_e, y0=self.y0)
+                                        y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.U_i, y0=self.y0)
             t2 = time.time()
             if self.y_cl_plus == 0.0:
                 R = 1000
@@ -49,9 +60,16 @@ class WaferGenerator:
                 X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5, 1.5,
                                         size=1)
                 self.profiles.append([X, Y])
-            if i % 250 == 0:
-                self.master.plotF.replot(i)
-                self.master.plotF.f.savefig("files/tmp"+str(i)+".png")
+            if i % 1000 == 0:
+                print("Num iter: "+str(i)+" Time: "+str(round(ftime*((i+1)/num_iter),3)))
+                y_max = give_max_y(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y)
+                y_0 = self.border + self.mask_height
+
+                depth = (y_max-y_0) * self.cell_size * (10 ** 10)
+                print("Depth: ", depth, " angstrem")
+                print("Speed: "+str(round((60*depth/ftime)))+" angstrem/min")
+                self.master.plotF.replot(i, False)
+                self.master.plotF.f.savefig("files/tmp_U"+str(round(self.U_i,1))+"_"+str(i)+".png")
                 #self.master.plotF.send_picture()
             t3 = time.time()
 
@@ -120,4 +138,9 @@ def generate_pure_wafer(object, multiplier, Si_num, fill_sicl3=False):
 
 
 
-
+def clear_between_mask(object):
+    for i in range(object.right_area - object.left_area):
+        for j in range(object.mask_height):
+            delete_point(object.border_arr, i+object.left_area, j+object.border)
+            object.counter_arr[:, i+object.left_area, j+object.border] = np.array([0, 0, 0, 0])
+            object.is_full[i+object.left_area, j+object.border] = 0

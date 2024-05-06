@@ -7,7 +7,7 @@ from res.plasma.reactions.reactions_conts import give_k
 from res.plasma.algorithm.with_aclr.chemical_kinetic import count_m_eff, count_ks_chem
 from res.plasma.algorithm.with_aclr.beta_s import count_beta_s
 
-from res.plasma.algorithm.with_aclr.utils import count_T_i, count_lambda, count_v, count_d_c, count_D_i
+from res.plasma.algorithm.with_aclr.utils import count_T_i, count_lambda, count_v, count_d_c, count_D_i, count_j
 
 
 @jit(nopython=True)
@@ -91,4 +91,6 @@ def count_T_e(n_vector, param_vector, chem_data, chem_connector):
     curr_T_e = curr_T_e * (1.0 + 0.0 * (2 * np.random.random() - 1))
     k_s = count_ks(curr_T_e, n_vector, param_vector, chem_data, chem_connector)
 
-    return k_s, curr_T_e
+
+
+    return k_s, curr_T_e, count_j(n_vector, param_vector, curr_T_e)
