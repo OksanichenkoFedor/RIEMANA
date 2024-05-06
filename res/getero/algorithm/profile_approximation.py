@@ -235,3 +235,18 @@ def is_collide(curr_x, curr_y, prev_x, prev_y, c_a_x0, c_a_y0, border_layer, cur
     plt.show()
 
     return collide
+
+
+@njit()
+def count_simple_norm_angle(curr_angle, is_on_horiz):
+    if is_on_horiz:
+        if curr_angle<0.5*np.pi or curr_angle>1.5*np.pi:
+            return np.pi
+        else:
+            return 0
+    else:
+        if curr_angle<np.pi:
+            return 0.5*np.pi
+        else:
+            return 1.5*np.pi
+
