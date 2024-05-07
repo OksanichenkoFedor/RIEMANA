@@ -9,7 +9,7 @@ from res.getero.reaction_consts.redepo_silicon import gamma_Si_redepo, gamma_Si_
 
 @njit()
 def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
-                    prev_farr, Si_num, normal_angle, curr_angle, curr_en):
+                    prev_farr, Si_num, normal_angle, start_angle, curr_en):
     p_Si_redepo = gamma_Si_redepo
     p_refl = 1.0 - p_Si_redepo
     curr_reaction = custom_choise([p_Si_redepo, p_refl])
@@ -19,9 +19,9 @@ def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
 
     if curr_reaction == 1:
         is_react = False
-        curr_angle = isotropic_reflection(curr_angle, normal_angle)
+        start_angle = isotropic_reflection(start_angle, normal_angle)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params
     is_react = True
     if curr_reaction == 0:
         curr_counter[0] += 1
@@ -36,11 +36,11 @@ def Si_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[3] = curr_counter[3] - prev_counter[3]
 
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params
 
 @njit()
 def SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
-                    prev_farr, Si_num, normal_angle, curr_angle, curr_en):
+                    prev_farr, Si_num, normal_angle, start_angle, curr_en):
     p_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]
     p_A = gamma_Si_SiCl2_redepo * curr_counter[0] / p_sum
     p_B = gamma_SiCl_SiCl2_redepo * curr_counter[1] / p_sum
@@ -55,9 +55,9 @@ def SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
 
     if curr_reaction == 4:
         is_react = False
-        curr_angle = isotropic_reflection(curr_angle, normal_angle)
+        start_angle = isotropic_reflection(start_angle, normal_angle)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params
 
     is_react = True
     if curr_reaction == 0:
@@ -79,12 +79,12 @@ def SiCl_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[3] = curr_counter[3] - prev_counter[3]
 
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params
 
 
 @njit()
 def SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
-                    prev_farr, Si_num, normal_angle, curr_angle, curr_en):
+                    prev_farr, Si_num, normal_angle, start_angle, curr_en):
     p_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]
     p_A = gamma_Si_SiCl_redepo * curr_counter[0] / p_sum
     p_B = gamma_SiCl_SiCl_redepo * curr_counter[1] / p_sum
@@ -97,9 +97,9 @@ def SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
 
     if curr_reaction == 4:
         is_react = False
-        curr_angle = isotropic_reflection(curr_angle, normal_angle)
+        start_angle = isotropic_reflection(start_angle, normal_angle)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params
 
     is_react = True
     if curr_reaction == 0:
@@ -121,4 +121,4 @@ def SiCl2_redepo(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[3] = curr_counter[3] - prev_counter[3]
 
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params

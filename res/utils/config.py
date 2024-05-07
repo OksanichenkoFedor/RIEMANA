@@ -7,7 +7,7 @@ do_njit = True
 cache = False
 parallel = False
 
-seed = 20
+seed = 40
 use_seed= False
 
 multiplier = 0.2 # 0.2 примерно топология 180 нм
@@ -19,7 +19,7 @@ wafer_plot_num = 0
 wafer_plot_types = ["is_cell", "Si", "SiCl", "SiCl2", "SiCl3"]
 
 num_iter = 3100
-num_per_iter = 40000
+num_per_iter = 4000
 
 
 plasma_params = {

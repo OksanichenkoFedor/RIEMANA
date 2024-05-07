@@ -227,26 +227,27 @@ def is_collide(curr_x, curr_y, prev_x, prev_y, c_a_x0, c_a_y0, border_layer, cur
     ax.plot(x_p, y_p, ".", color="g")
     ax.plot([n_a_x, c_a_x], [n_a_y, c_a_y], color="b")
     ax.plot(x_n, y_n, ".", color="b")
-    ax.arrow(curr_x, curr_y, 0.5*np.sin(curr_angle), 0.5*np.cos(curr_angle), color="k")
-    #ax.Rectangle((c_a_x0, c_a_y0), 1, 1, color="b")
-    ax.plot([c_a_x0, c_a_x0 + 1, c_a_x0 + 1, c_a_x0, c_a_x0], [c_a_y0, c_a_y0, c_a_y0 + 1, c_a_y0 + 1, c_a_y0], color="r")
+    ax.arrow(curr_x, curr_y, 0.5 * np.sin(curr_angle), 0.5 * np.cos(curr_angle), color="k")
+    # ax.Rectangle((c_a_x0, c_a_y0), 1, 1, color="b")
+    ax.plot([c_a_x0, c_a_x0 + 1, c_a_x0 + 1, c_a_x0, c_a_x0], [c_a_y0, c_a_y0, c_a_y0 + 1, c_a_y0 + 1, c_a_y0],
+            color="r")
     ax.invert_yaxis()
     ax.set_aspect(1)
     plt.show()
 
     return collide
 
-
 @njit()
 def count_simple_norm_angle(curr_angle, is_on_horiz):
     if is_on_horiz:
-        if curr_angle<0.5*np.pi or curr_angle>1.5*np.pi:
-            return np.pi
+        if curr_angle < 0.5 * np.pi or curr_angle > 1.5 * np.pi:
+            angle = np.pi
         else:
-            return 0
+            angle = 0
     else:
-        if curr_angle<np.pi:
-            return 0.5*np.pi
+        if curr_angle < np.pi:
+            angle = 1.5 * np.pi
         else:
-            return 1.5*np.pi
-
+            angle = 0.5 * np.pi
+    #print("Norm: ", curr_angle / np.pi, is_on_horiz, angle / np.pi)
+    return angle

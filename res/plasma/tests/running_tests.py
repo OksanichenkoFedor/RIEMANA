@@ -36,7 +36,7 @@ y_ar = np.arange(0.0,1.0,0.01)
 Ps = np.arange(0.8,2.0,0.02)*0.13333
 
 Times = []
-consts = give_consts("data.csv",do_rand=False)
+consts = give_consts("../../data/data.csv", do_rand=False)
 run_consist_model(p_0 = 10*0.13333, T_gas = 600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600, consts=consts)
 run_consist_model_old(p_0 = 10*0.13333, T_gas = 600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600)#, consts=consts)
 for i in trange(len(y_ar)):

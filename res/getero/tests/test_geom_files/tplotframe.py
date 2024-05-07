@@ -12,8 +12,7 @@ matplotlib.use('TkAgg')
 
 import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
-#from res.getero.algorithm.main_cycle import process_particles
-from res.getero.tests.test_geom_files.test_mc import process_particles
+from res.getero.algorithm.main_cycle import process_particles
 
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays, create_point
 
@@ -36,7 +35,7 @@ class TestPlotFrame(Frame):
         self.canvas.mpl_connect("button_press_event", self.click_mouse_event)
         self.canvas.mpl_connect("button_release_event", self.unclick_mouse_event)
         self.canvas.mpl_connect('key_press_event', self.click_keyboard)
-        generate_pure_wafer(self, 0.05, 1, fill_sicl3=True)
+        generate_pure_wafer(self, 0.005, 1, fill_sicl3=True)
         self.toolbarFrame = tk.Frame(master=self)
         self.toolbarFrame.grid(row=1, columnspan=2, sticky="w")
         self.toolbar1 = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
@@ -98,9 +97,9 @@ class TestPlotFrame(Frame):
         self.ax.grid(True)
         if not (self.arr_y is None):
             # print("FfFFF: ",self.arr_x, self.arr_y, self.rarr_x, self.rarr_y)
-            #self.ax.plot(self.rarr_x, self.rarr_y, "o", color="r")
-            #self.ax.plot(self.rarr_x, self.rarr_y, color="r")
-            #self.ax.plot(self.arr_x, self.arr_y, ".", color="g")
+            self.ax.plot(self.rarr_x, self.rarr_y, "o", color="r")
+            self.ax.plot(self.rarr_x, self.rarr_y, color="r")
+            self.ax.plot(self.arr_x, self.arr_y, ".", color="g")
             self.ax.plot(self.arr_x, self.arr_y, color="b")
         self.canvas.draw()
 
@@ -156,12 +155,12 @@ class TestPlotFrame(Frame):
             else:
                 R = self.y_cl / self.y_cl_plus
 
-            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particles = process_particles(self.counter_arr, self.is_full,
-                                                                                 self.border_arr, params_arr,
-                                                                                 self.Si_num,
-                                                                                 self.xsize, self.ysize, R, True, self)
+            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particlesc = process_particles(self.counter_arr,
+                                                                                 self.is_full, self.border_arr,
+                                                                                 params_arr, self.Si_num,
+                                                                                 self.xsize, self.ysize, R, self)
             self.recheck_cell()
-            #self.replot()
+            self.replot()
 
             self.canvas.draw()
             self.found = 0
@@ -170,7 +169,7 @@ class TestPlotFrame(Frame):
         self.clicked = False
 
     def click_keyboard(self, event):
-        print('Key pressed:', event.key)
+        # print('Key pressed:', event.key)
         if event.key == "right":
             # print("1")
             if self.test_x < self.xsize:
@@ -201,8 +200,8 @@ class TestPlotFrame(Frame):
         elif event.key == "r":
             print("reconstruct")
             #self.cursed_params = [[20.740437817923226, 0.0, 1.0, 40.0, 6.248322057011167, 3.0, 20.0, 0.0]]
-            self.cursed_params = [[53.0, 59.092634209896865, 0.0, 0.0, 4.996420459345932, 7.0, 53.0, 59.0]]
-            f = open("del6.txt")
+            #self.cursed_params = [[20.321909235834088, 12.0, 1.0, 19.43, 3.176455903758212, 9.0, 20.0, 11.0]]
+            f = open("del5.txt")
             A = f.readlines()
             f.close()
             for line in A[:]:
@@ -225,7 +224,6 @@ class TestPlotFrame(Frame):
                     self.is_full[prev_x, prev_y] = 1
                     create_point(self.border_arr, prev_x, prev_y, curr_x, curr_y)
                     print("Create: ", prev_x, prev_y, " from: ", curr_x, curr_y)
-            print("ffdfd")
             self.replot()
             self.ax.plot(self.cursed_params[0][0], self.cursed_params[0][1], ".", color=(0.5, 0.7, 0.3))
             print("angle: ", self.cursed_params[0][4] / np.pi)
@@ -238,11 +236,10 @@ class TestPlotFrame(Frame):
             else:
                 R = self.y_cl / self.y_cl_plus
 
-            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particles = process_particles(self.counter_arr,
-                                                                                                     self.is_full,
+            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particles = process_particles(self.counter_arr, self.is_full,
                                                                                  self.border_arr, self.cursed_params,
                                                                                  self.Si_num,
-                                                                                 self.xsize, self.ysize, R, True, self,
+                                                                                 self.xsize, self.ysize, R, True,
                                                                                  max_value=40)
             print("end cursed reaction")
             self.recheck_cell()

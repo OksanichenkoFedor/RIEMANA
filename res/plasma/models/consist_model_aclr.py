@@ -5,6 +5,7 @@ from res.plasma.reactions.consts import e, k_b
 from res.plasma.algorithm.with_aclr.electron_temperature import count_T_e
 from res.plasma.algorithm.with_aclr.energy_loss import count_n_e
 from res.plasma.algorithm.with_aclr.chemical_kinetic import count_simple_start, solve_subsistem_consist, count_ions
+from res.plasma.algorithm.with_aclr.utils import count_T_i
 
 
 
@@ -98,7 +99,8 @@ def run_consist_model(p_0, T_gas, R, L, gamma_cl, y_ar, W, consts,plot_error=Fal
         "j_cl": j_cl,
         "j_ar_plus": j_ar_plus,
         "j_cl_plus": j_cl_plus,
-        "j_cl2_plus": j_cl2_plus
+        "j_cl2_plus": j_cl2_plus,
+        "T_i": count_T_i(p_0, T_gas)*(k_b/e)
     }
 
     if plot_error:

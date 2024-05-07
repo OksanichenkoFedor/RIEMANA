@@ -1,14 +1,11 @@
 import numpy as np
 
-from res.getero.entities.wafer import Wafer
+from res.global_entities.wafer import Wafer
 from res.getero.algorithm.dynamic_profile import give_line_arrays
 from res.getero.frontend.grafic_funcs import plot_line
-from res.getero.algorithm.profile_approximation import give_part_of_border, give_mnk, line_approximationr
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle, Circle
-
-from numba import njit
+from matplotlib.patches import Rectangle
 
 W = Wafer(0.05, 1)
 W.process_file("del6.txt")

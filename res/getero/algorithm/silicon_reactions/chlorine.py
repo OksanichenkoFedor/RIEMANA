@@ -15,7 +15,7 @@ from res.getero.reaction_consts.angular_dependences import ion_enh_etch_an_dep, 
 
 @njit()
 def clorine_etching(curr_type, curr_counter, prev_counter, curr_farr,
-                    prev_farr, Si_num, normal_angle, curr_angle, curr_en):
+                    prev_farr, Si_num, normal_angle, start_angle, curr_en):
     p_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]
     p_A = gamma_Cl_A * curr_counter[0] / p_sum
     p_B = gamma_Cl_B * curr_counter[1] / p_sum
@@ -31,9 +31,9 @@ def clorine_etching(curr_type, curr_counter, prev_counter, curr_farr,
     if curr_reaction == 4:
         is_react = False
 
-        curr_angle = isotropic_reflection(curr_angle, normal_angle)#straight_reflection(curr_angle, normal_angle)
+        start_angle = isotropic_reflection(start_angle, normal_angle)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params
 
     is_react = True
     if curr_reaction == 0:
@@ -48,7 +48,7 @@ def clorine_etching(curr_type, curr_counter, prev_counter, curr_farr,
     elif curr_reaction == 3:
         curr_counter[3] -= 1
         is_redepo = True
-        redepo_angle = isotropic_reflection(curr_angle, normal_angle)
+        redepo_angle = isotropic_reflection(start_angle, normal_angle)
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 8, 0, 0])
 
     # TODO разобраться с нормальным уничтожением ячейки
@@ -58,12 +58,12 @@ def clorine_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[0], curr_counter[1], curr_counter[2], curr_counter[3] = 0, 0, 0, 0
 
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-           is_react, curr_angle, curr_en, is_redepo, redepo_params
+           is_react, start_angle, curr_en, is_redepo, redepo_params
 
 
 @njit()
 def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
-                        prev_farr, Si_num, normal_angle, curr_angle, curr_en, R):
+                        prev_farr, Si_num, normal_angle, start_angle, curr_en, R):
     c_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]
 
     p_sicl1_ie = otn_const * np.log(R) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl * curr_counter[
@@ -72,6 +72,8 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
                  curr_counter[2] * (curr_counter[0] / c_sum)
     p_sicl3_ie = otn_const * np.log(R) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl3 * \
                  curr_counter[3]
+
+    curr_angle = np.abs(normal_angle - (np.pi + start_angle))
 
     p_sicl0_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_cl_sicl0_sp)) * K_sp_cl_sicl0 * curr_counter[0]
     p_sicl1_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_cl_sicl1_sp)) * K_sp_cl_sicl1 * curr_counter[1]
@@ -88,9 +90,9 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         is_redepo = False
         redepo_params = np.zeros((8))
         curr_type = 0  # ион хлора нейтрализуется
-        curr_angle = straight_reflection(curr_angle, normal_angle)
+        start_angle = straight_reflection(start_angle, normal_angle)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params
     p_sicl1_ie = p_sicl1_ie * ion_enh_etch_an_dep(curr_angle) / p_sum
     p_sicl2_ie = p_sicl2_ie * ion_enh_etch_an_dep(curr_angle) / p_sum
     p_sicl3_ie = p_sicl3_ie * ion_enh_etch_an_dep(curr_angle) / p_sum
@@ -110,16 +112,16 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         is_redepo = False
         redepo_params = np.zeros((8))
         curr_type = 0  # ион хлора нейтрализуется
-        curr_angle = straight_reflection(curr_angle, normal_angle)
+        start_angle = straight_reflection(start_angle, normal_angle)
         return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, curr_angle, curr_en, is_redepo, redepo_params
+               is_react, start_angle, curr_en, is_redepo, redepo_params
     if curr_reaction == 0:
         # sp: Si_s -> Si_g
         curr_en = curr_en - E_th_cl_sicl0_sp
         curr_type = 0  # ион хлора нейтрализуется
         is_react = False
-        redepo_angle = isotropic_reflection(curr_angle, normal_angle)
-        curr_angle = straight_reflection(curr_angle, normal_angle)
+        redepo_angle = isotropic_reflection(start_angle, normal_angle)
+        start_angle = straight_reflection(start_angle, normal_angle)
         curr_counter[0] -= 1
         is_redepo = True
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 4, 0, 0])
@@ -129,8 +131,8 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_en = curr_en - E_th_cl_sicl1_sp
         curr_type = 0
         is_react = False
-        redepo_angle = isotropic_reflection(curr_angle, normal_angle)
-        curr_angle = straight_reflection(curr_angle, normal_angle)
+        redepo_angle = isotropic_reflection(start_angle, normal_angle)
+        start_angle = straight_reflection(start_angle, normal_angle)
         curr_counter[1] -= 1
         is_redepo = True
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 5, 0, 0])
@@ -140,8 +142,8 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_en = curr_en - E_th_cl_sicl2_sp
         curr_type = 0  # ион хлора нейтрализуется
         is_react = False
-        redepo_angle = isotropic_reflection(curr_angle, normal_angle)
-        curr_angle = straight_reflection(curr_angle, normal_angle)
+        redepo_angle = isotropic_reflection(start_angle, normal_angle)
+        start_angle = straight_reflection(start_angle, normal_angle)
         curr_counter[2] -= 1
         is_redepo = True
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6, 0, 0])
@@ -151,8 +153,8 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_en = curr_en - E_th_cl_sicl3_sp
         curr_type = 0  # ион хлора нейтрализуется
         is_react = False
-        redepo_angle = isotropic_reflection(curr_angle, normal_angle)
-        curr_angle = straight_reflection(curr_angle, normal_angle)
+        redepo_angle = isotropic_reflection(start_angle, normal_angle)
+        start_angle = straight_reflection(start_angle, normal_angle)
         curr_counter[3] -= 1
         is_redepo = True
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 7, 0, 0])
@@ -162,7 +164,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         is_react = True
         curr_counter[1] -= 1
         is_redepo = True
-        redepo_angle = isotropic_reflection(curr_angle, normal_angle)
+        redepo_angle = isotropic_reflection(start_angle, normal_angle)
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6, 0, 0])
         # TODO угол отражённого иона
     elif curr_reaction == 5:
@@ -172,7 +174,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[2] -= 1
         curr_counter[1] += 1
         is_redepo = True
-        redepo_angle = isotropic_reflection(curr_angle, normal_angle)
+        redepo_angle = isotropic_reflection(start_angle, normal_angle)
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6, 0, 0])
         # TODO угол отражённого иона
     elif curr_reaction == 6:
@@ -180,7 +182,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         is_react = True
         curr_counter[3] -= 1
         is_redepo = True
-        redepo_angle = isotropic_reflection(curr_angle, normal_angle)
+        redepo_angle = isotropic_reflection(start_angle, normal_angle)
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 8, 0, 0])
         # TODO угол отражённого иона
 
@@ -191,4 +193,4 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
         curr_counter[0], curr_counter[1], curr_counter[2], curr_counter[3] = 0, 0, 0, 0
 
     return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-           is_react, curr_angle, curr_en, is_redepo, redepo_params
+           is_react, start_angle, curr_en, is_redepo, redepo_params

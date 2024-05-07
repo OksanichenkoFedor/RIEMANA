@@ -201,16 +201,16 @@ def check_if_inside(border_layer_arr, curr_x, curr_y):
     return is_inside
 
 
-def give_line_arrays(border_layer, prev_x, prev_y, next_x, next_y, curr_x, curr_y, size=1):
+def give_line_arrays(border_layer, prev_x, prev_y, next_x, next_y, curr_x, curr_y):
     x, y = prev_x, prev_y
     X = []
     Y = []
     while x != next_x or y != next_y:
-        X.append(x)
-        Y.append(y)
+        X.append(int(x))
+        Y.append(int(y))
         x, y = border_layer[x, y, 3], border_layer[x, y, 4]
-    X.append((x) * size)
-    Y.append((y) * size)
+    X.append(int(x))
+    Y.append(int(y))
     return X, Y
 
 def give_max_y(border_layer, prev_x, prev_y, next_x, next_y):

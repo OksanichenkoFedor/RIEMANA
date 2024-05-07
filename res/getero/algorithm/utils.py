@@ -24,11 +24,12 @@ def straight_reflection(curr_angle, n_angle):
     #else:
     #    angle = 2.0 * np.pi - angle
     angle = 2*n_angle-(curr_angle+np.pi)
-    if angle>2*np.pi:
+    while angle>2*np.pi:
         angle -= 2.0 * np.pi
 
-    if angle<0:
+    while angle<0:
         angle += 2.0 * np.pi
+    #print("Straight: ",curr_angle/np.pi, n_angle/np.pi, angle/np.pi)
     return angle
 
 
@@ -42,6 +43,7 @@ def generate_cos_point():
 
 @njit()
 def isotropic_reflection(curr_angle, n_angle):
+    #return straight_reflection(curr_angle, n_angle)
     dop_angle = generate_cos_point()
     angle = n_angle + dop_angle
     if angle > 2 * np.pi:

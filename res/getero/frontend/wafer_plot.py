@@ -47,15 +47,15 @@ class WaferPlotFrame(tk.Frame):
         self.ax.set_xlabel('x')
         self.ax.set_ylabel('y')
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
-        plot_cells(self.ax, self.master.getero.counter_arr, self.master.getero.is_full,
-                   self.master.getero.ysize, self.master.getero.xsize, curr_type)
-        X,Y = self.master.getero.profiles[-1]
+        plot_cells(self.ax, self.master.getero.wafer.counter_arr, self.master.getero.wafer.is_full,
+                   self.master.getero.wafer.ysize, self.master.getero.wafer.xsize, curr_type)
+        X,Y = self.master.getero.wafer.profiles[-1]
         if do_plot_line:
-            plot_line(self.ax, X, Y, self.master.getero.start_x, self.master.getero.start_y, 0, 0)
-        x_major_ticks = np.arange(0, self.master.getero.xsize, 10)+0.5
-        x_minor_ticks = np.arange(0, self.master.getero.xsize, 1)+0.5
-        y_major_ticks = np.arange(0, self.master.getero.ysize, 10)+0.5
-        y_minor_ticks = np.arange(0, self.master.getero.ysize, 1)+0.5
+            plot_line(self.ax, X, Y, self.master.getero.wafer.start_x, self.master.getero.wafer.start_y, 0, 0, do_points=False)
+        x_major_ticks = np.arange(0, self.master.getero.wafer.xsize, 10)+0.5
+        x_minor_ticks = np.arange(0, self.master.getero.wafer.xsize, 1)+0.5
+        y_major_ticks = np.arange(0, self.master.getero.wafer.ysize, 10)+0.5
+        y_minor_ticks = np.arange(0, self.master.getero.wafer.ysize, 1)+0.5
         self.ax.set_xticks(x_major_ticks)
         self.ax.set_xticks(x_minor_ticks, minor=True)
         self.ax.set_yticks(y_major_ticks)
@@ -65,7 +65,7 @@ class WaferPlotFrame(tk.Frame):
         self.ax.get_xaxis().set_visible(False)
         self.ax.get_yaxis().set_visible(False)
         self.canvas.draw()
-        plot_animation(self.master.getero.profiles, self.master.getero.xsize, self.master.getero.ysize,num)
+        #plot_animation(self.master.getero.wafer.profiles, self.master.getero.wafer.xsize, self.master.getero.wafer.ysize,num)
         end = time.time()
         #print("Plot time: ", round(end-start, 3))
 
@@ -81,9 +81,9 @@ class WaferPlotFrame(tk.Frame):
         pass
 
     def send_picture(self):
-        self.f.savefig("tmp.png")
-        throw_plot("tmp.png", 710672679)
-        throw_plot("tmp.gif", 710672679)
+        self.f.savefig("files/tmp.png")
+        throw_plot("files/tmp.png", 710672679)
+        throw_plot("files/tmp.gif", 710672679)
         try:
             pass
         except:

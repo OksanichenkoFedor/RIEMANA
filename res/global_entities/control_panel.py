@@ -4,28 +4,6 @@ import tkinter as tk
 from tkinter import Entry, Label
 from tkinter.ttk import Progressbar
 
-import res.utils.config as config
-from res.getero.algorithm.wafer_generator import WaferGenerator
-from res.getero.frontend.wafer_plot import WaferPlotFrame
-
-
-class AppFrame(Frame):
-
-    def __init__(self):
-        super().__init__()
-
-        self.getero = WaferGenerator(self,config.multiplier, config.Si_num)
-        self.getero.change_plasma_params(config.plasma_params)
-        self.initUI()
-
-    def initUI(self):
-        self.pack(fill=BOTH, expand=True)
-
-        self.plotF = WaferPlotFrame(self)
-        self.plotF.grid(row=0, column=0, rowspan=4)
-        self.contPanel = ControlPanel(self)
-        self.contPanel.grid(row=0, column=1, rowspan=4)
-
 
 class ControlPanel(Frame):
     def __init__(self, parent):
@@ -48,7 +26,7 @@ class ControlPanel(Frame):
         self.num_iter_lbl = Label(self, text="Number of iterations: ")
         self.num_iter_lbl.grid(row=0, column=0)
         self.num_iter_ent = Entry(self, textvariable=self.num_iter)
-        self.num_iter.set(config.num_iter)
+        self.num_iter.set(self.master.num_iter)
         self.num_iter_ent.grid(row=0, column=1)
         self.num_iter_status_lbl = tk.Label(self, textvariable=self.num_iter_status_text, fg="green")
         self.num_iter_status_text.set("Correct value")
@@ -58,20 +36,20 @@ class ControlPanel(Frame):
                                    value=self.num_iter: self.num_iter_callback(name, index, mode, status, colr,
                                                                                value))
 
-        self.num_per_iter = tk.StringVar()
-        self.num_per_iter_status_text = tk.StringVar()
-        self.num_per_iter_lbl = Label(self, text="Number of particles per iteration: ")
-        self.num_per_iter_lbl.grid(row=2, column=0)
-        self.num_per_iter_ent = Entry(self, textvariable=self.num_per_iter)
-        self.num_per_iter.set(config.num_per_iter)
-        self.num_per_iter_ent.grid(row=2, column=1)
-        self.num_per_iter_status_lbl = tk.Label(self, textvariable=self.num_per_iter_status_text, fg="green")
-        self.num_per_iter_status_text.set("Correct value")
-        self.num_per_iter_status_lbl.grid(row=3, column=0, columnspan=2)
-        self.num_per_iter.trace("w",
-                                lambda name, index, mode, status=self.num_per_iter_status_text,
-                                       colr=self.num_per_iter_status_lbl,
-                                       value=self.num_per_iter: self.num_per_iter_callback(name, index, mode, status,
+        self.time_v = tk.StringVar()
+        self.time_status_text = tk.StringVar()
+        self.time_lbl = Label(self, text="Time(s): ")
+        self.time_lbl.grid(row=2, column=0)
+        self.time_ent = Entry(self, textvariable=self.time_v)
+        self.time_v.set(self.master.time)
+        self.time_ent.grid(row=2, column=1)
+        self.time_status_lbl = tk.Label(self, textvariable=self.time_status_text, fg="green")
+        self.time_status_text.set("Correct value")
+        self.time_status_lbl.grid(row=3, column=0, columnspan=2)
+        self.time_v.trace("w",
+                                lambda name, index, mode, status=self.time_status_text,
+                                       colr=self.time_status_lbl,
+                                       value=self.time_v: self.time_callback(name, index, mode, status,
                                                                                            colr,
                                                                                            value))
 
@@ -97,21 +75,10 @@ class ControlPanel(Frame):
 
     def simulate(self):
         self.sleep()
-        self.master.getero.run(config.num_iter, config.num_per_iter)
-        self.master.plotF.replot()
-        self.master.plotF.send_picture()
+        self.master.run()
+        #self.master.plotF.replot()
+        #self.master.plotF.send_picture()
         self.wakeUp()
-        #self.bback.config(state=tk.NORMAL)
-
-    #def go_back(self):
-    #    self.sleep()
-    #    print("Back!!!")
-    #    print(config.wafer_is_full is config.old_wif)
-    #    config.wafer_is_full = config.old_wif.copy()
-    #    config.wafer_counter_arr = config.old_wca.copy()
-    #    self.master.plotF.replot()
-    #    self.wakeUp()
-    #    self.bback.config(state=tk.DISABLED)
 
     def num_iter_callback(self, name, index, mode, status, colr, value):
         good_value = False
@@ -122,7 +89,7 @@ class ControlPanel(Frame):
             pass
         if good_value:
             if num_iter >= 1:
-                config.num_iter = num_iter
+                self.master.num_iter = num_iter
                 status.set("Correct value")
                 colr.configure(fg="green")
             else:
@@ -132,41 +99,40 @@ class ControlPanel(Frame):
             status.set("Enter the integer number")
             colr.configure(fg="red")
 
-    def num_per_iter_callback(self, name, index, mode, status, colr, value):
+    def time_callback(self, name, index, mode, status, colr, value):
         good_value = False
         try:
-            num_per_iter = int(value.get())
+            time = float(value.get())
             good_value = True
         except:
             pass
         if good_value:
-            if num_per_iter >= 1:
-                config.num_per_iter = num_per_iter
+            if time > 0:
+                self.master.time = time
                 status.set("Correct value")
                 colr.configure(fg="green")
             else:
-                status.set("Number of particles per iteration must be equal or more than 1")
+                status.set("Number of particles per iteration must be more than 0")
                 colr.configure(fg="red")
         else:
-            status.set("Enter the integer number")
+            status.set("Enter the number")
             colr.configure(fg="red")
 
     def sleep(self):
         self.bsim.config(state=tk.DISABLED)
-        #self.bback.config(state=tk.DISABLED)
         self.bchange_type.config(state=tk.DISABLED)
         self.num_iter_ent.config(state=tk.DISABLED)
-        self.num_per_iter_ent.config(state=tk.DISABLED)
+        self.time_ent.config(state=tk.DISABLED)
 
     def wakeUp(self):
         self.bsim.config(state=tk.NORMAL)
-        #self.bback.config(state=tk.NORMAL)
         self.bchange_type.config(state=tk.NORMAL)
         self.num_iter_ent.config(state=tk.NORMAL)
-        self.num_per_iter_ent.config(state=tk.NORMAL)
+        self.time_ent.config(state=tk.NORMAL)
 
     def change_type(self):
-        config.wafer_plot_num = (config.wafer_plot_num + 1) % len(config.wafer_plot_types)
+
+        self.master.change_wafer_plot_type()
         self.sleep()
         self.master.plotF.replot()
         self.wakeUp()

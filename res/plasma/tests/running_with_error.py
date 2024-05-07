@@ -33,7 +33,7 @@ plot_arrays = {
     "W_inel_Cl2": np.zeros((N_rep, y_ar.shape[0])),
     "W_inel_Cl": np.zeros((N_rep, y_ar.shape[0])),
 }
-consts = give_consts("data.csv", do_rand=False)
+consts = give_consts("../../data/data.csv", do_rand=False)
 run = run_consist_model(p_0=10 * 0.13333, T_gas=600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.5, W=600, consts=consts)
 def print_j(cres,y_ar):
     print("---")
@@ -49,7 +49,7 @@ print_j(res,0.1)
 res = run_consist_model(p_0=10 * 0.13333, T_gas=600, R=0.15, L=0.14, gamma_cl=0.02, y_ar=0.9, W=600, consts=consts)
 print_j(res,0.9)
 for i in trange(N_rep):
-    consts = give_consts("data.csv", do_rand=True)
+    consts = give_consts("../../data/data.csv", do_rand=True)
     for j in range(len(y_ar)):
         curr_y_ar = y_ar[j]
         # print("dfdf: ",curr_y_ar)
