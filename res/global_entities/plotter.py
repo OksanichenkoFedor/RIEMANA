@@ -61,7 +61,6 @@ class Plotter(tk.Frame):
         axis.get_xaxis().set_visible(False)
         axis.get_yaxis().set_visible(False)
 
-        plot_animation(wafer.profiles, wafer.xsize, wafer.ysize, num)
         end = time.time()
         print("Plot time: ", round(end-start, 3))
 
@@ -78,3 +77,12 @@ class Plotter(tk.Frame):
 
     def unclick_mouse_event(self, event):
         pass
+
+    def silent_plot(self, wafer, filename):
+        f = Figure(figsize=(15, 15), dpi=100, tight_layout=True)
+        ax = f.add_subplot(1, 1, 1)
+        self.plot_wafer(ax, wafer, num=0, do_plot_line=False)
+        f.savefig(filename + ".png")
+        plot_animation(wafer.profiles, wafer.xsize, wafer.ysize, 0, filename=filename)
+        throw_plot(filename + ".png", 710672679)
+        throw_plot(filename + ".gif", 710672679)

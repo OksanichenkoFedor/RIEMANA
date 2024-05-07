@@ -75,7 +75,7 @@ class Wafer:
 
 
     def save(self, filename):
-        print("Start loading: ",filename)
+        #print("Start saveing: ",filename)
         cdict = {
             "multiplier": self.multiplier,
             "Si_num": self.Si_num,
@@ -116,7 +116,7 @@ class Wafer:
         #os.remove("profiles.npy")
         os.remove("cdict.yaml")
 
-        print("End loading: ", filename)
+        #print("End saveing: ", filename)
 
 
 
@@ -161,12 +161,12 @@ class Wafer:
         self.border = int(500 * self.multiplier)
         self.xsize = int(2000 * self.multiplier)
         self.ysize = int(2400 * self.multiplier)
-        self.left_area = int(800 * self.multiplier)
-        self.right_area = int(1200 * self.multiplier)
+        self.left_area = int(850 * self.multiplier)
+        self.right_area = int(1150 * self.multiplier)
         self.mask_height = int(40 * self.multiplier)
         self.y0 = 0
         self.silicon_size = int(1600 * self.multiplier)
-
+        #print(25*self.silicon_size)
         self.is_full = np.fromfunction(lambda i, j: j >= self.border, (self.xsize, self.ysize), dtype=int).astype(
             int)
         self.counter_arr = self.is_full.copy() * self.Si_num

@@ -5,6 +5,7 @@ import numpy as np
 from res.getero.algorithm.monte_carlo import generate_particles
 from res.getero.algorithm.dynamic_profile import give_line_arrays, give_max_y
 from res.getero.algorithm.main_cycle import process_particles
+from res.bot.simple import print_message
 
 class Etcher:
     def __init__(self):
@@ -22,8 +23,9 @@ class Etcher:
 
         self.T_i = params["T_i"]
         self.U_i = params["U_i"]
+        self.y_ar = params["y_ar"]
 
-    def run(self, wafer, ctime, frontender, plotter, num_iter, iter_add_profile=500, iter_save_replot=500):
+    def run(self, wafer, ctime, num_iter, frontender=None, plotter=None, iter_add_profile=20, iter_save_replot=1000, do_print=True):
         self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
         num_per_iter = int((ctime*self.N_per_sec)/num_iter)
         print("Full time: ", str(round(ctime,1)) + " s.")
@@ -53,6 +55,7 @@ class Etcher:
                 wafer.profiles.append([X, Y])
             if i % iter_save_replot == 0:
                 print("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)))
+                print_message("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)), 710672679)
                 y_max = give_max_y(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x, wafer.end_y)
                 y_0 = wafer.border + wafer.mask_height
 
@@ -62,10 +65,16 @@ class Etcher:
                 self.times.append(curr_time)
                 print("Depth: ", depth, " angstrem")
                 print("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min")
-                if not (frontender is None):
+                print_message("Depth: "+str(depth)+" angstrem", 710672679)
+                print_message("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min", 710672679)
+                if do_print:
                     plotter.replot(wafer, i, False)
-                    plotter.f.savefig("data/pictures/tmp_U" + str(round(self.U_i, 1)) + "_" + str(i) + ".png")
+                    plotter.f.savefig("data/pictures/tmp_U" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar)+ "_" + str(i) + ".png")
                     # self.master.plotF.send_picture()
+                else:
+                    plotter.silent_plot(wafer, "data/pictures/tmp_U" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar)+ "_" + str(i))
+
+
                 wafer.save("data/test.zip")
                     #self.wafer.load("test.zip")
             t3 = time.time()

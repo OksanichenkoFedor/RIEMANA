@@ -49,7 +49,7 @@ def plot_line(axis, X, Y, prev_x, prev_y, curr_x, curr_y, size=1, do_points=True
 
 
 
-def plot_animation(profiles, xsize, ysize, num):
+def plot_animation(profiles, xsize, ysize, num, filename=None):
     fig, ax = plt.subplots(figsize=(10,10))
     x_major_ticks = np.arange(0, xsize, 10)
     x_minor_ticks = np.arange(0, xsize, 1)
@@ -74,6 +74,9 @@ def plot_animation(profiles, xsize, ysize, num):
 
 
     ani = animation.FuncAnimation(fig=fig, func=update, frames=len(profiles), interval=50)
-    ani.save("data/pictures/tmp"+str(num)+".gif", writer='pillow')
+    if filename is None:
+        ani.save("data/pictures/tmp"+str(num)+".gif", writer='pillow')
+    else:
+        ani.save(filename+".gif", writer='pillow')
 
     #plt.show()
