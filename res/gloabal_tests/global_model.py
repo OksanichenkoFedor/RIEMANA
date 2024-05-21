@@ -7,5 +7,5 @@ from tkinter import Tk
 
 
 root = Tk()
-app = MainFrame(0.15)
+app = MainFrame(0.02)
 root.mainloop()

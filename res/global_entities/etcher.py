@@ -1,84 +1,29 @@
-from tqdm import trange
-import time
-import numpy as np
-
-from res.getero.algorithm.monte_carlo import generate_particles
-from res.getero.algorithm.dynamic_profile import give_line_arrays, give_max_y
-from res.getero.algorithm.main_cycle import process_particles
-from res.bot.simple import print_message
-
+from res.global_entities.getero import Getero
+from res.global_entities.plasmer import Plasmer
+from res.global_entities.wafer import Wafer
 class Etcher:
-    def __init__(self):
-        self.times = []
-        self.depths = []
+    def __init__(self, multiplier, consts_filename="data/data.csv"):
+        self.const_params = {
+            "a_0": ((1839 * 28 * 9.1 * 10 ** (-31)) / 2330) ** (1.0 / 3.0),
+            "cell_size": 2.5 * (10.0 ** (-9)),
+            "num_iter": 3010
+        }
+        self.multiplier = multiplier
+        self.consts_filename = consts_filename
+        self.init()
 
-    def change_plasma_params(self, params):
-        self.j_full = (params["j_ar_plus"]+params["j_cl"]+params["j_cl_plus"])
+    def init(self):
+        self.getero = Getero()
+        self.wafer = Wafer(self.multiplier)
+        self.plasmer = Plasmer(self.consts_filename)
 
-        self.y_ar_plus = params["j_ar_plus"]/self.j_full
-        self.y_cl = params["j_cl"]/self.j_full
-        self.y_cl_plus = params["j_cl_plus"]/self.j_full
-        self.cell_size = params["cell_size"]
-        self.a_0 = params["a_0"]
-
-        self.T_i = params["T_i"]
-        self.U_i = params["U_i"]
-        self.y_ar = params["y_ar"]
-
-    def run(self, wafer, ctime, num_iter, frontender=None, plotter=None, iter_add_profile=20, iter_save_replot=1000, do_print=True):
-        self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
-        num_per_iter = int((ctime*self.N_per_sec)/num_iter)
-        print("Full time: ", str(round(ctime,1)) + " s.")
-        print("Number particles per iteration: ", str(num_per_iter))
-        if not (frontender is None):
-            frontender.progress_bar["maximum"] = num_iter
-            frontender.style.configure("LabeledProgressbar", text=str(1) + "/" + str(num_iter))
-        wafer.old_wif = wafer.is_full.copy()
-        wafer.old_wca = wafer.counter_arr.copy()
-        #print(self.y_ar_plus, self.y_cl, self.y_cl_plus, self.U_i, wafer.y0, wafer.xsize, num_per_iter, self.T_i)
-        #print(np.mean(wafer.counter_arr))
-        for i in trange(num_iter):
-
-            t1 = time.time()
-            params = generate_particles(num_per_iter, wafer.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
-                                        y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.U_i, y0=wafer.y0)
-            t2 = time.time()
-            if self.y_cl_plus == 0.0:
-                R = 1000
-            else:
-                R = self.y_cl / self.y_cl_plus
-            res = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
-                                    wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False)
-            if i % iter_add_profile == 0 and i!=0:
-                X, Y = give_line_arrays(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x,
-                                        wafer.end_y, 1.5, 1.5)
-                wafer.profiles.append([X, Y])
-            if i % iter_save_replot == 0:
-                print("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)))
-                print_message("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)), 710672679)
-                y_max = give_max_y(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x, wafer.end_y)
-                y_0 = wafer.border + wafer.mask_height
-
-                depth = (y_max - y_0) * self.cell_size * (10 ** 10)
-                curr_time = ctime * ((i + 1) / num_iter)
-                self.depths.append(depth)
-                self.times.append(curr_time)
-                print("Depth: ", depth, " angstrem")
-                print("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min")
-                print_message("Depth: "+str(depth)+" angstrem", 710672679)
-                print_message("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min", 710672679)
-                if do_print:
-                    plotter.replot(wafer, i, False)
-                    plotter.f.savefig("data/pictures/tmp_U" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar)+ "_" + str(i) + ".png")
-                    # self.master.plotF.send_picture()
-                else:
-                    plotter.silent_plot(wafer, "data/pictures/tmp_U" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar)+ "_" + str(i))
+    def run(self, params, start_filename=""):
+        time = params["time"]
+        num_iter = self.const_params["num_iter"]
+        plasma_params = self.plasmer.count_plasma(params)
+        plasma_params.update(self.const_params)
+        plasma_params.update(params)
+        self.getero.change_plasma_params(plasma_params)
+        self.getero.run(self.wafer, time, num_iter, start_filename=start_filename)
 
 
-                wafer.save("data/test.zip")
-                    #self.wafer.load("test.zip")
-            t3 = time.time()
-            if not (frontender is None):
-                frontender.progress_var.set(i + 1)
-                frontender.progress_bar.update()
-                frontender.style.configure("LabeledProgressbar", text=str(i + 2) + "/" + str(num_iter))
