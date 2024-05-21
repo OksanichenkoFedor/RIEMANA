@@ -41,7 +41,6 @@ class Wafer:
                 if verbose:
                     print("Create: ", prev_x, prev_y, " from: ", curr_x, curr_y)
 
-
     def give_part_of_border(self, target_x, target_y, num_one_side_points):
         # ищем начало
         X, Y = np.zeros(2 * num_one_side_points + 1), np.zeros(2 * num_one_side_points + 1)
@@ -52,8 +51,8 @@ class Wafer:
             new_x, new_y = self.border_arr[start_x, start_y, 1], self.border_arr[start_x, start_y, 2]
             if new_x != -1 and new_y != -1:
                 start_x, start_y = new_x, new_y
-            X[num_one_side_points - (i+1)] = start_x
-            Y[num_one_side_points - (i+1)] = start_y
+            X[num_one_side_points - (i + 1)] = start_x
+            Y[num_one_side_points - (i + 1)] = start_y
 
         end_x, end_y = target_x, target_y
         for i in range(num_one_side_points):
@@ -68,14 +67,13 @@ class Wafer:
     def give_el_border(self, target_num):
         curr_x, curr_y = self.start_x, self.start_y
         num = 0
-        while num<target_num and (curr_x!=self.end_x or curr_y!=self.end_y):
-            curr_x, curr_y = self.border_arr[curr_x, curr_y, 3],  self.border_arr[curr_x, curr_y, 4]
-            num+=1
+        while num < target_num and (curr_x != self.end_x or curr_y != self.end_y):
+            curr_x, curr_y = self.border_arr[curr_x, curr_y, 3], self.border_arr[curr_x, curr_y, 4]
+            num += 1
         return curr_x, curr_y
 
-
     def save(self, filename):
-        #print("Start saveing: ",filename)
+        # print("Start saveing: ",filename)
         cdict = {
             "multiplier": self.multiplier,
             "Si_num": self.Si_num,
@@ -91,7 +89,7 @@ class Wafer:
             "start_y": self.start_y,
             "end_x": self.end_x,
             "end_y": self.end_y,
-            "profiles":self.profiles
+            "profiles": self.profiles
         }
         conf = OmegaConf.create(cdict)
         OmegaConf.save(config=conf, f="cdict.yaml")
@@ -99,26 +97,24 @@ class Wafer:
         np.save("counter_arr.npy", self.counter_arr)
         np.save("mask.npy", self.mask)
         np.save("border_arr.npy", self.border_arr)
-        #np.save("profiles.npy", np.array(self.profiles))
+        # np.save("profiles.npy", np.array(self.profiles))
 
         with ZipFile(filename, 'w') as myzip:
             myzip.write("is_full.npy")
             myzip.write("counter_arr.npy")
             myzip.write("mask.npy")
             myzip.write("border_arr.npy")
-            #myzip.write("profiles.npy")
+            # myzip.write("profiles.npy")
             myzip.write("cdict.yaml")
 
         os.remove("is_full.npy")
         os.remove("counter_arr.npy")
         os.remove("mask.npy")
         os.remove("border_arr.npy")
-        #os.remove("profiles.npy")
+        # os.remove("profiles.npy")
         os.remove("cdict.yaml")
 
-        #print("End saveing: ", filename)
-
-
+        # print("End saveing: ", filename)
 
     def load(self, filename):
         with ZipFile(filename) as myzip:
@@ -130,7 +126,7 @@ class Wafer:
                 self.mask = np.load(myfile)
             with myzip.open("border_arr.npy") as myfile:
                 self.border_arr = np.load(myfile)
-            #with myzip.open("profiles.npy") as myfile:
+            # with myzip.open("profiles.npy") as myfile:
             #    self.profiles = list(np.load(myfile))
             with myzip.open("cdict.yaml") as myfile:
                 conf = OmegaConf.load(myfile)
@@ -150,7 +146,6 @@ class Wafer:
         self.end_y = int(conf.end_y)
         self.profiles = list(self.profiles)
 
-
     def generate_pure_wafer(self, multiplier, Si_num=84, fill_sicl3=False):
 
         self.old_wif = []
@@ -166,7 +161,7 @@ class Wafer:
         self.mask_height = int(40 * self.multiplier)
         self.y0 = 0
         self.silicon_size = int(1600 * self.multiplier)
-        #print(25*self.silicon_size)
+        # print(25*self.silicon_size)
         self.is_full = np.fromfunction(lambda i, j: j >= self.border, (self.xsize, self.ysize), dtype=int).astype(
             int)
         self.counter_arr = self.is_full.copy() * self.Si_num

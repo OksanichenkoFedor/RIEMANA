@@ -41,7 +41,7 @@ class ControlPanel(Frame):
         self.time_lbl = Label(self, text="Time(s): ")
         self.time_lbl.grid(row=2, column=0)
         self.time_ent = Entry(self, textvariable=self.time_v)
-        self.time_v.set(self.master.time)
+        self.time_v.set(self.master.params["time"])
         self.time_ent.grid(row=2, column=1)
         self.time_status_lbl = tk.Label(self, textvariable=self.time_status_text, fg="green")
         self.time_status_text.set("Correct value")
@@ -75,7 +75,8 @@ class ControlPanel(Frame):
 
     def simulate(self):
         self.sleep()
-        self.master.run()
+        self.master.etcher.run(self.master.params)
+        self.master.plotter.replot(self.master.etcher.wafer)
         #self.master.plotF.replot()
         #self.master.plotF.send_picture()
         self.wakeUp()
