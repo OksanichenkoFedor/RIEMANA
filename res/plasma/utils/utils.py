@@ -2,7 +2,7 @@ import numpy as np
 from numba import jit
 do_njit = False
 
-@jit(nopython=True)
+
 def good_form(num):
     if num == 0.0:
         return "0.0"
@@ -11,7 +11,7 @@ def good_form(num):
     # print(num)
     integ = int(np.log(num) / np.log(10))
     ost = num / (10.0 ** (integ))
-    return str(round(ost, 5)) + "*10^" + str(integ)
+    return str(round(ost, 3)) + "\cdot 10^{" + str(integ)+"}"
 
 def generate_approximation(Energies,Konstants, do_print=False):
 

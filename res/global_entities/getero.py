@@ -86,11 +86,11 @@ class Getero:
                 np.save(start_filename+"data/depthsU" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar)+".npy", np.array(Depths))
                 throw_plot(start_filename+"data/depthsU" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar)+".npy", 710672679)
                 curr_fig = generate_figure(wafer, wafer_curr_type, do_plot_line=False)
-                c_filename = start_filename+"data/pictures/tmp_U" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar) + "_" + str(i)
+                c_filename = start_filename+"data/pictures/tmp_U" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar) + "_SiNum" + str(wafer.Si_num) + "_" + str(i)
                 curr_fig.savefig(c_filename + ".png")
                 plot_animation(wafer.profiles, wafer.xsize, wafer.ysize, 0, filename=c_filename)
-                throw_plot(c_filename  + ".png", 710672679)
-                throw_plot(c_filename  + ".gif", 710672679)
+                throw_plot(c_filename + ".png", 710672679)
+                throw_plot(c_filename + ".gif", 710672679)
 
 
                 wafer.save(start_filename+"data/test.zip")

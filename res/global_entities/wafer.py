@@ -10,9 +10,9 @@ import os
 
 
 class Wafer:
-    def __init__(self, multiplier=None):
+    def __init__(self, multiplier=None, Si_num=84):
         if not (multiplier is None):
-            self.generate_pure_wafer(multiplier)
+            self.generate_pure_wafer(multiplier, Si_num)
 
     def process_file(self, filename, verbose=0):
         f = open(filename)
@@ -146,7 +146,7 @@ class Wafer:
         self.end_y = int(conf.end_y)
         self.profiles = list(self.profiles)
 
-    def generate_pure_wafer(self, multiplier, Si_num=84, fill_sicl3=False):
+    def generate_pure_wafer(self, multiplier, Si_num, fill_sicl3=False):
 
         self.old_wif = []
         self.old_wca = []
