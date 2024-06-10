@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from res.getero.reaction_consts.angular_dependences import sput_an_dep,ion_enh_etch_an_dep
+from res.getero.reaction_consts.angular_dependences import sput_an_dep, ion_enh_etch_an_dep
 
 Theta = np.arange(0, 1, 0.001) * np.pi * 0.5
 
@@ -38,14 +38,15 @@ G_phy1 = np.zeros(Theta.shape)
 for i in range(len(G_phy1)):
     G_phy1[i] = sput_an_dep(Theta[i])
 
-fig, (ax11, ax22) = plt.subplots(1, 2, figsize=(18, 5))
+fig, (ax11, ax22) = plt.subplots(1, 2, figsize=(18, 7))
 
 #ax11.plot(Theta * (180 / np.pi), G_phy/G_phy[0], label="2015")
 ax11.plot(Theta * (180 / np.pi), G_phy1/G_phy1[0], label="2009")
 #ax11.plot(Theta * (180 / np.pi), G_phy2/G_phy2[0], label="2009_2")
 ax11.set_title("Физическое распыление", size=20)
 ax11.set_ylabel("$g_{phys}$", size=15)
-ax11.set_xlabel("Угол падения", size=15)
+ax11.set_xlabel(r"$\theta$", size=20)
+ax11.set_title("(a)", y=-0.15, loc='left', size=20)
 ax11.grid()
 #ax11.legend()
 
@@ -54,6 +55,7 @@ ax22.plot(Theta * (180 / np.pi), G_chem1, label="2009")
 ax22.set_title("Ионно-стимулированное травление", size=20)
 ax22.grid()
 ax22.set_ylabel("$g_{chem}$", size=15)
-ax22.set_xlabel("Угол падения", size=15)
+ax22.set_xlabel(r"$\theta$", size=20)
+ax22.set_title("(b)", y=-0.15, loc='left', size=20)
 #ax22.legend()
 plt.show()

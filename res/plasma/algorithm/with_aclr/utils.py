@@ -90,7 +90,6 @@ def count_j(n_vector, param_vector, T_e):
     v = count_v(T_e, beta_s, m_eff, gamma_T)
     D_i = count_D_i(lambda_mean, m_eff, T_i, gamma_T, beta_s)
     h_L, _ = count_h_LR(beta_s, gamma_T, R, L, lambda_mean, v, D_i)
-
     beta, gamma_T, beta_s = count_beta_s(n_e, n_cl_minus, T_e, T_i)
     j_cl_plus = h_L * n_cl_plus * count_v(T_e, beta_s, m_cl, gamma_T)
     j_cl2_plus = h_L * n_cl2_plus * count_v(T_e, beta_s, m_cl2, gamma_T)

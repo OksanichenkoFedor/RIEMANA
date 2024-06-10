@@ -38,7 +38,9 @@ def straight_reflection(curr_angle, n_angle):
 def generate_cos_point():
     #np.random.seed(config.seed)
     a = 2*np.random.random()-1
-    x = np.arcsin(a)
+    x = np.arccos(a)
+    if x>np.pi/2:
+        return x-np.pi
     return x
 
 @njit()

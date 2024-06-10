@@ -25,7 +25,7 @@ def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type, is_chose
     axis.set_xticks(np.arange(0, xsize, 1) - 0.5, minor=True)
     axis.set_yticks(np.arange(0, ysize, 100) - 0.5)
     axis.set_xticks(np.arange(0, xsize, 100) - 0.5)
-    #xis.grid(which='minor', alpha=1)
+    axis.grid(which='minor', alpha=1)
     axis.grid(which='major', alpha=0.5)
     if is_chosen_cell:
         rect1 = matplotlib.patches.Rectangle((ch_x - 0.5, ch_y - 0.5), 1, 1, fill=False, color=(1.0,0,0))

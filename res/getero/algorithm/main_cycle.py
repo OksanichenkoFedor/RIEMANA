@@ -15,8 +15,6 @@ from res.getero.algorithm.profile_approximation import count_simple_norm_angle
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles, params, Si_num, xsize, ysize,
                          R, test, max_value):
-    arr_x, arr_y, rarr_x, rarr_y = nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8), \
-                                       nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8)
     curr_x = params[0]
     curr_y = params[1]
     is_on_horiz = params[2]
@@ -54,7 +52,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
             if (num > 10000 and unfound_test):
                 if curr_type==9.0:
                     print("Argon in cage!")
-                    return arr_x, arr_y, rarr_x, rarr_y
                 else:
                     print("Starange: ", curr_type)
                     print([curr_x, curr_y, is_on_horiz, curr_en, curr_angle, curr_type, prev_att_x, prev_att_y])
@@ -107,14 +104,10 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
                 redepo_params[2] = is_on_horiz
                 redepo_params[6] = prev_att_x
                 redepo_params[7] = prev_att_y
-                arr_x_1, arr_y_1, arr_x_2, arr_y_2 = process_one_particle(counter_arr, is_full_arr, border_layer_arr,
-                                                                                                  returned_particles,
+                process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
                                                                                                   redepo_params, Si_num,
                                                                                                   xsize, ysize, R, test,
                                                                                                   max_value)
-                if test:
-                    rarr_x = unite_lists(unite_lists(rarr_x, arr_x_1), arr_x_2)
-                    rarr_y = unite_lists(unite_lists(rarr_y, arr_y_1), arr_y_2)
                 if is_full_arr[prev_att_x,prev_att_y]==1:
                     print("Ловушка джокера")
                     prev_att_x, prev_att_y, curr_x, curr_y = throw_particle_away(is_full_arr, prev_att_x, prev_att_y,
@@ -139,9 +132,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
 
             curr_x, curr_y, new_is_on_horiz = give_next_cell(prev_x, prev_y, curr_angle, is_on_horiz)
 
-            if test:
-                arr_x.append(curr_x - 0.5)
-                arr_y.append(curr_y - 0.5)
 
             is_on_horiz = new_is_on_horiz
 
@@ -156,30 +146,18 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
 
             prev_x, prev_y = None, None
 
-            if test:
-                arr_x.append(curr_x - 0.5)
-                arr_y.append(curr_y - 0.5)
             changed_angle = False
-    return arr_x, arr_y, rarr_x, rarr_y
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, test,
                       max_value=-1.0):
-    arr_x, arr_y, rarr_x, rarr_y = nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8), \
-                                   nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8)
     returned_particles = np.zeros(11)
     for i in range(len(params_arr)):
         curr_params_arr = params_arr[i]
-        arr_x_1, arr_y_1, rarr_x_1, rarr_y_1 = \
-            process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
+        process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
                                  curr_params_arr, Si_num, xsize, ysize, R, test, max_value)
-        if test:
-            arr_x = unite_lists(arr_x, arr_x_1)
-            arr_y = unite_lists(arr_y, arr_y_1)
-            rarr_x = unite_lists(rarr_x, rarr_x_1)
-            rarr_y = unite_lists(rarr_y, rarr_y_1)
-    return arr_x, arr_y, rarr_x, rarr_y, returned_particles
+    return returned_particles
 
 
 @njit()

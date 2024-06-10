@@ -31,7 +31,7 @@ class MainFrame(Frame):
         }
         self.contPanel = ControlPanel(self)
         self.plotter = Plotter(self)
-        self.etcher = Etcher(multiplier, consts_filename)
+        self.etcher = Etcher(multiplier, consts_filename=consts_filename)
         self.initUI()
         if False:
             print("Startnew! y_ar", self.params["y_ar"])

@@ -41,7 +41,7 @@ class Plotter(tk.Frame):
 
 
 def generate_figure(wafer, wafer_curr_type, do_plot_line=True):
-    f = Figure(figsize=(15, 15), dpi=100, tight_layout=True)
+    f = Figure(figsize=(13, 13), dpi=100, tight_layout=True)
     axis = f.add_subplot(1, 1, 1)
     start = time.time()
     axis.clear()

@@ -35,7 +35,7 @@ class TestPlotFrame(Frame):
         self.canvas.mpl_connect("button_press_event", self.click_mouse_event)
         self.canvas.mpl_connect("button_release_event", self.unclick_mouse_event)
         self.canvas.mpl_connect('key_press_event', self.click_keyboard)
-        generate_pure_wafer(self, 0.005, 1, fill_sicl3=True)
+        generate_pure_wafer(self, 0.005, 5, fill_sicl3=True)
         self.toolbarFrame = tk.Frame(master=self)
         self.toolbarFrame.grid(row=1, columnspan=2, sticky="w")
         self.toolbar1 = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
@@ -75,11 +75,11 @@ class TestPlotFrame(Frame):
         if self.found == 1:
             circle1 = plt.Circle((self.x1 - 0.5, self.y1 - 0.5), 0.2, color='r')
             self.ax.add_patch(circle1)
-        elif self.found == 2:
+        elif self.found == 2 and False:
             self.ax.arrow(self.x1 - 0.5, self.y1 - 0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g",
                           linewidth=1)
         X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 0,
-                                0, size=1)
+                                0)
         plot_line(self.ax, X, Y, self.start_x, self.start_y, 0, 0, do_points=False)
 
         for x in range(self.border_arr.shape[0]):
@@ -97,10 +97,10 @@ class TestPlotFrame(Frame):
         self.ax.grid(True)
         if not (self.arr_y is None):
             # print("FfFFF: ",self.arr_x, self.arr_y, self.rarr_x, self.rarr_y)
-            self.ax.plot(self.rarr_x, self.rarr_y, "o", color="r")
-            self.ax.plot(self.rarr_x, self.rarr_y, color="r")
+            #self.ax.plot(self.rarr_x, self.rarr_y, "o", color="r")
+            #self.ax.plot(self.rarr_x, self.rarr_y, color="r")
             self.ax.plot(self.arr_x, self.arr_y, ".", color="g")
-            self.ax.plot(self.arr_x, self.arr_y, color="b")
+            self.ax.plot(self.arr_x, self.arr_y, color="g", alpha=0.3)
         self.canvas.draw()
 
     def count_angle(self):

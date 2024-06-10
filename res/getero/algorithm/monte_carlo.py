@@ -1,5 +1,7 @@
 import numpy as np
 import res.utils.config as config
+from res.getero.algorithm.utils import generate_cos_point
+import matplotlib.pyplot as plt
 np.random.seed(config.seed)
 
 
@@ -29,8 +31,15 @@ def generate_cl(num, xsize, T_i, y0):
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
     ens = np.ones((num, 1))*T_i
+    angle = []
+    for i in range(num):
+        angle.append(generate_cos_point())
+    angle = np.array(angle).reshape((num, 1))
+
     angle = np.random.random((num, 1)) * np.pi - np.pi * 0.5
+
     angle = np.where(angle < 0, angle + 2 * np.pi, angle)
+
     curr_type = np.ones((num, 1)) * 0
     start_y = y.copy()
     start_x = (x.copy()).astype(int)

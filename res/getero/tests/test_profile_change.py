@@ -74,38 +74,38 @@ def plot_border(bl,axis, curr_x, curr_y,size=10):
     axis.axhline(y=2*size, color="b")
     axis.set_xlim((0, 3*size))
     axis.set_ylim((0, 3*size))
-x_size = 5
+x_size = 1
 y_size = 4
-fig, axes = plt.subplots(y_size, x_size*2, figsize=(4*x_size, 2*y_size))
+fig, axes = plt.subplots(2*x_size, y_size, figsize=(3*y_size, 6*x_size))
 print(axes.shape)
 for i in range(x_size):
     for j in range(y_size):
-        #prev_num = np.random.randint(0,  8)
-        #next_num = np.random.randint(0, 8)
-        #while np.abs(next_num-prev_num)<=1:
-        #    next_num = np.random.randint(0, 8)
-        prev_num = 4
-        next_num = 2
+        prev_num = np.random.randint(0,  8)
+        next_num = np.random.randint(0, 8)
+        while np.abs(next_num-prev_num)<=1:
+            next_num = np.random.randint(0, 8)
+        #prev_num = 4
+        #next_num = 2
         curr_x = 1 + np.random.randint(0, 10)
         curr_y = 1 + np.random.randint(0, 10)
 
         do_pochas = bool(np.random.randint(0,2))
         border_layer, prev_x, prev_y, next_x, next_y = generate_border_layer(prev_num, next_num, do_pochas, curr_x, curr_y)
 
-        plot_border(border_layer, axes[j, i*2], curr_x, curr_y)
-        plot_line(border_layer, axes[j, i*2], prev_x, prev_y, next_x, next_y, curr_x, curr_y)
+        plot_border(border_layer, axes[2*i, j], curr_x, curr_y)
+        plot_line(border_layer, axes[2*i, j], prev_x, prev_y, next_x, next_y, curr_x, curr_y)
 
         border_layer2 = border_layer.copy()
         print(border_layer2)
         delete_point(border_layer2, curr_x, curr_y)
 
-        plot_border(border_layer2, axes[j, i*2+1], curr_x, curr_y)
-        plot_line(border_layer2, axes[j, i*2+1], prev_x, prev_y, next_x, next_y, curr_x, curr_y)
+        plot_border(border_layer2, axes[2*i+1, j], curr_x, curr_y)
+        plot_line(border_layer2, axes[2*i+1, j], prev_x, prev_y, next_x, next_y, curr_x, curr_y)
 
-        axes[j, i * 2 + 0].get_xaxis().set_visible(False)
-        axes[j, i * 2 + 1].get_xaxis().set_visible(False)
-        axes[j, i * 2 + 0].get_yaxis().set_visible(False)
-        axes[j, i * 2 + 1].get_yaxis().set_visible(False)
+        axes[i * 2 + 0, j].get_xaxis().set_visible(False)
+        axes[i * 2 + 1, j].get_xaxis().set_visible(False)
+        axes[i * 2 + 0, j].get_yaxis().set_visible(False)
+        axes[i * 2 + 1, j].get_yaxis().set_visible(False)
 
 
 #plot_border(border_layer, axes[0, 0])

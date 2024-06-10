@@ -90,3 +90,65 @@ class WaferGenerator:
         self.master.contPanel.progress_var.set(0)
 
 
+def generate_pure_wafer(object, multiplier, Si_num, fill_sicl3=False):
+    object.multiplier = multiplier
+    object.Si_num = Si_num
+    object.border = int(800 * object.multiplier)
+    object.xsize = int(2000 * object.multiplier)
+    object.ysize = int(2400 * object.multiplier)
+    object.left_area = int(800 * object.multiplier)
+    object.right_area = int(1200 * object.multiplier)
+    object.mask_height = int(0 * object.multiplier)
+    object.y0 = 0
+    object.silicon_size = int(1200 * object.multiplier)
+
+    object.is_full = np.fromfunction(lambda i, j: j >= object.border, (object.xsize, object.ysize), dtype=int).astype(
+        int)
+    object.counter_arr = object.is_full.copy() * object.Si_num
+    object.mask = np.ones((object.xsize, object.ysize))
+    object.mask[:, :object.border] = object.mask[:, :object.border] * 0
+    object.mask[:,
+    object.border + object.mask_height:object.border + object.mask_height + object.silicon_size] = object.mask[:,
+                                                                                                   object.border + object.mask_height:object.border +
+                                                                                                                                      object.mask_height + object.silicon_size] * 0
+    object.mask[object.left_area:object.right_area, :object.border + object.mask_height + object.silicon_size] = \
+        object.mask[object.left_area:object.right_area, :object.border + object.mask_height + object.silicon_size] * 0
+    object.is_full = object.mask + object.is_full
+    object.counter_arr = np.repeat(
+        object.counter_arr.reshape(1, object.counter_arr.shape[0], object.counter_arr.shape[1]),
+        4, axis=0)
+    object.counter_arr[1] = object.counter_arr[1] * 0
+    object.counter_arr[2] = object.counter_arr[2] * 0
+    ind = 3
+    if fill_sicl3:
+        ind=0
+    object.counter_arr[ind] = object.counter_arr[ind] * 0
+
+    object.counter_arr[0] = object.counter_arr[0] - object.mask * object.Si_num
+    object.border_arr = np.ones((object.xsize, object.ysize, 5)) * 0.5
+    for i in range(object.xsize):
+        object.border_arr[i, object.border, 0] = 1.0
+        if i == 0:
+            object.border_arr[i, object.border, 1:] = [-1, -1, i + 1, object.border]
+            object.start_x, object.start_y = i, object.border
+        elif i == object.xsize - 1:
+            object.border_arr[i, object.border, 1:] = [i - 1, object.border, -1, -1]
+            object.end_x, object.end_y = i, object.border
+        else:
+            object.border_arr[i, object.border, 1:] = [i - 1, object.border, i + 1, object.border]
+
+    object.border_arr[:, :object.border - 0, :] = object.border_arr[:, :object.border - 0, :] * (
+        -2.0)
+    object.border_arr[:, object.border + 1:, :] = object.border_arr[:, object.border + 1:, :] * (
+        0.0)
+
+    object.border_arr = object.border_arr.astype(int)
+
+
+
+def clear_between_mask(object):
+    for i in range(object.right_area - object.left_area):
+        for j in range(object.mask_height):
+            delete_point(object.border_arr, i+object.left_area, j+object.border)
+            object.counter_arr[:, i+object.left_area, j+object.border] = np.array([0, 0, 0, 0])
+            object.is_full[i+object.left_area, j+object.border] = 0
