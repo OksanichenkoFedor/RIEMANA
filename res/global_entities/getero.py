@@ -16,6 +16,9 @@ class Getero:
         self.depths = []
 
     def change_plasma_params(self, params):
+        #params["j_ar_plus"] = 0
+        #params["j_cl_plus"] = 0
+        #params["j_cl"] = 0
         self.j_full = (params["j_ar_plus"]+params["j_cl"]+params["j_cl_plus"])
 
         self.y_ar_plus = params["j_ar_plus"]/self.j_full
@@ -31,7 +34,7 @@ class Getero:
     def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=3000, do_print=True, wafer_curr_type="is_cell", start_filename=""):
         self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
         num_per_iter = int((ctime*self.N_per_sec)/num_iter)
-        print("Full time: ", str(round(ctime,1)) + " s.")
+        print("Full time: ", str(round(ctime, 1)) + " s.")
         print("Number particles per iteration: ", str(num_per_iter))
         #if not (frontender is None):
         #    frontender.progress_bar["maximum"] = num_iter
@@ -45,12 +48,12 @@ class Getero:
             t1 = time.time()
             params = generate_particles(num_per_iter, wafer.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
                                         y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.U_i, y0=wafer.y0)
-            print(params.shape)
+            #print(params.shape)
             t2 = time.time()
             if self.y_cl_plus == 0.0:
-                R = 1000
+                R = 1000.0
             else:
-                R = self.y_cl / self.y_cl_plus
+                R = float(self.y_cl / self.y_cl_plus)
             #co_arr = wafer.counter_arr.copy()
             #w_if = wafer.is_full.copy()
             #w_ba = wafer.border_arr.copy()
@@ -88,7 +91,7 @@ class Getero:
                 print_message("Depth: "+str(depth)+" angstrem", 710672679)
                 print_message("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min", 710672679)
                 add_name = "U"+str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar) + "_SiNum" + str(wafer.Si_num)
-                np.save(start_filename+"data/timesU" + add_name +".npy", np.array(Times))
+                np.save(start_filename+"data/times" + add_name +".npy", np.array(Times))
                 throw_plot(start_filename+"data/times" + add_name +".npy", 710672679)
                 np.save(start_filename+"data/depths" + add_name +".npy", np.array(Depths))
                 throw_plot(start_filename+"data/depths" + add_name + ".npy", 710672679)
@@ -102,4 +105,4 @@ class Getero:
 
                 wafer.save(start_filename+"data/wafer_" + add_name + ".zip")
             t3 = time.time()
-            print(t3-t2,t2-t1)
+            #print(t3-t2,t2-t1)

@@ -144,7 +144,7 @@ class Wafer:
         self.start_y = int(conf.start_y)
         self.end_x = int(conf.end_x)
         self.end_y = int(conf.end_y)
-        self.profiles = list(self.profiles)
+        self.profiles = list(conf.profiles)
 
     def generate_pure_wafer(self, multiplier, Si_num, fill_sicl3=False):
 

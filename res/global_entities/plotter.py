@@ -2,10 +2,12 @@ import numpy as np
 import time
 import matplotlib
 matplotlib.use('TkAgg')
-from matplotlib.figure import Figure
+from matplotlib.pyplot import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import matplotlib.pyplot as plt
 
 import tkinter as tk
+
 
 
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line, plot_animation
@@ -41,7 +43,7 @@ class Plotter(tk.Frame):
 
 
 def generate_figure(wafer, wafer_curr_type, do_plot_line=True):
-    f = Figure(figsize=(13, 13), dpi=100, tight_layout=True)
+    f = plt.figure(figsize=(9, 7), dpi=100, tight_layout=True)
     axis = f.add_subplot(1, 1, 1)
     start = time.time()
     axis.clear()
@@ -68,5 +70,4 @@ def generate_figure(wafer, wafer_curr_type, do_plot_line=True):
 
     end = time.time()
     print("Plot time: ", round(end - start, 3))
-
     return f
