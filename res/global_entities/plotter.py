@@ -1,6 +1,7 @@
 import numpy as np
 import time
 import matplotlib
+import matplotlib.pyplot as plt
 matplotlib.use('TkAgg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
@@ -10,6 +11,7 @@ import tkinter as tk
 
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line, plot_animation
 from res.bot.simple import print_message, throw_plot
+from res.getero.algorithm.dynamic_profile import give_line_arrays
 
 class Plotter(tk.Frame):
     def __init__(self, parent):
@@ -41,7 +43,7 @@ class Plotter(tk.Frame):
 
 
 def generate_figure(wafer, wafer_curr_type, do_plot_line=True):
-    f = Figure(figsize=(13, 13), dpi=100, tight_layout=True)
+    f = plt.figure(figsize=(13, 13), dpi=100, tight_layout=True)
     axis = f.add_subplot(1, 1, 1)
     start = time.time()
     axis.clear()
@@ -49,10 +51,23 @@ def generate_figure(wafer, wafer_curr_type, do_plot_line=True):
     axis.set_ylabel('y')
     # curr_type = config.wafer_plot_types[config.wafer_plot_num]
     plot_cells(axis, wafer.counter_arr, wafer.is_full, wafer.ysize, wafer.xsize, wafer_curr_type)
-    X, Y = wafer.profiles[-1]
+    X, Y = give_line_arrays(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x, wafer.end_y, 1.5, 1.5)
     if do_plot_line:
         plot_line(axis, X, Y, wafer.start_x, wafer.start_y, 0, 0,
                   do_points=False)
+    for x in range(wafer.border_arr.shape[0]):
+        for y in range(wafer.border_arr.shape[1]):
+            color = "g"
+            if wafer.border_arr[x, y, 0] == 1:
+                color = (0.5, 0, 0.5)
+            curr_str0 = "curr: " + str(int(x)) + "," + str(int(y))
+            curr_str1 = "prev: " + str(int(wafer.border_arr[x, y, 1])) + "," + str(int(wafer.border_arr[x, y, 2]))
+            curr_str2 = "next: " + str(int(wafer.border_arr[x, y, 3])) + "," + str(int(wafer.border_arr[x, y, 4]))
+            #axis.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
+            #axis.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
+            #axis.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
+            #axis.text(x - 0.3, y + 0.2, str(int(wafer.border_arr[x, y, 0])), color=color, fontsize=9)
+
     x_major_ticks = np.arange(0, wafer.xsize, 10) + 0.5
     x_minor_ticks = np.arange(0, wafer.xsize, 1) + 0.5
     y_major_ticks = np.arange(0, wafer.ysize, 10) + 0.5
@@ -65,7 +80,6 @@ def generate_figure(wafer, wafer_curr_type, do_plot_line=True):
     axis.grid(which='major', alpha=0.8)
     axis.get_xaxis().set_visible(False)
     axis.get_yaxis().set_visible(False)
-
     end = time.time()
     print("Plot time: ", round(end - start, 3))
 

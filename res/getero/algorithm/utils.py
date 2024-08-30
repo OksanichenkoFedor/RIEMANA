@@ -16,20 +16,12 @@ def custom_choise(Ps):
 
 @njit()
 def straight_reflection(curr_angle, n_angle):
-    #angle = curr_angle
-    #if is_on_horiz:
-    #    angle = np.pi - angle
-    #    if angle < 0:
-    #        angle += 2.0 * np.pi
-    #else:
-    #    angle = 2.0 * np.pi - angle
     angle = 2*n_angle-(curr_angle+np.pi)
     while angle>2*np.pi:
         angle -= 2.0 * np.pi
 
     while angle<0:
         angle += 2.0 * np.pi
-    #print("Straight: ",curr_angle/np.pi, n_angle/np.pi, angle/np.pi)
     return angle
 
 
@@ -38,9 +30,10 @@ def straight_reflection(curr_angle, n_angle):
 def generate_cos_point():
     #np.random.seed(config.seed)
     a = 2*np.random.random()-1
-    x = np.arccos(a)
-    if x>np.pi/2:
-        return x-np.pi
+    #x = np.arccos(a)
+    #if x>np.pi/2:
+    #    return x-np.pi
+    x = np.arcsin(a)
     return x
 
 @njit()

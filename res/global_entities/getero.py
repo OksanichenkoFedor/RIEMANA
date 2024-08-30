@@ -28,7 +28,7 @@ class Getero:
         self.U_i = params["U_i"]
         self.y_ar = params["y_ar"]
 
-    def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=3000, do_print=True, wafer_curr_type="is_cell", start_filename=""):
+    def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=3000, do_print=True, wafer_curr_type="is_cell", start_filename="", do_half=False):
         self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
         num_per_iter = int((ctime*self.N_per_sec)/num_iter)
         print("Full time: ", str(round(ctime,1)) + " s.")
@@ -43,9 +43,12 @@ class Getero:
         for i in trange(num_iter):
 
             t1 = time.time()
-            params = generate_particles(num_per_iter, wafer.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
+            curr_num_per_iter = num_per_iter
+            if do_half:
+                curr_num_per_iter =int(0.5*curr_num_per_iter)
+            params = generate_particles(curr_num_per_iter, wafer.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
                                         y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.U_i, y0=wafer.y0)
-            print(params.shape)
+            #print(params.shape)
             t2 = time.time()
             if self.y_cl_plus == 0.0:
                 R = 1000
@@ -57,7 +60,7 @@ class Getero:
             #res = process_particles(co_arr, w_if, w_ba, params,
             #                        wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False)
             res = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
-                                   wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False)
+                                   wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False, do_half=do_half)
             if i % iter_add_profile == 0 and i!=0:
                 X, Y = give_line_arrays(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x,
                                         wafer.end_y, 1.5, 1.5)
@@ -88,7 +91,7 @@ class Getero:
                 print_message("Depth: "+str(depth)+" angstrem", 710672679)
                 print_message("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min", 710672679)
                 add_name = "U"+str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar) + "_SiNum" + str(wafer.Si_num)
-                np.save(start_filename+"data/timesU" + add_name +".npy", np.array(Times))
+                np.save(start_filename+"data/times" + add_name +".npy", np.array(Times))
                 throw_plot(start_filename+"data/times" + add_name +".npy", 710672679)
                 np.save(start_filename+"data/depths" + add_name +".npy", np.array(Depths))
                 throw_plot(start_filename+"data/depths" + add_name + ".npy", 710672679)
@@ -102,4 +105,4 @@ class Getero:
 
                 wafer.save(start_filename+"data/wafer_" + add_name + ".zip")
             t3 = time.time()
-            print(t3-t2,t2-t1)
+            #print(t3-t2,t2-t1)

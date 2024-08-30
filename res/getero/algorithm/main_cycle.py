@@ -10,11 +10,13 @@ from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_rea
 from res.getero.algorithm.mask_reactions import mask_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point
 from res.getero.algorithm.profile_approximation import count_simple_norm_angle
+from res.getero.algorithm.utils import straight_reflection
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles, params, Si_num, xsize, ysize,
-                         R, test, max_value):
+def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
+                         returned_particles, arr_x, arr_y, rarr_x, rarr_y,
+                         params, Si_num, xsize, ysize, R, test, do_half, max_value):
     curr_x = params[0]
     curr_y = params[1]
     is_on_horiz = params[2]
@@ -22,9 +24,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
     curr_angle = params[4]
     curr_type = params[5]
     prev_att_x = int(params[6])
-    #if int(curr_y) == params[7] and (curr_angle>0.5*np.pi and curr_angle<1.5*np.pi):
+    # if int(curr_y) == params[7] and (curr_angle>0.5*np.pi and curr_angle<1.5*np.pi):
     #    prev_att_y = int(params[7])-1
-    #else:
+    # else:
     #    prev_att_y = int(params[7])
     prev_att_y = int(params[7])
     prev_y, prev_x = None, None
@@ -40,7 +42,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
                 not_max_value = False
         num += 1
         curr_att_x, curr_att_y = find_next(curr_x, curr_y, prev_x, prev_y, prev_att_x, prev_att_y)
-        #print(curr_att_x, curr_att_y, curr_x, curr_y, is_on_horiz)
+        # print(curr_att_x, curr_att_y, curr_x, curr_y, is_on_horiz)
         if (curr_att_x == prev_att_x and curr_att_y == prev_att_y) and (not (prev_y is None)):
             pass
             print("Ахтунг!!!!")
@@ -50,7 +52,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
             print(is_full_arr[curr_att_x, curr_att_y])
         if is_full_arr[curr_att_x, curr_att_y] == 1.0:
             if (num > 10000 and unfound_test):
-                if curr_type==9.0:
+                if curr_type == 9.0:
                     print("Argon in cage!")
                 else:
                     print("Starange: ", curr_type)
@@ -73,13 +75,13 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
             if curr_type in [7, 8, 9] and (not test):
                 # родились бесполезные частицы рассматриваем их только когда тест
                 unfound = False
-                returned_particles[int(curr_type)]+=1
+                returned_particles[int(curr_type)] += 1
             if new_curr_farr != curr_farr:
                 # удаление
                 # 0 - внутри
                 # 1 - граница
                 # -1 - снаружи
-                #print("Delete: ", curr_att_x, curr_att_y)
+                # print("Delete: ", curr_att_x, curr_att_y)
                 delete_point(border_layer_arr, curr_att_x, curr_att_y)
                 if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                     print("Удаление не произведено!")
@@ -88,7 +90,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
 
             if new_prev_farr != prev_farr:
                 # восстановление частицы
-                #print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
+                # print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
                 create_point(border_layer_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
             counter_arr[:, curr_att_x, curr_att_y] = new_curr_counter
             counter_arr[:, prev_att_x, prev_att_y] = new_prev_counter
@@ -105,10 +107,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
                 redepo_params[6] = prev_att_x
                 redepo_params[7] = prev_att_y
                 process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
-                                                                                                  redepo_params, Si_num,
-                                                                                                  xsize, ysize, R, test,
-                                                                                                  max_value)
-                if is_full_arr[prev_att_x,prev_att_y]==1:
+                                     rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R, test,
+                                     do_half, max_value)
+                if is_full_arr[prev_att_x, prev_att_y] == 1:
                     print("Ловушка джокера")
                     prev_att_x, prev_att_y, curr_x, curr_y = throw_particle_away(is_full_arr, prev_att_x, prev_att_y,
                                                                                  curr_x, curr_y)
@@ -132,32 +133,49 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_pa
 
             curr_x, curr_y, new_is_on_horiz = give_next_cell(prev_x, prev_y, curr_angle, is_on_horiz)
 
+            if test:
+                arr_x.append(curr_x - 0.5)
+                arr_y.append(curr_y - 0.5)
 
             is_on_horiz = new_is_on_horiz
-
-            if (curr_x >= xsize or curr_x < 0) or (curr_y >= ysize or curr_y < 0):
+            if curr_x >= xsize:
+                if do_half:
+                    if is_on_horiz!=0:
+                        print("Incorrect is_on_horiz: ",is_on_horiz)
+                    curr_angle = straight_reflection(curr_angle, np.pi*0.5)
+                    changed_angle = True
+                else:
+                    unfound = False
+                    returned_particles[int(curr_type)] += 1
+            if curr_x < 0 or (curr_y >= ysize or curr_y < 0):
                 unfound = False
-                returned_particles[int(curr_type)]+=1
+                returned_particles[int(curr_type)] += 1
             elif int(curr_y) <= 1 and (curr_angle <= 1.5 * np.pi and curr_angle >= 0.5 * np.pi):
                 unfound = False
-                returned_particles[int(curr_type)]+=1
+                returned_particles[int(curr_type)] += 1
 
         if changed_angle:
-
             prev_x, prev_y = None, None
 
             changed_angle = False
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, test,
+def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, test, do_half,
                       max_value=-1.0):
+    if test:
+        arr_x, arr_y, rarr_x, rarr_y = nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8), \
+                                       nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8)
+    else:
+        arr_x, arr_y, rarr_x, rarr_y = None, None, None, None
+
     returned_particles = np.zeros(11)
     for i in range(len(params_arr)):
         curr_params_arr = params_arr[i]
-        process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
-                                 curr_params_arr, Si_num, xsize, ysize, R, test, max_value)
-    return returned_particles
+        process_one_particle(counter_arr, is_full_arr, border_layer_arr,
+                             returned_particles, arr_x, arr_y, rarr_x, rarr_y,
+                             curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value)
+    return returned_particles, arr_x, arr_y, rarr_x, rarr_y
 
 
 @njit()

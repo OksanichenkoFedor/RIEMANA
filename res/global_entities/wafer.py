@@ -80,16 +80,15 @@ class Wafer:
             "border": self.border,
             "xsize": self.xsize,
             "ysize": self.ysize,
-            "left_area": self.left_area,
-            "right_area": self.right_area,
-            "mask_height": self.mask_height,
             "y0": self.y0,
             "silicon_size": self.silicon_size,
             "start_x": self.start_x,
             "start_y": self.start_y,
             "end_x": self.end_x,
             "end_y": self.end_y,
-            "profiles": self.profiles
+            "is_half": self.is_half,
+            "profiles": self.profiles,
+
         }
         conf = OmegaConf.create(cdict)
         OmegaConf.save(config=conf, f="cdict.yaml")
@@ -126,8 +125,6 @@ class Wafer:
                 self.mask = np.load(myfile)
             with myzip.open("border_arr.npy") as myfile:
                 self.border_arr = np.load(myfile)
-            # with myzip.open("profiles.npy") as myfile:
-            #    self.profiles = list(np.load(myfile))
             with myzip.open("cdict.yaml") as myfile:
                 conf = OmegaConf.load(myfile)
         self.multiplier = float(conf.multiplier)
@@ -135,16 +132,14 @@ class Wafer:
         self.border = int(conf.border)
         self.xsize = int(conf.xsize)
         self.ysize = int(conf.ysize)
-        self.left_area = int(conf.left_area)
-        self.right_area = float(conf.right_area)
-        self.mask_height = float(conf.mask_height)
         self.y0 = int(conf.y0)
         self.silicon_size = int(conf.silicon_size)
         self.start_x = int(conf.start_x)
         self.start_y = int(conf.start_y)
         self.end_x = int(conf.end_x)
         self.end_y = int(conf.end_y)
-        self.profiles = list(self.profiles)
+        self.profiles = list(conf.profiles)
+        self.is_half = bool(conf.is_half)
 
     def generate_pure_wafer(self, multiplier, Si_num, fill_sicl3=False):
 
@@ -154,13 +149,14 @@ class Wafer:
         self.multiplier = multiplier
         self.Si_num = Si_num
         self.border = int(500 * self.multiplier)
-        self.xsize = int(2000 * self.multiplier)
+        self.xsize = int(1000 * self.multiplier)*2
         self.ysize = int(2400 * self.multiplier)
-        self.left_area = int(850 * self.multiplier)
-        self.right_area = int(1150 * self.multiplier)
-        self.mask_height = int(40 * self.multiplier)
+        self.left_area = int(self.xsize*0.5)-int(200 * self.multiplier)
+        self.right_area = int(self.xsize*0.5)+int(200 * self.multiplier)
+        self.mask_height = int(200 * self.multiplier)
         self.y0 = 0
         self.silicon_size = int(1600 * self.multiplier)
+        self.is_half = False
         # print(25*self.silicon_size)
         self.is_full = np.fromfunction(lambda i, j: j >= self.border, (self.xsize, self.ysize), dtype=int).astype(
             int)
@@ -215,3 +211,79 @@ class Wafer:
                 delete_point(self.border_arr, i + self.left_area, j + self.border)
                 self.counter_arr[:, i + self.left_area, j + self.border] = np.array([0, 0, 0, 0])
                 self.is_full[i + self.left_area, j + self.border] = 0
+
+    def make_half(self):
+        if self.is_half:
+            raise Exception("Не надо из уже половинки делать половинку (((((")
+        self.is_half = True
+        #print(self.border_arr.shape)
+        print("x,y sizes: ", self.xsize, self.ysize)
+
+        curr_end_x = int(0.5 * self.xsize) - 1
+        if self.xsize%2!=0:
+            raise Exception("Нецело делится на 2 по горизонтали")
+        unfound_end = True
+        for i in range(self.ysize):
+            #print(self.border_arr[curr_end_x, i, 0])
+            if self.border_arr[curr_end_x, i, 0]==1:
+                if unfound_end:
+                    curr_end_y = i
+                    unfound_end = False
+                else:
+                    raise Exception("Два пересечения, очень плохо")
+        if unfound_end:
+            raise Exception("Не нашли пересечения!!!")
+        self.end_x = curr_end_x
+        self.end_y = curr_end_y
+        print(self.mask.shape)
+        self.is_full = self.is_full[:curr_end_x+1, :]
+        self.border_arr = self.border_arr[:curr_end_x+1, :, :]
+        self.counter_arr = self.counter_arr[:, :curr_end_x+1, :]
+        self.mask = self.mask[:curr_end_x+1, :]
+        self.xsize = curr_end_x+1
+
+        X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5, 1.5)
+        self.profiles = [[X, Y]]
+
+
+
+
+    def return_half(self):
+        if not self.is_half:
+            raise Exception("Это не половинка, что бы её восстанавливать")
+        self.is_half = False
+        new_xsize = int(2.0*self.xsize)
+        self.is_full = np.concatenate((self.is_full, self.is_full[::-1, :]), axis=0)
+        self.border_arr = np.concatenate((self.border_arr, self.border_arr[::-1, :, :]), axis=0)
+        self.counter_arr = np.concatenate((self.counter_arr, self.counter_arr[:, ::-1, :]), axis=1)
+        self.mask = np.concatenate((self.mask, self.mask[::-1, :]), axis=0)
+
+        self.xsize = new_xsize
+
+        curr_left_x = self.end_x
+        curr_left_y = self.end_y
+        curr_right_x = self.end_x+1
+        curr_right_y = self.end_y
+        self.border_arr[curr_left_x, curr_left_y, 3:] = [curr_right_x, curr_right_y]
+        self.border_arr[curr_right_x, curr_right_y, 1:3] = [curr_left_x, curr_left_y]
+        while curr_left_x!=self.start_x:
+            next_left_x, next_left_y = self.border_arr[curr_left_x, curr_left_y, 1:3]
+            next_right_y = next_left_y
+            next_right_x = self.xsize - next_left_x-1
+            self.border_arr[curr_right_x, curr_right_y, 3:] = [next_right_x, next_right_y]
+            self.border_arr[next_right_x, next_right_y, 1:3] = [curr_right_x, curr_right_y]
+            curr_left_x, curr_left_y = next_left_x, next_left_y
+            curr_right_x, curr_right_y = next_right_x, next_right_y
+
+        self.border_arr[curr_right_x, curr_right_y, 3:] = [-1, -1]
+
+        self.end_x, self.end_y = int(curr_right_x), int(curr_right_y)
+
+        print(self.end_x, self.end_y)
+
+        X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5, 1.5)
+        self.profiles = [[X, Y]]
+
+
+
+

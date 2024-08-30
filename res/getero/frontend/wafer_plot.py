@@ -24,7 +24,7 @@ class WaferPlotFrame(tk.Frame):
         self.initUI()
 
     def initUI(self):
-        self.f = Figure(figsize=(15, 15), dpi=100, tight_layout=True)
+        self.f = Figure(figsize=(9, 9), dpi=100, tight_layout=True)
         self.canvas = FigureCanvasTkAgg(self.f, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=0, columnspan=2)
@@ -49,7 +49,12 @@ class WaferPlotFrame(tk.Frame):
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
         plot_cells(self.ax, self.master.getero.wafer.counter_arr, self.master.getero.wafer.is_full,
                    self.master.getero.wafer.ysize, self.master.getero.wafer.xsize, curr_type)
-        X,Y = self.master.getero.wafer.profiles[-1]
+        #X,Y = self.master.getero.wafer.profiles[-1]
+        X, Y = give_line_arrays(self.master.getero.wafer.border_arr,
+                                self.master.getero.wafer.start_x,
+                                self.master.getero.wafer.start_y,
+                                self.master.getero.wafer.end_x,
+                                self.master.getero.wafer.end_y, 1.5, 1.5)
         if do_plot_line:
             plot_line(self.ax, X, Y, self.master.getero.wafer.start_x, self.master.getero.wafer.start_y, 0, 0, do_points=False)
         x_major_ticks = np.arange(0, self.master.getero.wafer.xsize, 10)+0.5
@@ -81,6 +86,7 @@ class WaferPlotFrame(tk.Frame):
         pass
 
     def send_picture(self):
+        return 0
         self.f.savefig("files/tmp.png")
         throw_plot("files/tmp.png", 710672679)
         throw_plot("files/tmp.gif", 710672679)

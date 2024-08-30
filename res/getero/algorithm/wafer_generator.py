@@ -15,7 +15,8 @@ class WaferGenerator:
         self.wafer = Wafer()
         #self.wafer.generate_pure_wafer(multiplier, Si_num)
         #self.wafer.load("test.zip")
-        self.wafer.generate_pure_wafer(multiplier,Si_num)
+        self.wafer.generate_pure_wafer(multiplier, Si_num)
+        self.wafer.make_half()
         #generate_pure_wafer(self, )
         X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.start_x, self.wafer.start_y, self.wafer.end_x, self.wafer.end_y, 1, 1)
         self.wafer.profiles = []
@@ -48,15 +49,20 @@ class WaferGenerator:
         for i in trange(num_iter):
 
             t1 = time.time()
-            params = generate_particles(num_per_iter, self.wafer.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
+            curr_num_per_iter = num_per_iter
+            if self.wafer.is_half:
+                curr_num_per_iter = int(0.5 * curr_num_per_iter)
+            params = generate_particles(curr_num_per_iter, self.wafer.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
                                         y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.U_i, y0=self.wafer.y0)
             t2 = time.time()
             if self.y_cl_plus == 0.0:
                 R = 1000
             else:
                 R = self.y_cl / self.y_cl_plus
-            res = process_particles(self.wafer.counter_arr, self.wafer.is_full, self.wafer.border_arr, params, self.wafer.Si_num, self.wafer.xsize,
-                              self.wafer.ysize, R, test=False)
+            #print("dfdfdfdfdfdf")
+            res, _, _, _, _ = process_particles(self.wafer.counter_arr, self.wafer.is_full, self.wafer.border_arr, params, self.wafer.Si_num, self.wafer.xsize,
+                              self.wafer.ysize, R, test=True, do_half=self.wafer.is_half)
+            #print("res: ",res)
             #if res is None:
             #    pass
             #else:
@@ -73,8 +79,9 @@ class WaferGenerator:
                 depth = (y_max-y_0) * self.cell_size * (10 ** 10)
                 print("Depth: ", depth, " angstrem")
                 print("Speed: "+str(round((60*depth/(ftime*((i+1)/num_iter)))))+" angstrem/min")
-                self.master.plotF.replot(i, False)
+                self.master.plotF.replot(i, True)
                 self.master.plotF.f.savefig("files/tmp_U"+str(round(self.U_i,1))+"_"+str(i)+".png")
+                self.wafer.save("files/wafer_"+str(i)+".zip")
                 #self.master.plotF.send_picture()
                 #self.wafer.save("test.zip")
                 #self.wafer.load("test.zip")
@@ -86,69 +93,5 @@ class WaferGenerator:
 
         #self.master.plotF.replot(i)
         self.master.plotF.f.savefig("files/tmp" + "_end" + ".png")
-        self.master.style.configure("LabeledProgressbar", text="0/0")
-        self.master.contPanel.progress_var.set(0)
-
-
-def generate_pure_wafer(object, multiplier, Si_num, fill_sicl3=False):
-    object.multiplier = multiplier
-    object.Si_num = Si_num
-    object.border = int(800 * object.multiplier)
-    object.xsize = int(2000 * object.multiplier)
-    object.ysize = int(2400 * object.multiplier)
-    object.left_area = int(800 * object.multiplier)
-    object.right_area = int(1200 * object.multiplier)
-    object.mask_height = int(0 * object.multiplier)
-    object.y0 = 0
-    object.silicon_size = int(1200 * object.multiplier)
-
-    object.is_full = np.fromfunction(lambda i, j: j >= object.border, (object.xsize, object.ysize), dtype=int).astype(
-        int)
-    object.counter_arr = object.is_full.copy() * object.Si_num
-    object.mask = np.ones((object.xsize, object.ysize))
-    object.mask[:, :object.border] = object.mask[:, :object.border] * 0
-    object.mask[:,
-    object.border + object.mask_height:object.border + object.mask_height + object.silicon_size] = object.mask[:,
-                                                                                                   object.border + object.mask_height:object.border +
-                                                                                                                                      object.mask_height + object.silicon_size] * 0
-    object.mask[object.left_area:object.right_area, :object.border + object.mask_height + object.silicon_size] = \
-        object.mask[object.left_area:object.right_area, :object.border + object.mask_height + object.silicon_size] * 0
-    object.is_full = object.mask + object.is_full
-    object.counter_arr = np.repeat(
-        object.counter_arr.reshape(1, object.counter_arr.shape[0], object.counter_arr.shape[1]),
-        4, axis=0)
-    object.counter_arr[1] = object.counter_arr[1] * 0
-    object.counter_arr[2] = object.counter_arr[2] * 0
-    ind = 3
-    if fill_sicl3:
-        ind=0
-    object.counter_arr[ind] = object.counter_arr[ind] * 0
-
-    object.counter_arr[0] = object.counter_arr[0] - object.mask * object.Si_num
-    object.border_arr = np.ones((object.xsize, object.ysize, 5)) * 0.5
-    for i in range(object.xsize):
-        object.border_arr[i, object.border, 0] = 1.0
-        if i == 0:
-            object.border_arr[i, object.border, 1:] = [-1, -1, i + 1, object.border]
-            object.start_x, object.start_y = i, object.border
-        elif i == object.xsize - 1:
-            object.border_arr[i, object.border, 1:] = [i - 1, object.border, -1, -1]
-            object.end_x, object.end_y = i, object.border
-        else:
-            object.border_arr[i, object.border, 1:] = [i - 1, object.border, i + 1, object.border]
-
-    object.border_arr[:, :object.border - 0, :] = object.border_arr[:, :object.border - 0, :] * (
-        -2.0)
-    object.border_arr[:, object.border + 1:, :] = object.border_arr[:, object.border + 1:, :] * (
-        0.0)
-
-    object.border_arr = object.border_arr.astype(int)
-
-
-
-def clear_between_mask(object):
-    for i in range(object.right_area - object.left_area):
-        for j in range(object.mask_height):
-            delete_point(object.border_arr, i+object.left_area, j+object.border)
-            object.counter_arr[:, i+object.left_area, j+object.border] = np.array([0, 0, 0, 0])
-            object.is_full[i+object.left_area, j+object.border] = 0
+        #master.style.configure("LabeledProgressbar", text="0/0")
+        #self.master.contPanel.progress_var.set(0)

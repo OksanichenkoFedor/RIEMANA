@@ -14,9 +14,11 @@ import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
 from res.getero.algorithm.main_cycle import process_particles
 
+from res.global_entities.wafer import Wafer
+
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays, create_point
 
-from res.getero.algorithm.wafer_generator import generate_pure_wafer
+#from res.getero.algorithm.wafer_generator import generate_pure_wafer
 
 
 class TestPlotFrame(Frame):
@@ -35,7 +37,9 @@ class TestPlotFrame(Frame):
         self.canvas.mpl_connect("button_press_event", self.click_mouse_event)
         self.canvas.mpl_connect("button_release_event", self.unclick_mouse_event)
         self.canvas.mpl_connect('key_press_event', self.click_keyboard)
-        generate_pure_wafer(self, 0.005, 5, fill_sicl3=True)
+        self.wafer = Wafer()
+        self.wafer.generate_pure_wafer(0.005, 5, fill_sicl3=True)
+        #self.wafer.make_half()
         self.toolbarFrame = tk.Frame(master=self)
         self.toolbarFrame.grid(row=1, columnspan=2, sticky="w")
         self.toolbar1 = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
@@ -47,7 +51,7 @@ class TestPlotFrame(Frame):
         self.y1 = None
         self.y2 = None
         self.clicked = False
-        self.test_x = 5
+        self.test_x = 2
         self.test_y = 5
 
         self.y_cl_plus = 0.1
@@ -70,30 +74,30 @@ class TestPlotFrame(Frame):
         self.ax.set_ylabel('y')
         # self.ax.plot([1,2,3],[1,2,3])
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
-        plot_cells(self.ax, self.counter_arr, self.is_full,
-                   self.ysize, self.xsize, curr_type, True, self.test_x, self.test_y)
+        plot_cells(self.ax, self.wafer.counter_arr, self.wafer.is_full,
+                   self.wafer.ysize, self.wafer.xsize, curr_type, True, self.test_x, self.test_y)
         if self.found == 1:
             circle1 = plt.Circle((self.x1 - 0.5, self.y1 - 0.5), 0.2, color='r')
             self.ax.add_patch(circle1)
         elif self.found == 2 and False:
             self.ax.arrow(self.x1 - 0.5, self.y1 - 0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g",
                           linewidth=1)
-        X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 0,
-                                0)
-        plot_line(self.ax, X, Y, self.start_x, self.start_y, 0, 0, do_points=False)
+        X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.start_x, self.wafer.start_y, self.wafer.end_x,
+                                self.wafer.end_y, 0, 0)
+        plot_line(self.ax, X, Y, self.wafer.start_x, self.wafer.start_y, 0, 0, do_points=False)
 
-        for x in range(self.border_arr.shape[0]):
-            for y in range(self.border_arr.shape[1]):
+        for x in range(self.wafer.border_arr.shape[0]):
+            for y in range(self.wafer.border_arr.shape[1]):
                 color = "g"
-                if self.border_arr[x, y, 0] == 1:
+                if self.wafer.border_arr[x, y, 0] == 1:
                     color = (0.5, 0, 0.5)
                 curr_str0 = "curr: " + str(int(x)) + "," + str(int(y))
-                curr_str1 = "prev: " + str(int(self.border_arr[x, y, 1])) + "," + str(int(self.border_arr[x, y, 2]))
-                curr_str2 = "next: " + str(int(self.border_arr[x, y, 3])) + "," + str(int(self.border_arr[x, y, 4]))
-                # self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
-                # self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
-                # self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
-                # self.ax.text(x - 0.3, y + 0.2, str(int(self.border_arr[x, y, 0])), color=color, fontsize=9)
+                curr_str1 = "prev: " + str(int(self.wafer.border_arr[x, y, 1])) + "," + str(int(self.wafer.border_arr[x, y, 2]))
+                curr_str2 = "next: " + str(int(self.wafer.border_arr[x, y, 3])) + "," + str(int(self.wafer.border_arr[x, y, 4]))
+                self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
+                self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
+                self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
+                self.ax.text(x - 0.3, y + 0.2, str(int(self.wafer.border_arr[x, y, 0])), color=color, fontsize=9)
         self.ax.grid(True)
         if not (self.arr_y is None):
             # print("FfFFF: ",self.arr_x, self.arr_y, self.rarr_x, self.rarr_y)
@@ -155,10 +159,11 @@ class TestPlotFrame(Frame):
             else:
                 R = self.y_cl / self.y_cl_plus
 
-            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particlesc = process_particles(self.counter_arr,
-                                                                                 self.is_full, self.border_arr,
-                                                                                 params_arr, self.Si_num,
-                                                                                 self.xsize, self.ysize, R, self)
+            returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y  = process_particles(self.wafer.counter_arr,
+                                                                                 self.wafer.is_full, self.wafer.border_arr,
+                                                                                 params_arr, self.wafer.Si_num,
+                                                                                 self.wafer.xsize, self.wafer.ysize, R,
+                                                                                 True, self.wafer.is_half)
             self.recheck_cell()
             self.replot()
 
@@ -172,7 +177,7 @@ class TestPlotFrame(Frame):
         # print('Key pressed:', event.key)
         if event.key == "right":
             # print("1")
-            if self.test_x < self.xsize:
+            if self.test_x < self.wafer.xsize:
                 self.test_x += 1
         elif event.key == "left":
             # print("2")
@@ -180,16 +185,16 @@ class TestPlotFrame(Frame):
                 self.test_x -= 1
         elif event.key == "down":
             # print("3")
-            if self.test_y < self.ysize:
+            if self.test_y < self.wafer.ysize:
                 self.test_y += 1
         elif event.key == "up":
             # print("4")
             if self.test_y > 0:
                 self.test_y -= 1
         elif event.key == "d":
-            self.counter_arr[:, self.test_x, self.test_y] = np.array([0, 0, 0, 0])
-            self.is_full[self.test_x, self.test_y] = 0
-            delete_point(self.border_arr, self.test_x, self.test_y)
+            self.wafer.counter_arr[:, self.test_x, self.test_y] = np.array([0, 0, 0, 0])
+            self.wafer.is_full[self.test_x, self.test_y] = 0
+            delete_point(self.wafer.border_arr, self.test_x, self.test_y)
         elif event.key == "c":
             if self.click_mode:
                 print("click mode off")
@@ -209,9 +214,9 @@ class TestPlotFrame(Frame):
                 if len(line) == 3:
                     x = int(line[1])
                     y = int(line[2])
-                    self.counter_arr[:, x, y] = np.array([0, 0, 0, 0])
-                    self.is_full[x, y] = 0
-                    delete_point(self.border_arr, x, y)
+                    self.wafer.counter_arr[:, x, y] = np.array([0, 0, 0, 0])
+                    self.wafer.is_full[x, y] = 0
+                    delete_point(self.wafer.border_arr, x, y)
                     # time.sleep(0.05)
                     print("Delete: ", x, y)
                     # self.replot()
@@ -220,13 +225,13 @@ class TestPlotFrame(Frame):
                     prev_y = int(line[2])
                     curr_x = int(line[4])
                     curr_y = int(line[5])
-                    self.counter_arr[:, prev_x, prev_y] = np.array([0, 0, 0, 1])
-                    self.is_full[prev_x, prev_y] = 1
-                    create_point(self.border_arr, prev_x, prev_y, curr_x, curr_y)
+                    self.wafer.counter_arr[:, prev_x, prev_y] = np.array([0, 0, 0, 1])
+                    self.wafer.is_full[prev_x, prev_y] = 1
+                    create_point(self.wafer.border_arr, prev_x, prev_y, curr_x, curr_y)
                     print("Create: ", prev_x, prev_y, " from: ", curr_x, curr_y)
             self.replot()
-            self.ax.plot(self.cursed_params[0][0], self.cursed_params[0][1], ".", color=(0.5, 0.7, 0.3))
-            print("angle: ", self.cursed_params[0][4] / np.pi)
+            #self.ax.plot(self.cursed_params[0][0], self.cursed_params[0][1], ".", color=(0.5, 0.7, 0.3))
+            #print("angle: ", self.cursed_params[0][4] / np.pi)
             self.canvas.draw()
             return None
         elif event.key == "p":
@@ -236,10 +241,10 @@ class TestPlotFrame(Frame):
             else:
                 R = self.y_cl / self.y_cl_plus
 
-            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particles = process_particles(self.counter_arr, self.is_full,
-                                                                                 self.border_arr, self.cursed_params,
-                                                                                 self.Si_num,
-                                                                                 self.xsize, self.ysize, R, True,
+            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particles = process_particles(self.wafer.counter_arr, self.is_full,
+                                                                                 self.wafer.border_arr, self.cursed_params,
+                                                                                 self.wafer.Si_num,
+                                                                                 self.wafer.xsize, self.wafer.ysize, R, True,
                                                                                  max_value=40)
             print("end cursed reaction")
             self.recheck_cell()
@@ -284,10 +289,10 @@ class TestPlotFrame(Frame):
         # print('Modifier keys:', event.modifier)
 
     def recheck_cell(self):
-        self.master.contPanel.si_lbl["text"] = "Si: " + str(self.counter_arr[0][self.test_x, self.test_y])
+        self.master.contPanel.si_lbl["text"] = "Si: " + str(self.wafer.counter_arr[0][self.test_x, self.test_y])
         self.master.contPanel.sicl_lbl["text"] = "SiCl: " + str(
-            self.counter_arr[1][self.test_x, self.test_y])
+            self.wafer.counter_arr[1][self.test_x, self.test_y])
         self.master.contPanel.sicl2_lbl["text"] = "SiCl2: " + str(
-            self.counter_arr[2][self.test_x, self.test_y])
+            self.wafer.counter_arr[2][self.test_x, self.test_y])
         self.master.contPanel.sicl3_lbl["text"] = "SiCl3: " + str(
-            self.counter_arr[3][self.test_x, self.test_y])
+            self.wafer.counter_arr[3][self.test_x, self.test_y])
