@@ -16,6 +16,9 @@ class Getero:
         self.depths = []
 
     def change_plasma_params(self, params):
+        #params["j_ar_plus"] = 0
+        #params["j_cl_plus"] = 0
+        #params["j_cl"] = 0
         self.j_full = (params["j_ar_plus"]+params["j_cl"]+params["j_cl_plus"])
 
         self.y_ar_plus = params["j_ar_plus"]/self.j_full
@@ -31,7 +34,7 @@ class Getero:
     def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=3000, do_print=True, wafer_curr_type="is_cell", start_filename="", do_half=False):
         self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
         num_per_iter = int((ctime*self.N_per_sec)/num_iter)
-        print("Full time: ", str(round(ctime,1)) + " s.")
+        print("Full time: ", str(round(ctime, 1)) + " s.")
         print("Number particles per iteration: ", str(num_per_iter))
         #if not (frontender is None):
         #    frontender.progress_bar["maximum"] = num_iter
@@ -51,9 +54,9 @@ class Getero:
             #print(params.shape)
             t2 = time.time()
             if self.y_cl_plus == 0.0:
-                R = 1000
+                R = 1000.0
             else:
-                R = self.y_cl / self.y_cl_plus
+                R = float(self.y_cl / self.y_cl_plus)
             #co_arr = wafer.counter_arr.copy()
             #w_if = wafer.is_full.copy()
             #w_ba = wafer.border_arr.copy()

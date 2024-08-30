@@ -7,24 +7,34 @@ from res.getero.algorithm.dynamic_profile import give_line_arrays
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
-def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type, is_chosen_cell=False, ch_x = None, ch_y = None):
+def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type, is_chosen_cell=False, ch_x = None, ch_y = None, do_cut=False, cut_x=[0,-1], cut_y=[0,-1]):
+    if cut_x[1]==-1:
+        cut_x[1] = xsize
+    if cut_y[1]==-1:
+        cut_y[1] = ysize
+    if do_cut:
+        pass
+        n_aif = arr_is_full.copy()[cut_x[0]:cut_x[1], cut_y[0]:cut_y[1]]
+        n_ca = counter_arr.copy()[:, cut_x[0]:cut_x[1], cut_y[0]:cut_y[1]]
+    else:
+        n_aif = arr_is_full.copy()
+        n_ca = counter_arr.copy()
     if plot_type=="is_cell":
-        axis.imshow(1.0-arr_is_full.T, cmap="inferno")
+        axis.imshow(1.0-n_aif.T, cmap="inferno")
     elif plot_type=="Si":
-        axis.imshow(counter_arr[0].T, cmap='Greens')
+        axis.imshow(n_ca[0].T, cmap='Greens')
     elif plot_type=="SiCl":
-        axis.imshow(counter_arr[1].T, cmap='Greens')
+        axis.imshow(n_ca[1].T, cmap='Greens')
     elif plot_type=="SiCl2":
-        axis.imshow(counter_arr[2].T, cmap='Greens')
+        axis.imshow(n_ca[2].T, cmap='Greens')
     elif plot_type=="SiCl3":
-        axis.imshow(counter_arr[3].T, cmap='Greens')
-
-    axis.set_ylim([ysize - 0.5, -0.5])
-    axis.set_xlim([-0.5, xsize - 0.5])
-    axis.set_yticks(np.arange(0, ysize, 1) - 0.5, minor=True)
-    axis.set_xticks(np.arange(0, xsize, 1) - 0.5, minor=True)
-    axis.set_yticks(np.arange(0, ysize, 100) - 0.5)
-    axis.set_xticks(np.arange(0, xsize, 100) - 0.5)
+        axis.imshow(n_ca[3].T, cmap='Greens')
+    axis.set_ylim([cut_y[1]-cut_y[0] - 0.5,  - 0.5])
+    axis.set_xlim([-0.5, cut_x[1]-cut_x[0] - 0.5])
+    axis.set_yticks(np.arange(0, cut_y[1]-cut_y[0], 1) - 0.5, minor=True)
+    axis.set_xticks(np.arange(0, cut_x[1]-cut_x[0], 1) - 0.5, minor=True)
+    axis.set_yticks(np.arange(0, cut_y[1]-cut_y[0], 100) - 0.5)
+    axis.set_xticks(np.arange(0, cut_x[1]-cut_x[0], 100) - 0.5)
     axis.grid(which='minor', alpha=1)
     axis.grid(which='major', alpha=0.5)
     if is_chosen_cell:

@@ -66,11 +66,11 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
                         prev_farr, Si_num, normal_angle, start_angle, curr_en, R):
     c_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]
 
-    p_sicl1_ie = otn_const * np.log(R) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl * curr_counter[
+    p_sicl1_ie = otn_const * np.log(R+1) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl * curr_counter[
         1]
-    p_sicl2_ie = otn_const * np.log(R) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl2 * \
+    p_sicl2_ie = otn_const * np.log(R+1) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl2 * \
                  curr_counter[2] * (curr_counter[0] / c_sum)
-    p_sicl3_ie = otn_const * np.log(R) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl3 * \
+    p_sicl3_ie = otn_const * np.log(R+1) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl3 * \
                  curr_counter[3]
 
     curr_angle = np.abs(normal_angle - (np.pi + start_angle))
