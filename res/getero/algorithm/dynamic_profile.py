@@ -4,9 +4,40 @@ import numpy as np
 
 @njit()
 def delete_point(border_layer_arr, curr_x, curr_y):
+
     prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
+    #print(prev_x, prev_y, next_x, next_y)
+    if (prev_x==-1 and prev_y==-1):
+        #print("Мы на краю! Слева")
+
+        new_start_x, new_start_y = give_coords_from_num(0, curr_x, curr_y)
+        if new_start_x == next_x and new_start_y == next_y:
+            #print("Мы попали 2!")
+            border_layer_arr[next_x, next_y, 1:3] = [-1, -1]
+            border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
+            return 0
+        border_layer_arr[new_start_x, new_start_y] = [1, -1, -1, curr_x, curr_y]
+        border_layer_arr[curr_x, curr_y, 1:3] = [new_start_x, new_start_y]
+
+    if (next_x==-1 and next_y==-1):
+        #print("Мы на краю! Справа")
+
+        new_end_x, new_end_y = give_coords_from_num(0, curr_x, curr_y)
+        if new_end_x == prev_x and new_end_y == prev_y:
+            #print("Мы попали 1!")
+            border_layer_arr[prev_x, prev_y, 3:] = [-1,-1]
+            border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
+            return 0
+        border_layer_arr[prev_x, prev_y, 3:]=[new_end_x, new_end_y]
+        border_layer_arr[new_end_x, new_end_y] = [1, curr_x, curr_y, -1, -1]
+        border_layer_arr[curr_x, curr_y, 3:] = [new_end_x, new_end_y]
+
+    prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
+
     if np.abs(prev_x - curr_x) + np.abs(prev_y - curr_y) == 0:
-        print("prev: ", prev_x - curr_x, prev_y - curr_y)
+
+        print("prev: ", prev_x - curr_x, prev_x - curr_y)
+        print(curr_x, curr_y, prev_x, prev_y)
     elif np.abs(next_x - curr_x) + np.abs(next_y - curr_y) == 0:
         print("next: ", next_x - curr_x, next_y - curr_y)
     prev_num = give_num_in_circle(prev_x - curr_x, prev_y - curr_y)
@@ -23,7 +54,6 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         if border_layer_arr[x, y, 0] == -1:
             unfound_exit = False
         i = (i + 1) % 8
-    #print("unfound_exit: ",unfound_exit)
     if unfound_exit:
         # выход находится после next
         # идём по часовой, там внутренность
@@ -38,7 +68,7 @@ def delete_point(border_layer_arr, curr_x, curr_y):
     while i != next_num:
         #print(i)
         x, y = give_coords_from_num(i, curr_x, curr_y)
-        if i % 2 == 0 and border_layer_arr[x, y, 0] == 0:
+        if (i % 2 == 0 and border_layer_arr[x, y, 0] == 0) and ( (x>=0 and y>=0) and (x<border_layer_arr.shape[0] and y<border_layer_arr.shape[1]) ):
             unfound_connector = False
             border_layer_arr[tmp_prev_x, tmp_prev_y, 3] = x
             border_layer_arr[tmp_prev_x, tmp_prev_y, 4] = y
@@ -55,7 +85,7 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         while i != next_num:
             #print(i)
             x, y = give_coords_from_num(i, curr_x, curr_y)
-            if i % 2 == 0 and border_layer_arr[x, y, 0] == 0:
+            if  (i % 2 == 0 and border_layer_arr[x, y, 0] == 0) and ( (x>=0 and y>=0) and (x<border_layer_arr.shape[0] and y<border_layer_arr.shape[1]) ):
                 #print("->")
                 border_layer_arr[tmp_prev_x, tmp_prev_y, 3] = x
                 border_layer_arr[tmp_prev_x, tmp_prev_y, 4] = y
@@ -201,23 +231,40 @@ def check_if_inside(border_layer_arr, curr_x, curr_y):
     return is_inside
 
 
-def give_line_arrays(border_layer, prev_x, prev_y, next_x, next_y, curr_x, curr_y):
-    x, y = prev_x, prev_y
+def give_line_arrays(border_layer):
     X = []
     Y = []
-    while x != next_x or y != next_y:
+    x, y = give_start(border_layer)
+    #print("fff3gla")
+    unfound = True
+    while unfound:
         X.append(int(x))
         Y.append(int(y))
         x, y = border_layer[x, y, 3], border_layer[x, y, 4]
-    X.append(int(x))
-    Y.append(int(y))
+        if x==-1 and y==-1:
+            unfound = False
     return X, Y
 
-def give_max_y(border_layer, prev_x, prev_y, next_x, next_y):
-    x, y = prev_x, prev_y
+def give_start(border_layer):
+    unfound = True
+    x, y = 0, 0
+    while unfound and y < border_layer.shape[1]:
+        if border_layer[x, y, 0] == 1:
+            unfound = False
+        else:
+            y += 1
+    if unfound:
+        raise Exception("Не найдена левая граница")
+    return x, y
+
+def give_max_y(border_layer):
+    x, y = give_start(border_layer)
     y_max = y
-    while x != next_x or y != next_y:
-        y_max = max(y,y_max)
+    unfound = True
+    while unfound:
+        y_max = max(y, y_max)
         x, y = border_layer[x, y, 3], border_layer[x, y, 4]
+        if x==-1 and y==-1:
+            unfound = False
     return y_max
 

@@ -202,7 +202,7 @@ class Wafer:
 
         self.clear_between_mask()
 
-        X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5, 1.5)
+        X, Y = give_line_arrays(self.border_arr)#1.5, 1.5)
         self.profiles.append([X, Y])
 
     def clear_between_mask(self):
@@ -217,7 +217,7 @@ class Wafer:
             raise Exception("Не надо из уже половинки делать половинку (((((")
         self.is_half = True
         #print(self.border_arr.shape)
-        print("x,y sizes: ", self.xsize, self.ysize)
+        #print("x,y sizes: ", self.xsize, self.ysize)
 
         curr_end_x = int(0.5 * self.xsize) - 1
         if self.xsize%2!=0:
@@ -235,14 +235,15 @@ class Wafer:
             raise Exception("Не нашли пересечения!!!")
         self.end_x = curr_end_x
         self.end_y = curr_end_y
-        print(self.mask.shape)
+        #print(self.mask.shape)
         self.is_full = self.is_full[:curr_end_x+1, :]
         self.border_arr = self.border_arr[:curr_end_x+1, :, :]
+        self.border_arr[self.end_x, self.end_y, 3:] = [-1,-1]
         self.counter_arr = self.counter_arr[:, :curr_end_x+1, :]
         self.mask = self.mask[:curr_end_x+1, :]
         self.xsize = curr_end_x+1
 
-        X, Y = give_line_arrays(self.border_arr, self.start_x, self.start_y, self.end_x, self.end_y, 1.5, 1.5)
+        X, Y = give_line_arrays(self.border_arr)#1.5, 1.5)
         self.profiles = [[X, Y]]
 
 

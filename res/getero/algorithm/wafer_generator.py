@@ -4,8 +4,6 @@ from res.getero.algorithm.monte_carlo import generate_particles
 import time
 from tqdm import trange
 from res.getero.algorithm.dynamic_profile import give_line_arrays, give_max_y
-from res.getero.frontend.grafic_funcs import plot_animation
-from res.getero.algorithm.dynamic_profile import delete_point, create_point
 from res.global_entities.wafer import Wafer
 
 
@@ -18,7 +16,7 @@ class WaferGenerator:
         self.wafer.generate_pure_wafer(multiplier, Si_num)
         self.wafer.make_half()
         #generate_pure_wafer(self, )
-        X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.start_x, self.wafer.start_y, self.wafer.end_x, self.wafer.end_y, 1, 1)
+        X, Y = give_line_arrays(self.wafer.border_arr)
         self.wafer.profiles = []
         self.wafer.profiles.append([X, Y])
 
@@ -43,9 +41,9 @@ class WaferGenerator:
         self.wafer.old_wif = self.wafer.is_full.copy()
         self.wafer.old_wca = self.wafer.counter_arr.copy()
         self.master.contPanel.style.configure("LabeledProgressbar", text=str(1) + "/" + str(num_iter))
-        print(self.y_ar_plus, self.y_cl, self.y_cl_plus, self.U_i, self.wafer.y0, self.wafer.xsize, num_per_iter, self.T_i)
-        print(np.max(self.wafer.counter_arr))
-        print(np.mean(self.wafer.counter_arr))
+        #print(self.y_ar_plus, self.y_cl, self.y_cl_plus, self.U_i, self.wafer.y0, self.wafer.xsize, num_per_iter, self.T_i)
+        #print(np.max(self.wafer.counter_arr))
+        #print(np.mean(self.wafer.counter_arr))
         for i in trange(num_iter):
 
             t1 = time.time()
@@ -60,8 +58,9 @@ class WaferGenerator:
             else:
                 R = self.y_cl / self.y_cl_plus
             #print("dfdfdfdfdfdf")
+
             res, _, _, _, _ = process_particles(self.wafer.counter_arr, self.wafer.is_full, self.wafer.border_arr, params, self.wafer.Si_num, self.wafer.xsize,
-                              self.wafer.ysize, R, test=True, do_half=self.wafer.is_half)
+                              self.wafer.ysize, R, test=False, do_half=self.wafer.is_half)
             #print("res: ",res)
             #if res is None:
             #    pass
@@ -69,16 +68,19 @@ class WaferGenerator:
             #    np.save("curr_counter_arr.npy",res)
             #    int("fffdf")
             if i % 500 == 0:
-                X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.start_x, self.wafer.start_y, self.wafer.end_x, self.wafer.end_y, 1.5, 1.5)
+                #print("fff1")
+                X, Y = give_line_arrays(self.wafer.border_arr)
+                #print("fff2")
                 self.wafer.profiles.append([X, Y])
             if i % 500 == 0:
                 print("Num iter: "+str(i)+" Time: "+str(round(ftime*((i+1)/num_iter),3)))
-                y_max = give_max_y(self.wafer.border_arr, self.wafer.start_x, self.wafer.start_y, self.wafer.end_x, self.wafer.end_y)
+                #print("fff4")
+                y_max = give_max_y(self.wafer.border_arr)
                 y_0 = self.wafer.border + self.wafer.mask_height
 
                 depth = (y_max-y_0) * self.cell_size * (10 ** 10)
-                print("Depth: ", depth, " angstrem")
-                print("Speed: "+str(round((60*depth/(ftime*((i+1)/num_iter)))))+" angstrem/min")
+                #print("Depth: ", depth, " angstrem")
+                #print("Speed: "+str(round((60*depth/(ftime*((i+1)/num_iter)))))+" angstrem/min")
                 self.master.plotF.replot(i, True)
                 self.master.plotF.f.savefig("files/tmp_U"+str(round(self.U_i,1))+"_"+str(i)+".png")
                 self.wafer.save("files/wafer_"+str(i)+".zip")

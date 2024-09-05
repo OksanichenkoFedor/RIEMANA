@@ -77,13 +77,15 @@ def plot_border(bl,axis, curr_x, curr_y,size=10):
 x_size = 1
 y_size = 4
 fig, axes = plt.subplots(2*x_size, y_size, figsize=(3*y_size, 6*x_size))
-print(axes.shape)
+#print(axes.shape)
 for i in range(x_size):
     for j in range(y_size):
-        prev_num = np.random.randint(0,  8)
-        next_num = np.random.randint(0, 8)
+        prev_num = 0#np.random.randint(0,  8)
+        next_num = 6#np.random.randint(0, 8)
+        print(prev_num, next_num)
         while np.abs(next_num-prev_num)<=1:
             next_num = np.random.randint(0, 8)
+        print(prev_num, next_num)
         #prev_num = 4
         #next_num = 2
         curr_x = 1 + np.random.randint(0, 10)
@@ -96,7 +98,7 @@ for i in range(x_size):
         plot_line(border_layer, axes[2*i, j], prev_x, prev_y, next_x, next_y, curr_x, curr_y)
 
         border_layer2 = border_layer.copy()
-        print(border_layer2)
+        #print(border_layer2)
         delete_point(border_layer2, curr_x, curr_y)
 
         plot_border(border_layer2, axes[2*i+1, j], curr_x, curr_y)

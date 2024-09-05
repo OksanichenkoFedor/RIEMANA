@@ -38,8 +38,8 @@ class TestPlotFrame(Frame):
         self.canvas.mpl_connect("button_release_event", self.unclick_mouse_event)
         self.canvas.mpl_connect('key_press_event', self.click_keyboard)
         self.wafer = Wafer()
-        self.wafer.generate_pure_wafer(0.005, 5, fill_sicl3=True)
-        #self.wafer.make_half()
+        self.wafer.generate_pure_wafer(0.005, 1, fill_sicl3=True)
+        self.wafer.make_half()
         self.toolbarFrame = tk.Frame(master=self)
         self.toolbarFrame.grid(row=1, columnspan=2, sticky="w")
         self.toolbar1 = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
@@ -82,9 +82,8 @@ class TestPlotFrame(Frame):
         elif self.found == 2 and False:
             self.ax.arrow(self.x1 - 0.5, self.y1 - 0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g",
                           linewidth=1)
-        X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.start_x, self.wafer.start_y, self.wafer.end_x,
-                                self.wafer.end_y, 0, 0)
-        plot_line(self.ax, X, Y, self.wafer.start_x, self.wafer.start_y, 0, 0, do_points=False)
+        X, Y = give_line_arrays(self.wafer.border_arr)#0, 0)
+        plot_line(self.ax, X, Y, 0, 0, do_points=False)
 
         for x in range(self.wafer.border_arr.shape[0]):
             for y in range(self.wafer.border_arr.shape[1]):
@@ -150,8 +149,8 @@ class TestPlotFrame(Frame):
             self.replot()
         elif self.found == 2:
             self.replot()
-            curr_en = 40
-            self.test_type = 3
+            curr_en = 0
+            #self.test_type = 0
             params_arr = [[self.x1, self.y1, 1, curr_en, self.angle, self.test_type, int(self.x1), self.y1]]
 
             if self.y_cl_plus == 0.0:
@@ -280,6 +279,14 @@ class TestPlotFrame(Frame):
             self.ax.plot(np.array(Curr_x)-0.5, np.array(Curr_y)-0.5, ".",color="b")
             self.ax.plot(np.array(Curr_x)-0.5, np.array(Curr_y)-0.5,color="b")
             self.canvas.draw()
+        elif event.key == "g":
+            #меняем тип частицы
+            if self.test_type == 0:
+                print("Меняем тип на создание")
+                self.test_type = 4
+            elif self.test_type == 4:
+                print("Меняем тип на удаление")
+                self.test_type = 0
         else:
             return None
 

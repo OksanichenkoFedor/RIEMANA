@@ -81,8 +81,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 # 0 - внутри
                 # 1 - граница
                 # -1 - снаружи
-                # print("Delete: ", curr_att_x, curr_att_y)
+
                 delete_point(border_layer_arr, curr_att_x, curr_att_y)
+                #print("Delete: ", curr_att_x, curr_att_y)
                 if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                     print("Удаление не произведено!")
                 if new_curr_farr:
@@ -141,7 +142,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             if curr_x >= xsize:
                 if do_half:
                     if is_on_horiz!=0:
-                        print("Incorrect is_on_horiz: ",is_on_horiz)
+                        print("Incorrect is_on_horiz: ", is_on_horiz)
                     curr_angle = straight_reflection(curr_angle, np.pi*0.5)
                     changed_angle = True
                 else:
