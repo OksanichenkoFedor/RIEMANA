@@ -257,6 +257,18 @@ def give_start(border_layer):
         raise Exception("Не найдена левая граница")
     return x, y
 
+def give_end(border_layer):
+    unfound = True
+    x, y = border_layer.shape[0]-1, 0
+    while unfound and y < border_layer.shape[1]:
+        if border_layer[x, y, 0] == 1:
+            unfound = False
+        else:
+            y += 1
+    if unfound:
+        raise Exception("Не найдена правая граница")
+    return x, y
+
 def give_max_y(border_layer):
     x, y = give_start(border_layer)
     y_max = y

@@ -135,8 +135,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             curr_x, curr_y, new_is_on_horiz = give_next_cell(prev_x, prev_y, curr_angle, is_on_horiz)
 
             if test:
-                arr_x.append(curr_x - 0.5)
-                arr_y.append(curr_y - 0.5)
+                pass
+                #arr_x.append(curr_x - 0.5)
+                #arr_y.append(curr_y - 0.5)
 
             is_on_horiz = new_is_on_horiz
             if curr_x >= xsize:

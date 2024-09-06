@@ -19,6 +19,8 @@ class Etcher:
         self.plasmer = Plasmer(self.consts_filename)
 
     def run(self, params, start_filename=""):
+        if params["do_half"]:
+            self.wafer.make_half()
         time = params["time"]
         num_iter = self.const_params["num_iter"]
         plasma_params = self.plasmer.count_plasma(params)
@@ -26,5 +28,7 @@ class Etcher:
         plasma_params.update(params)
         self.getero.change_plasma_params(plasma_params)
         self.getero.run(self.wafer, time, num_iter, start_filename=start_filename)
+        if params["do_half"]:
+            self.wafer.make_half()
 
 

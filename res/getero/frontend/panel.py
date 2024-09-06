@@ -14,7 +14,7 @@ class AppFrame(Frame):
     def __init__(self):
         super().__init__()
 
-        self.getero = WaferGenerator(self,config.multiplier, config.Si_num)
+        self.getero = WaferGenerator(self, config.multiplier, config.Si_num)
         self.getero.change_plasma_params(config.plasma_params)
         self.initUI()
 

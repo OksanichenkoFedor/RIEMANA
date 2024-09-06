@@ -51,10 +51,9 @@ def generate_figure(wafer, wafer_curr_type, do_plot_line=True):
     axis.set_ylabel('y')
     # curr_type = config.wafer_plot_types[config.wafer_plot_num]
     plot_cells(axis, wafer.counter_arr, wafer.is_full, wafer.ysize, wafer.xsize, wafer_curr_type)
-    X, Y = give_line_arrays(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x, wafer.end_y, 1.5, 1.5)
+    X, Y = give_line_arrays(wafer.border_arr)
     if do_plot_line:
-        plot_line(axis, X, Y, wafer.start_x, wafer.start_y, 0, 0,
-                  do_points=False)
+        plot_line(axis, X, Y, 0, 0, do_points=False)
     for x in range(wafer.border_arr.shape[0]):
         for y in range(wafer.border_arr.shape[1]):
             color = "g"

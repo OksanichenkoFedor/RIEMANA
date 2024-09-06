@@ -22,7 +22,8 @@ class MainFrame(Frame):
             "y_ar": 0.1,
             "W": 600,
             "U_i": 200,
-            "time": 0.5
+            "time": 0.5,
+            "do_half": False,
         }
         self.const_params = {
             "a_0": ((1839*28*9.1*10**(-31))/2330)**(1.0/3.0),

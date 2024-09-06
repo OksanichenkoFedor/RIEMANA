@@ -47,11 +47,10 @@ class Getero:
 
             t1 = time.time()
             curr_num_per_iter = num_per_iter
-            if do_half:
-                curr_num_per_iter =int(0.5*curr_num_per_iter)
+            if wafer.is_half:
+                curr_num_per_iter = int(0.5 * curr_num_per_iter)
             params = generate_particles(curr_num_per_iter, wafer.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
                                         y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.U_i, y0=wafer.y0)
-            #print(params.shape)
             t2 = time.time()
             if self.y_cl_plus == 0.0:
                 R = 1000.0
@@ -63,7 +62,7 @@ class Getero:
             #res = process_particles(co_arr, w_if, w_ba, params,
             #                        wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False)
             res = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
-                                   wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False, do_half=do_half)
+                                   wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False, do_half=wafer.is_half)
             if i % iter_add_profile == 0 and i!=0:
                 X, Y = give_line_arrays(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x,
                                         wafer.end_y, 1.5, 1.5)
@@ -78,6 +77,7 @@ class Getero:
 
                 Depths.append(depth)
             if i % iter_save_replot == 0 and i!=0:
+                wafer.return_half()
                 print("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)))
 
                 print_message("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)), 710672679)
