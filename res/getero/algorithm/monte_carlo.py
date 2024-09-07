@@ -36,7 +36,7 @@ def generate_cl(num, xsize, T_i, y0):
         angle.append(generate_cos_point())
     angle = np.array(angle).reshape((num, 1))
 
-    angle = np.random.random((num, 1)) * np.pi - np.pi * 0.5
+    #angle = np.random.random((num, 1)) * np.pi - np.pi * 0.5
 
     angle = np.where(angle < 0, angle + 2 * np.pi, angle)
 

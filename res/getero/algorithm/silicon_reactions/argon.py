@@ -5,7 +5,7 @@ from res.getero.reaction_consts.sputtering_argon import E_th_ar_sicl0_sp, E_th_a
                                                           E_th_ar_sicl2_sp, E_th_ar_sicl3_sp,\
                                                           K_sp_ar_sicl0, K_sp_ar_sicl1, K_sp_ar_sicl2, K_sp_ar_sicl3
 
-from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection
+from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection, count_falling_angle
 
 from res.getero.reaction_consts.angular_dependences import sput_an_dep
 
@@ -19,7 +19,7 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
     p_sicl2_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl2_sp)) * K_sp_ar_sicl2 * curr_counter[2]
     p_sicl3_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl3_sp)) * K_sp_ar_sicl3 * curr_counter[3]
 
-    curr_angle = np.abs(normal_angle - (np.pi + start_angle))
+    curr_angle = count_falling_angle(start_angle, normal_angle)
 
     p_sum = p_sicl0_sp + p_sicl1_sp + p_sicl2_sp + p_sicl3_sp
 

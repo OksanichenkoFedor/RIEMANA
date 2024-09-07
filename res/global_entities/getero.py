@@ -31,9 +31,10 @@ class Getero:
         self.U_i = params["U_i"]
         self.y_ar = params["y_ar"]
 
-    def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=3000, do_print=True, wafer_curr_type="is_cell", start_filename="", do_half=False):
+    def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=1000, do_print=True, wafer_curr_type="is_cell", start_filename="", do_half=False):
         self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
         num_per_iter = int((ctime*self.N_per_sec)/num_iter)
+        is_half = wafer.is_half
         print("Full time: ", str(round(ctime, 1)) + " s.")
         print("Number particles per iteration: ", str(num_per_iter))
         #if not (frontender is None):
@@ -64,24 +65,24 @@ class Getero:
             res = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
                                    wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False, do_half=wafer.is_half)
             if i % iter_add_profile == 0 and i!=0:
-                X, Y = give_line_arrays(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x,
-                                        wafer.end_y, 1.5, 1.5)
+                X, Y = give_line_arrays(wafer.border_arr)
                 wafer.profiles.append([X, Y])
             if i % 100 == 0:
                 Times.append(ctime * ((i + 1) / num_iter))
 
-                y_max = give_max_y(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x, wafer.end_y)
+                y_max = give_max_y(wafer.border_arr)
                 y_0 = wafer.border + wafer.mask_height
 
                 depth = (y_max - y_0) * self.cell_size * (10 ** 10)
 
                 Depths.append(depth)
             if i % iter_save_replot == 0 and i!=0:
-                wafer.return_half()
+                if is_half:
+                    wafer.return_half()
                 print("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)))
 
                 print_message("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)), 710672679)
-                y_max = give_max_y(wafer.border_arr, wafer.start_x, wafer.start_y, wafer.end_x, wafer.end_y)
+                y_max = give_max_y(wafer.border_arr)
                 y_0 = wafer.border + wafer.mask_height
 
                 depth = (y_max - y_0) * self.cell_size * (10 ** 10)
@@ -107,5 +108,8 @@ class Getero:
 
 
                 wafer.save(start_filename+"data/wafer_" + add_name + ".zip")
+
+                if is_half:
+                    wafer.make_half()
             t3 = time.time()
             #print(t3-t2,t2-t1)

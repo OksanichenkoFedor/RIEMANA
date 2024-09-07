@@ -8,7 +8,7 @@ from res.getero.reaction_consts.ion_etching_clorine import E_th_Cl_ie, K_ie_cl_s
                                                            otn_const
 from res.getero.reaction_consts.etching_clorine import gamma_Cl_A, gamma_Cl_B, gamma_Cl_C, gamma_Cl_D
 
-from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection
+from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection, count_falling_angle
 
 from res.getero.reaction_consts.angular_dependences import ion_enh_etch_an_dep, sput_an_dep
 
@@ -73,7 +73,7 @@ def clorine_ion_etching(curr_type, curr_counter, prev_counter, curr_farr,
     p_sicl3_ie = otn_const * np.log(R+1) * max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_Cl_ie)) * K_ie_cl_sicl3 * \
                  curr_counter[3]
 
-    curr_angle = np.abs(normal_angle - (np.pi + start_angle))
+    curr_angle = count_falling_angle(start_angle, normal_angle)
 
     p_sicl0_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_cl_sicl0_sp)) * K_sp_cl_sicl0 * curr_counter[0]
     p_sicl1_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_cl_sicl1_sp)) * K_sp_cl_sicl1 * curr_counter[1]
