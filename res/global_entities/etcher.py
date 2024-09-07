@@ -29,6 +29,6 @@ class Etcher:
         self.getero.change_plasma_params(plasma_params)
         self.getero.run(self.wafer, time, num_iter, start_filename=start_filename)
         if params["do_half"]:
-            self.wafer.make_half()
+            self.wafer.return_half()
 
 

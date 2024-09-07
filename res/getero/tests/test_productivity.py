@@ -1,5 +1,5 @@
 from res.global_entities.wafer import Wafer
-from res.getero.algorithm.main_cycle import process_particles
+from res.getero.algorithm.ray_tracing_sbs import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
 
 from res.global_entities.plotter import generate_figure
@@ -78,14 +78,15 @@ def count_time(curr_wafer, num_iter, num_per_iter, num_mean=250, test=False):
     mid_time = mid_time/(1.0*num_mean)
     return mid_time, middle_time
 
-num_iter = 10000
+#num_iter = 10000
+num_iter = 2000
 num_per_iter = 2000
 num_mean = 500
 multiplier, Si_num = 0.05, 84
 
 test_productivity_pure_wafer_params = {
     "mask_height": 200,
-    "hole_size": 200,
+    "hole_size": 000,
     "border": 500,
     "xsize": 1000,
     "ysize": 2400,

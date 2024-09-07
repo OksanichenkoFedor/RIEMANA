@@ -245,6 +245,7 @@ def give_line_arrays(border_layer):
             unfound = False
     return X, Y
 
+@njit()
 def give_start(border_layer):
     unfound = True
     x, y = 0, 0
