@@ -138,8 +138,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
 
             if test:
                 pass
-                #arr_x.append(curr_x - 0.5)
-                #arr_y.append(curr_y - 0.5)
+                arr_x.append(curr_x - 0.5)
+                arr_y.append(curr_y - 0.5)
 
             is_on_horiz = new_is_on_horiz
             if curr_x >= xsize:

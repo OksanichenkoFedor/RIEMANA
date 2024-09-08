@@ -86,7 +86,7 @@ multiplier, Si_num = 0.05, 84
 
 test_productivity_pure_wafer_params = {
     "mask_height": 200,
-    "hole_size": 000,
+    "hole_size": 200,
     "border": 500,
     "xsize": 1000,
     "ysize": 2400,

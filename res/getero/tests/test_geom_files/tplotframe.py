@@ -13,12 +13,15 @@ matplotlib.use('TkAgg')
 import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
 from res.getero.algorithm.ray_tracing_sbs import process_particles
+from res.getero.algorithm.main_cycle import process_particles as process_particles_rt
+from res.getero.algorithm.ray_tracing import simple_count_collision_point
 
 from res.global_entities.wafer import Wafer
 
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays, create_point
 
-#from res.getero.algorithm.wafer_generator import generate_pure_wafer
+
+# from res.getero.algorithm.wafer_generator import generate_pure_wafer
 
 
 class TestPlotFrame(Frame):
@@ -53,6 +56,7 @@ class TestPlotFrame(Frame):
         self.clicked = False
         self.test_x = 2
         self.test_y = 5
+        self.is_collide = False
 
         self.y_cl_plus = 0.1
         self.y_cl = 0.8
@@ -82,17 +86,21 @@ class TestPlotFrame(Frame):
         elif self.found == 2 and False:
             self.ax.arrow(self.x1 - 0.5, self.y1 - 0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g",
                           linewidth=1)
-        X, Y = give_line_arrays(self.wafer.border_arr)#0, 0)
+        X, Y = give_line_arrays(self.wafer.border_arr)  # 0, 0)
         plot_line(self.ax, X, Y, 0, 0, do_points=False)
-
+        if self.is_collide and False:
+            #print("fffffff")
+            self.ax.plot([self.x1 - 0.5, self.x_c - 0.5], [self.y1 - 0.5, self.y_c - 0.5], color="k")
         for x in range(self.wafer.border_arr.shape[0]):
             for y in range(self.wafer.border_arr.shape[1]):
                 color = "g"
                 if self.wafer.border_arr[x, y, 0] == 1:
                     color = (0.5, 0, 0.5)
                 curr_str0 = "curr: " + str(int(x)) + "," + str(int(y))
-                curr_str1 = "prev: " + str(int(self.wafer.border_arr[x, y, 1])) + "," + str(int(self.wafer.border_arr[x, y, 2]))
-                curr_str2 = "next: " + str(int(self.wafer.border_arr[x, y, 3])) + "," + str(int(self.wafer.border_arr[x, y, 4]))
+                curr_str1 = "prev: " + str(int(self.wafer.border_arr[x, y, 1])) + "," + str(
+                    int(self.wafer.border_arr[x, y, 2]))
+                curr_str2 = "next: " + str(int(self.wafer.border_arr[x, y, 3])) + "," + str(
+                    int(self.wafer.border_arr[x, y, 4]))
                 self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
                 self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
                 self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
@@ -100,8 +108,8 @@ class TestPlotFrame(Frame):
         self.ax.grid(True)
         if not (self.arr_y is None):
             # print("FfFFF: ",self.arr_x, self.arr_y, self.rarr_x, self.rarr_y)
-            #self.ax.plot(self.rarr_x, self.rarr_y, "o", color="r")
-            #self.ax.plot(self.rarr_x, self.rarr_y, color="r")
+            # self.ax.plot(self.rarr_x, self.rarr_y, "o", color="r")
+            # self.ax.plot(self.rarr_x, self.rarr_y, color="r")
             self.ax.plot(self.arr_x, self.arr_y, ".", color="g")
             self.ax.plot(self.arr_x, self.arr_y, color="g", alpha=0.3)
         self.canvas.draw()
@@ -150,23 +158,34 @@ class TestPlotFrame(Frame):
         elif self.found == 2:
             self.replot()
             curr_en = 0
-            #self.test_type = 0
+            # self.test_type = 0
             params_arr = [[self.x1, self.y1, 1, curr_en, self.angle, self.test_type, int(self.x1), self.y1]]
 
             if self.y_cl_plus == 0.0:
                 R = 1000
             else:
                 R = self.y_cl / self.y_cl_plus
-
-            returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y  = process_particles(self.wafer.counter_arr,
-                                                                                 self.wafer.is_full, self.wafer.border_arr,
-                                                                                 params_arr, self.wafer.Si_num,
-                                                                                 self.wafer.xsize, self.wafer.ysize, R,
-                                                                                 True, self.wafer.is_half)
+            # print("fdfdfdfdfdf")
+            self.is_collide, self.x_c, self.y_c, _ = simple_count_collision_point(self.wafer.border_arr, self.x1, self.y1,
+                                                                               self.angle)
+            print(self.is_collide, self.x_c, self.y_c, self.angle/np.pi)
+            #returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y = process_particles(
+            #    self.wafer.counter_arr,
+            #    self.wafer.is_full, self.wafer.border_arr,
+            #    params_arr, self.wafer.Si_num,
+            #    self.wafer.xsize, self.wafer.ysize, R,
+            #    True, self.wafer.is_half)
+            returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y = process_particles_rt(
+                self.wafer.counter_arr,
+                self.wafer.is_full, self.wafer.border_arr,
+                params_arr, self.wafer.Si_num,
+                self.wafer.xsize, self.wafer.ysize, R,
+                True, self.wafer.is_half)
             self.recheck_cell()
             self.replot()
 
             self.canvas.draw()
+            # print("fdfdfdfdfdf1")
             self.found = 0
 
     def unclick_mouse_event(self, event):
@@ -203,8 +222,8 @@ class TestPlotFrame(Frame):
                 self.click_mode = True
         elif event.key == "r":
             print("reconstruct")
-            #self.cursed_params = [[20.740437817923226, 0.0, 1.0, 40.0, 6.248322057011167, 3.0, 20.0, 0.0]]
-            #self.cursed_params = [[20.321909235834088, 12.0, 1.0, 19.43, 3.176455903758212, 9.0, 20.0, 11.0]]
+            # self.cursed_params = [[20.740437817923226, 0.0, 1.0, 40.0, 6.248322057011167, 3.0, 20.0, 0.0]]
+            # self.cursed_params = [[20.321909235834088, 12.0, 1.0, 19.43, 3.176455903758212, 9.0, 20.0, 11.0]]
             f = open("del5.txt")
             A = f.readlines()
             f.close()
@@ -229,8 +248,8 @@ class TestPlotFrame(Frame):
                     create_point(self.wafer.border_arr, prev_x, prev_y, curr_x, curr_y)
                     print("Create: ", prev_x, prev_y, " from: ", curr_x, curr_y)
             self.replot()
-            #self.ax.plot(self.cursed_params[0][0], self.cursed_params[0][1], ".", color=(0.5, 0.7, 0.3))
-            #print("angle: ", self.cursed_params[0][4] / np.pi)
+            # self.ax.plot(self.cursed_params[0][0], self.cursed_params[0][1], ".", color=(0.5, 0.7, 0.3))
+            # print("angle: ", self.cursed_params[0][4] / np.pi)
             self.canvas.draw()
             return None
         elif event.key == "p":
@@ -240,11 +259,12 @@ class TestPlotFrame(Frame):
             else:
                 R = self.y_cl / self.y_cl_plus
 
-            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particles = process_particles(self.wafer.counter_arr, self.is_full,
-                                                                                 self.wafer.border_arr, self.cursed_params,
-                                                                                 self.wafer.Si_num,
-                                                                                 self.wafer.xsize, self.wafer.ysize, R, True,
-                                                                                 max_value=40)
+            self.arr_x, self.arr_y, self.rarr_x, self.rarr_y, returned_particles = process_particles(
+                self.wafer.counter_arr, self.is_full,
+                self.wafer.border_arr, self.cursed_params,
+                self.wafer.Si_num,
+                self.wafer.xsize, self.wafer.ysize, R, True,
+                max_value=40)
             print("end cursed reaction")
             self.recheck_cell()
             self.replot()
@@ -257,7 +277,7 @@ class TestPlotFrame(Frame):
             p_a_x, p_a_y = [], []
             c_a_x, c_a_y = [], []
             ifa_p, ifa_c = [], []
-            curr_len = len(A)//4
+            curr_len = len(A) // 4
             for i in range(curr_len):
                 Prev_x.append(float(A[4 * i + 1].split()[0]))
                 Prev_y.append(float(A[4 * i + 1].split()[1]))
@@ -274,13 +294,13 @@ class TestPlotFrame(Frame):
             print(Curr_y)
             self.replot()
             for i in range(curr_len):
-                rect = plt.Rectangle((c_a_x[i]-0.5,c_a_y[i]-0.5),1,1,color="g")
+                rect = plt.Rectangle((c_a_x[i] - 0.5, c_a_y[i] - 0.5), 1, 1, color="g")
                 self.ax.add_patch(rect)
-            self.ax.plot(np.array(Curr_x)-0.5, np.array(Curr_y)-0.5, ".",color="b")
-            self.ax.plot(np.array(Curr_x)-0.5, np.array(Curr_y)-0.5,color="b")
+            self.ax.plot(np.array(Curr_x) - 0.5, np.array(Curr_y) - 0.5, ".", color="b")
+            self.ax.plot(np.array(Curr_x) - 0.5, np.array(Curr_y) - 0.5, color="b")
             self.canvas.draw()
         elif event.key == "g":
-            #меняем тип частицы
+            # меняем тип частицы
             if self.test_type == 0:
                 print("Меняем тип на создание")
                 self.test_type = 4
