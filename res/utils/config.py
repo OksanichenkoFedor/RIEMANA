@@ -25,8 +25,8 @@ num_per_iter = 40000
 plasma_params = {
     "T_i": 0.12,
     "U_i": 40,
-    "j_ar_plus": 2.041839429440525e+19,
-    "j_cl_plus": 1.4431736576424567e+20,
+    "j_ar_plus": 0,#2.041839429440525e+19,
+    "j_cl_plus": 0,#1.4431736576424567e+20,
     "j_cl": 2.6629180745936804e+22,
     "cell_size": cell_size*(10.0**(-9)),
     "time": 50,
@@ -34,8 +34,8 @@ plasma_params = {
 }
 
 pure_wafer_params = {
-    "mask_height": 100,
-    "hole_size": 200,
+    "mask_height": 20,
+    "hole_size": 50,
     "border": 500,
     "xsize": 1000,
     "ysize": 2400,

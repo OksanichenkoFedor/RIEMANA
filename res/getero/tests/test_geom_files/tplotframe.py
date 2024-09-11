@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tkinter as tk
 import matplotlib
-from tkinter.ttk import Frame, Style
-import time
+from tkinter.ttk import Frame
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
@@ -13,8 +12,8 @@ matplotlib.use('TkAgg')
 import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
 from res.getero.algorithm.ray_tracing_sbs import process_particles
-from res.getero.algorithm.main_cycle import process_particles as process_particles_rt
-from res.getero.algorithm.ray_tracing import simple_count_collision_point
+from res.getero.algorithm.ray_tracing.main_cycle import process_particles as process_particles_rt
+from res.getero.algorithm.ray_tracing.ray_tracing import simple_count_collision_point
 
 from res.global_entities.wafer import Wafer
 

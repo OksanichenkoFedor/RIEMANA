@@ -73,8 +73,37 @@ class Wafer:
             num += 1
         return curr_x, curr_y
 
+    def check_correction(self):
+        for curr_x in range(self.border_arr.shape[0]):
+            for curr_y in range(self.border_arr.shape[1]):
+                if self.is_full[curr_x, curr_y] in [1, 2]:
+                    if self.is_near_void(curr_x, curr_y) and self.border_arr[curr_x, curr_y, 0] != 1:
+                        raise Exception("This cell (" + str(curr_x) + " " + str(
+                            curr_y) + ") is located on the border, but is not included in it")
+                    if (not self.is_near_void(curr_x, curr_y)) and self.border_arr[curr_x, curr_y, 0] == 1:
+                        raise Exception("This cell (" + str(curr_x) + " " + str(
+                            curr_y) + ") is inside wafer, but is included in border")
+
+    def is_near_void(self, curr_x, curr_y):
+        x_size, y_size = self.is_full.shape[0], self.is_full.shape[1]
+        unfound = True
+        if curr_x != 0:
+            if self.is_full[curr_x - 1, curr_y] == 0:
+                unfound = False
+        if curr_x != x_size - 1:
+            if self.is_full[curr_x + 1, curr_y] == 0:
+                unfound = False
+        if curr_y != 0:
+            if self.is_full[curr_x, curr_y - 1] == 0:
+                unfound = False
+        if curr_y != y_size - 1:
+            if self.is_full[curr_x, curr_y + 1] == 0:
+                unfound = False
+        return not unfound
+
     def save(self, filename):
         # print("Start saveing: ",filename)
+        self.check_correction()
         cdict = {
             "multiplier": self.multiplier,
             "Si_num": self.Si_num,
@@ -133,6 +162,7 @@ class Wafer:
         self.silicon_size = int(conf.silicon_size)
         self.profiles = list(conf.profiles)
         self.is_half = bool(conf.is_half)
+        self.check_correction()
 
     def generate_pure_wafer(self, multiplier, Si_num, fill_sicl3=False, params={}):
 
@@ -244,6 +274,7 @@ class Wafer:
 
         X, Y = give_line_arrays(self.border_arr)  # 1.5, 1.5)
         self.profiles = [[X, Y]]
+        self.check_correction()
 
     def return_half(self):
         if not self.is_half:
@@ -280,3 +311,4 @@ class Wafer:
 
         X, Y = give_line_arrays(self.border_arr)
         self.profiles = [[X, Y]]
+        self.check_correction()

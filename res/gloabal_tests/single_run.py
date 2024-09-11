@@ -11,8 +11,8 @@ def run_Ar(y_ar, N):
             "y_ar": y_ar,
             "W": 600,
             "U_i": 200,
-            "time": 240.0/(1.0*N),
-            "do_half": True
+            "time": 60.0/(1.0*N),
+            "do_half": False
             }
 
     etch = Etcher(0.2, consts_filename="../data/data.csv", Si_num=int(84/N))

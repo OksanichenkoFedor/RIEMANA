@@ -11,7 +11,6 @@ from res.getero.algorithm.mask_reactions import mask_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point
 from res.getero.algorithm.profile_approximation import count_simple_norm_angle
 from res.getero.algorithm.utils import straight_reflection
-from res.getero.algorithm.ray_tracing import simple_count_collision_point
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -52,7 +51,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             print(curr_att_x, prev_att_x, curr_att_y, prev_att_y)
             print(curr_angle, curr_angle / np.pi)
             print(is_full_arr[curr_att_x, curr_att_y])
-        if is_full_arr[curr_att_x, curr_att_y] == 1.0:
+        if is_full_arr[curr_att_x, curr_att_y] == 1.0 and False:
             if (num > 10000 and unfound_test):
                 if curr_type == 9.0:
                     print("Argon in cage!")
@@ -123,7 +122,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 changed_angle = True
 
 
-        elif is_full_arr[curr_att_x, curr_att_y] == 2.0:
+        elif is_full_arr[curr_att_x, curr_att_y] == 2.0 or is_full_arr[curr_att_x, curr_att_y] == 1.0:
             # Маска
             curr_angle = mask_reaction(is_on_horiz, curr_angle)
             changed_angle = True
@@ -138,8 +137,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
 
             if test:
                 pass
-                arr_x.append(curr_x - 0.5)
-                arr_y.append(curr_y - 0.5)
+                #arr_x.append(curr_x - 0.5)
+                #arr_y.append(curr_y - 0.5)
 
             is_on_horiz = new_is_on_horiz
             if curr_x >= xsize:

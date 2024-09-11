@@ -42,11 +42,16 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         print("next: ", next_x - curr_x, next_y - curr_y)
     prev_num = give_num_in_circle(prev_x - curr_x, prev_y - curr_y)
     next_num = give_num_in_circle(next_x - curr_x, next_y - curr_y)
-    #print(prev_num, next_num)
+
     if prev_num == next_num:
+        dpx, dpy, dnx, dny = prev_x - curr_x, prev_y - curr_y, next_x - curr_x, next_y - curr_y
         # предыдущий и следующий на одной линии
-        simple_delition(border_layer_arr, curr_x, curr_y, -1)
-        return 0
+        if dpy==0 and dny==0:
+            simple_delition(border_layer_arr, curr_x, curr_y, -1)
+            return 0
+        if (1.0*dpx)/(1.0*dpy)==(1.0*dnx)/(1.0*dny):
+            simple_delition(border_layer_arr, curr_x, curr_y, -1)
+            return 0
     i = (prev_num + 1) % 8
     unfound_exit = True
     while i != next_num and unfound_exit:

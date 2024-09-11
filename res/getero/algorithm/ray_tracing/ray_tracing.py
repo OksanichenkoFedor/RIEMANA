@@ -5,37 +5,42 @@ from res.getero.algorithm.dynamic_profile import give_start
 
 
 @njit()
-def simple_count_collision_point(border_layer_arr, x_ray, y_ray, curr_angle):
+def simple_count_collision_point(border_layer_arr, x_ray, y_ray, curr_angle, start_segm_x, start_segm_y):
     found = False
     x_cross, y_cross = 0, 0
     dist2 = 0
     norm_angle = 0
+    new_start_segm_x, new_start_segm_y = -1, -1
     x_start, y_start = give_start(border_layer_arr)
     x_end, y_end = border_layer_arr[x_start, y_start, 3:]
     unfound_end = True
     while unfound_end:
         if (border_layer_arr[x_end, y_end, 3] == -1) and (border_layer_arr[x_end, y_end, 4] == -1):
             unfound_end = False
-        is_cross, c_x, c_y, c_na = check_collision(x_ray, y_ray, curr_angle, x_start + 0.5, y_start + 0.5, x_end + 0.5,
-                                                   y_end + 0.5)
-        x_start, y_start = x_end, y_end
-        x_end, y_end = border_layer_arr[x_start, y_start, 3:]
+        curr_start_segm_x, curr_start_segm_y = x_start, y_start
+        is_cross, c_x, c_y, c_na,  = check_collision(x_ray, y_ray, curr_angle, x_start + 0.5, y_start + 0.5, x_end + 0.5, y_end + 0.5)
+
         if is_cross:
             if found:
                 c_d = (c_x - x_ray) * (c_x - x_ray) + (c_y - y_ray) * (c_y - y_ray)
-                if dist2 > c_d > 10 ** (-5):
+                if dist2 > c_d and ((start_segm_x!=x_start) or (start_segm_y!=y_start)):
                     dist2 = c_d
                     norm_angle = c_na
                     x_cross, y_cross = c_x, c_y
+                    new_start_segm_x, new_start_segm_y = curr_start_segm_x, curr_start_segm_y
             else:
                 c_d = (c_x - x_ray) * (c_x - x_ray) + (c_y - y_ray) * (c_y - y_ray)
-                if c_d > 10 ** (-5):
+                if ((start_segm_x!=x_start) or (start_segm_y!=y_start)):
                     found = True
                     x_cross, y_cross = c_x, c_y
                     dist2 = (x_cross - x_ray) * (x_cross - x_ray) + (y_cross - y_ray) * (y_cross - y_ray)
                     norm_angle = c_na
+                    new_start_segm_x, new_start_segm_y = curr_start_segm_x, curr_start_segm_y
 
-    return found, x_cross, y_cross, norm_angle
+        x_start, y_start = x_end, y_end
+        x_end, y_end = border_layer_arr[x_start, y_start, 3:]
+
+    return found, x_cross, y_cross, norm_angle, new_start_segm_x, new_start_segm_y
 
 
 @njit()
@@ -61,7 +66,7 @@ def check_collision(x1, y1, angle, x3, y3, x4, y4):
 
 @njit()
 def count_norm_angle(x1, y1, x2, y2):
-    # Пустота всегда слева от лини поэтому мы всегда явно можем определить угол от нормали.
+    # Пустота всегда слева от линии поэтому мы всегда явно можем определить угол от нормали.
     # Он будет улгом вектора ребра + 90.
     delta_x, delta_y = x2 - x1, y2 - y1
     cos = delta_y / np.sqrt(delta_x * delta_x + delta_y * delta_y)
@@ -80,3 +85,9 @@ def count_norm_angle(x1, y1, x2, y2):
         angle = (-1.0) * np.arccos(cos)
     angle = angle + np.pi * 0.5
     return angle
+
+
+
+
+
+
