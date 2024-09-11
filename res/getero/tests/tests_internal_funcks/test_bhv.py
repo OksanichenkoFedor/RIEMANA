@@ -10,7 +10,7 @@ import numpy as np
 
 def plot_wafer(c_wafer):
     X, Y = give_line_arrays(c_wafer.border_arr)
-    fig, ax = plt.subplots(figsize=(15, 10))
+    fig, ax = plt.subplots(figsize=(10, 7))
     ax.set_aspect(1)
     ax.set_ylim([np.array(Y).max(), np.array(Y).min()])
     x_ticks = np.arange(0, c_wafer.xsize, 1)
@@ -44,10 +44,10 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
 
 def plot_rec(curr_axis, NodeList, curr_node, curr_i, i_max):
     print(curr_node)
-    left_x, right_x = NodeList[curr_node, 3]-(1.0*i_max-curr_i+0.1)/(1.0*i_max), NodeList[curr_node, 4]+(1.0*i_max-curr_i+0.1)/(1.0*i_max)
-    up_y, down_y = NodeList[curr_node, 5]-(1.0*i_max-curr_i+0.1)/(1.0*i_max), NodeList[curr_node, 6]+(1.0*i_max-curr_i+0.1)/(1.0*i_max)
+    left_x, right_x = NodeList[curr_node, 3]-0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max), NodeList[curr_node, 4]+0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max)
+    up_y, down_y = NodeList[curr_node, 5]-0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max), NodeList[curr_node, 6]+0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max)
     color = (((1.0*curr_i)/(1.0*i_max)), ((1.0*i_max-1.0*curr_i)/(1.0*i_max)), 0, 0.5+0.5*((1.0*curr_i)/(1.0*i_max)))
-    if curr_i==i_max or int(NodeList[curr_node, 1])==-1:
+    if (curr_i==i_max or int(NodeList[curr_node, 1])==-1) or False:
         ax.plot([right_x, right_x],[up_y, down_y], color=color)
         ax.plot([right_x, left_x], [down_y, down_y], color=color)
         ax.plot([left_x, left_x], [down_y, up_y], color=color)
@@ -58,7 +58,7 @@ def plot_rec(curr_axis, NodeList, curr_node, curr_i, i_max):
         if int(NodeList[curr_node, 2]) != -1:
             plot_rec(curr_axis, NodeList, int(NodeList[curr_node, 2]), curr_i + 1, i_max)
 
-multiplier, Si_num = 0.01, 84
+multiplier, Si_num = 0.05, 84
 params = config.plasma_params
 test_ray_tracing_params = {
     "mask_height": 200,
@@ -72,14 +72,17 @@ t1 = time.time()
 rt_wafer = Wafer()
 rt_wafer.generate_pure_wafer(multiplier, Si_num, params=test_ray_tracing_params)
 t2 = time.time()
-_, _ = del_some_structure(rt_wafer,10, seed=12)
+_, _ = del_some_structure(rt_wafer,50, seed=12)
 rt_wafer.check_correction()
 t3 = time.time()
 #X, Y = give_line_arrays(rt_wafer.border_arr)
 
 NodeList = build_BVH(rt_wafer.border_arr)
+
 ax = plot_wafer(rt_wafer)
-print(NodeList)
-plot_rec(ax, NodeList, 0, 0, 7)
+#print(NodeList)
+#fig, ax = plt.subplots(figsize=(10, 7))
+#ax.set_aspect(1)
+plot_rec(ax, NodeList, 0, 0, 6)
 plt.show()
 #
