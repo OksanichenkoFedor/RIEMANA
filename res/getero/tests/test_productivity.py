@@ -1,5 +1,5 @@
 from res.global_entities.wafer import Wafer
-from res.getero.algorithm.ray_tracing_sbs import process_particles
+from res.getero.algorithm.main_cycle_old import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
 
 from res.global_entities.plotter import generate_figure

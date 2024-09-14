@@ -137,8 +137,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
 
             if test:
                 pass
-                #arr_x.append(curr_x - 0.5)
-                #arr_y.append(curr_y - 0.5)
+                arr_x.append(curr_x - 0.5)
+                arr_y.append(curr_y - 0.5)
 
             is_on_horiz = new_is_on_horiz
             if curr_x >= xsize:
@@ -168,7 +168,7 @@ def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si
                       max_value=-1.0):
     if test:
         arr_x, arr_y, rarr_x, rarr_y = nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8), \
-                                       nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8)
+            nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8)
     else:
         arr_x, arr_y, rarr_x, rarr_y = None, None, None, None
 

@@ -1,5 +1,5 @@
 import numpy as np
-from res.getero.algorithm.ray_tracing_sbs import process_particles
+from res.getero.algorithm.main_cycle_old import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
 import time
 from tqdm import trange

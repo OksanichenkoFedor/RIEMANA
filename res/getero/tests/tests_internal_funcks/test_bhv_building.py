@@ -7,10 +7,14 @@ import res.utils.config as config
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.animation as animation
 
-def plot_wafer(c_wafer):
+def plot_wafer(c_wafer, ax = None):
     X, Y = give_line_arrays(c_wafer.border_arr)
-    fig, ax = plt.subplots(figsize=(10, 7))
+    non_ax = ax is None
+    if non_ax:
+        fig, ax = plt.subplots(figsize=(10, 7))
+
     ax.set_aspect(1)
     ax.set_ylim([np.array(Y).max(), np.array(Y).min()])
     x_ticks = np.arange(0, c_wafer.xsize, 1)
@@ -18,9 +22,9 @@ def plot_wafer(c_wafer):
     ax.set_xticks(x_ticks)
     ax.set_yticks(y_ticks)
     ax.grid()
-
     ax.plot(X, Y)
-    return ax
+    if non_ax:
+        return fig, ax
 
 def del_some_structure(c_wafer, num_del = 100, seed=10):
     np.random.seed(seed)
@@ -43,10 +47,10 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
     return X_del, Y_del
 
 def plot_rec(curr_axis, NodeList, curr_node, curr_i, i_max):
-    print(curr_node)
-    left_x, right_x = NodeList[curr_node, 3]-0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max), NodeList[curr_node, 4]+0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max)
-    up_y, down_y = NodeList[curr_node, 5]-0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max), NodeList[curr_node, 6]+0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max)
-    color = (((1.0*curr_i)/(1.0*i_max)), ((1.0*i_max-1.0*curr_i)/(1.0*i_max)), 0, 0.5+0.5*((1.0*curr_i)/(1.0*i_max)))
+    #print(curr_node)
+    left_x, right_x = NodeList[curr_node, 3]-0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max+0.1), NodeList[curr_node, 4]+0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max+0.1)
+    up_y, down_y = NodeList[curr_node, 5]-0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max+0.1), NodeList[curr_node, 6]+0.1*(1.0*i_max-curr_i+0.1)/(1.0*i_max+0.1)
+    color = (((1.0*curr_i)/(1.0*i_max+0.1)), ((1.0*i_max-1.0*curr_i)/(1.0*i_max+0.1)), 0, 0.5+0.5*((1.0*curr_i)/(1.0*i_max+0.1)))
     if (curr_i==i_max or int(NodeList[curr_node, 1])==-1) or False:
         ax.plot([right_x, right_x],[up_y, down_y], color=color)
         ax.plot([right_x, left_x], [down_y, down_y], color=color)
@@ -79,10 +83,23 @@ t3 = time.time()
 
 NodeList = build_BVH(rt_wafer.border_arr)
 
-ax = plot_wafer(rt_wafer)
+fig, ax = plot_wafer(rt_wafer)
 #print(NodeList)
 #fig, ax = plt.subplots(figsize=(10, 7))
 #ax.set_aspect(1)
-plot_rec(ax, NodeList, 0, 0, 6)
+
 plt.show()
-#
+
+
+filename = "../files/bvh"
+def update_bvh(frame):
+    # for each frame, update the data stored on each artist.
+    print("frame: ",frame)
+
+    ax.clear()
+    plot_wafer(rt_wafer, ax=ax)
+    plot_rec(ax, NodeList, 0, 0, frame)
+ani = animation.FuncAnimation(fig=fig, func=update_bvh, frames=10, interval=500)
+ani.save(filename+".gif", writer='pillow')
+
+    #plt.show()
