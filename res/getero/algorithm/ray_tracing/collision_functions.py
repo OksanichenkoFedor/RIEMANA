@@ -1,6 +1,8 @@
 from numba import njit
 import numpy as np
 
+from res.getero.algorithm.dynamic_profile import give_coords_from_num
+
 
 @njit()
 def check_collision(vec1, angle, curr_segment):
@@ -79,3 +81,23 @@ def count_curr_collision_cell(cross_vec, curr_segment):
         return curr_segment[0]-0.5
     else:
         return curr_segment[1]-0.5
+
+@njit()
+def count_curr_prev_att(cross_vec, curr_segment, fall_angle, border_arr):
+    curr_point = count_curr_collision_cell(cross_vec, curr_segment)
+    curr_axx_x, curr_att_y = int(curr_point[0]), int(curr_point[1])
+    angle = count_norm_angle(curr_segment[0,0], curr_segment[0,1], curr_segment[1,0], curr_segment[1,1]) - np.pi*0.5
+    if angle<0:
+        angle+=2*np.pi
+    curr_f_num = 4.0*(angle/np.pi)
+    if curr_f_num<0:
+        curr_f_num+=8
+    prev_att_x, prev_att_y = give_coords_from_num(int(curr_f_num),curr_axx_x,curr_att_y)
+    print(int(curr_f_num), prev_att_x, prev_att_y)
+    if border_arr[prev_att_x, prev_att_y, 0] != 0:
+        print("---")
+        curr_f_num = int(curr_f_num) - 1
+        if curr_f_num < 0:
+            curr_f_num = int(curr_f_num+8.0)
+        prev_att_x, prev_att_y = give_coords_from_num(curr_f_num,curr_axx_x,curr_att_y)
+    return curr_axx_x, curr_att_y, prev_att_x, prev_att_y, curr_f_num

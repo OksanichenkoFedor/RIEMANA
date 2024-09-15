@@ -286,3 +286,13 @@ def give_max_y(border_layer):
             unfound = False
     return y_max
 
+def find_close_void(border_layer_arr, curr_x, curr_y):
+    num = 0
+    unfound = True
+    while unfound:
+        new_x, new_y = give_coords_from_num(num, curr_x, curr_y)
+        if border_layer_arr[new_x,new_y,0]==0:
+            unfound = False
+        num+=1
+    return new_x, new_y
+
