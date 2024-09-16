@@ -1,7 +1,6 @@
 from res.global_entities.wafer import Wafer
 from res.getero.algorithm.main_cycle import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
-from res.getero.algorithm.ray_tracing.bvh import build_BVH
 from res.global_entities.plotter import generate_figure
 
 #import res.utils.config as config
@@ -49,7 +48,6 @@ def count_time(curr_wafer, num_iter, num_per_iter, num_mean=250, test=False, typ
     curr_wafer.old_wca = curr_wafer.counter_arr.copy()
     start_t = time.time()
     Times = []
-    NodeList = build_BVH(curr_wafer.border_arr)
     for i in trange(num_iter):
         t1 = time.time()
         curr_num_per_iter = num_per_iter
@@ -62,10 +60,11 @@ def count_time(curr_wafer, num_iter, num_per_iter, num_mean=250, test=False, typ
             R = 1000
         else:
             R = y_cl / y_cl_plus
-        res, _, _, _, _, NodeList = process_particles(curr_wafer.counter_arr, curr_wafer.is_full, curr_wafer.border_arr,
-                                                      params, curr_wafer.Si_num, curr_wafer.xsize, curr_wafer.ysize, R,
-                                                      test=test, do_half=curr_wafer.is_half, NodeList=NodeList,
-                                                      type=type)
+        res, _, _, _, _, curr_wafer.nodelist = process_particles(curr_wafer.counter_arr, curr_wafer.is_full,
+                                                                 curr_wafer.border_arr, params, curr_wafer.Si_num,
+                                                                 curr_wafer.xsize, curr_wafer.ysize, R, test=test,
+                                                                 do_half=curr_wafer.is_half,
+                                                                 NodeList=curr_wafer.nodelist, type=type)
         t2 = time.time()
         if i!=0:
             Times.append(t2-t1)
@@ -89,7 +88,7 @@ test_productivity_pure_wafer_params = {
     "mask_height": 200,
     "hole_size": 200,
     "border": 500,
-    "xsize": 1000,
+    "xsize": 2000,
     "ysize": 2400,
     "silicon_size": 1600
 }

@@ -4,7 +4,7 @@ import numpy as np
 
 @njit()
 def delete_point(border_layer_arr, curr_x, curr_y):
-
+    #print("---")
     prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
     #print(prev_x, prev_y, next_x, next_y)
     if (prev_x==-1 and prev_y==-1):
@@ -12,7 +12,6 @@ def delete_point(border_layer_arr, curr_x, curr_y):
 
         new_start_x, new_start_y = give_coords_from_num(0, curr_x, curr_y)
         if new_start_x == next_x and new_start_y == next_y:
-            #print("Мы попали 2!")
             border_layer_arr[next_x, next_y, 1:3] = [-1, -1]
             border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
             return 0
@@ -24,7 +23,6 @@ def delete_point(border_layer_arr, curr_x, curr_y):
 
         new_end_x, new_end_y = give_coords_from_num(0, curr_x, curr_y)
         if new_end_x == prev_x and new_end_y == prev_y:
-            #print("Мы попали 1!")
             border_layer_arr[prev_x, prev_y, 3:] = [-1,-1]
             border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
             return 0
@@ -42,7 +40,6 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         print("next: ", next_x - curr_x, next_y - curr_y)
     prev_num = give_num_in_circle(prev_x - curr_x, prev_y - curr_y)
     next_num = give_num_in_circle(next_x - curr_x, next_y - curr_y)
-
     if prev_num == next_num:
         dpx, dpy, dnx, dny = prev_x - curr_x, prev_y - curr_y, next_x - curr_x, next_y - curr_y
         # предыдущий и следующий на одной линии
@@ -52,21 +49,11 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         if (1.0*dpx)/(1.0*dpy)==(1.0*dnx)/(1.0*dny):
             simple_delition(border_layer_arr, curr_x, curr_y, -1)
             return 0
-    i = (prev_num + 1) % 8
-    unfound_exit = True
-    while i != next_num and unfound_exit:
-        x, y = give_coords_from_num(i, curr_x, curr_y)
-        if border_layer_arr[x, y, 0] == -1:
-            unfound_exit = False
-        i = (i + 1) % 8
-    if unfound_exit:
-        # выход находится после next
-        # идём по часовой, там внутренность
-        add = +1
-    else:
-        # выход находится после prev
-        # идём против часовой, там внутренность
-        add = -1
+
+
+    add = 1
+    # мы ВСЕГДА обходим по часовой
+
     i = (prev_num + add) % 8
     tmp_prev_x, tmp_prev_y = prev_x, prev_y
     unfound_connector = True
@@ -239,12 +226,13 @@ def check_if_inside(border_layer_arr, curr_x, curr_y):
 def give_line_arrays(border_layer):
     X = []
     Y = []
+    #print(border_layer.shape)
     x, y = give_start(border_layer)
-    #print("fff3gla")
     unfound = True
     while unfound:
         X.append(int(x))
         Y.append(int(y))
+        #print(x, y)
         x, y = border_layer[x, y, 3], border_layer[x, y, 4]
         if x==-1 and y==-1:
             unfound = False

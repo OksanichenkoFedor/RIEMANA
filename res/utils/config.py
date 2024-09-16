@@ -34,10 +34,10 @@ plasma_params = {
 }
 
 pure_wafer_params = {
-    "mask_height": 20,
-    "hole_size": 150,
+    "mask_height": 200,
+    "hole_size": 300,
     "border": 500,
-    "xsize": 1000,
+    "xsize": 2000,
     "ysize": 2400,
     "silicon_size": 1600
 }

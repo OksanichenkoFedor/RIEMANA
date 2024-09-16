@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type, is_chosen_cell=False, ch_x = None, ch_y = None, do_cut=False, cut_x=[0,-1], cut_y=[0,-1]):
     if cut_x[1]==-1:
-        cut_x[1] = xsize
+        cut_x[1] = xsize+2
     if cut_y[1]==-1:
         cut_y[1] = ysize
     if do_cut:
@@ -20,7 +20,7 @@ def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type, is_chose
         n_aif = arr_is_full.copy()
         n_ca = counter_arr.copy()
     if plot_type=="is_cell":
-        axis.imshow(1.0-n_aif.T, cmap="inferno")
+        axis.imshow(1.0-n_aif.T, cmap="plasma")
     elif plot_type=="Si":
         axis.imshow(n_ca[0].T, cmap='Greens')
     elif plot_type=="SiCl":
@@ -61,8 +61,8 @@ def plot_line(axis, X, Y, add_x, add_y, size=1, do_points=True):
 
 def plot_animation(profiles, xsize, ysize, num, filename=None):
     fig, ax = plt.subplots(figsize=(10,10))
-    x_major_ticks = np.arange(0, xsize, 10)
-    x_minor_ticks = np.arange(0, xsize, 1)
+    x_major_ticks = np.arange(0, xsize+2, 10)
+    x_minor_ticks = np.arange(0, xsize+2, 1)
     y_major_ticks = np.arange(0, ysize, 10)
     y_minor_ticks = np.arange(0, ysize, 1)
     ax.set_xticks(x_major_ticks)
@@ -72,7 +72,7 @@ def plot_animation(profiles, xsize, ysize, num, filename=None):
     ax.set_aspect(1)
     ax.grid(which='minor', alpha=0.2)
     ax.grid(which='major', alpha=0.8)
-    ax.set(xlim=[0, xsize], ylim=[ysize, 0])
+    ax.set(xlim=[0, xsize+2], ylim=[ysize, 0])
     x, y = profiles[0]
     line, = ax.plot(x, y)
     def update(frame):

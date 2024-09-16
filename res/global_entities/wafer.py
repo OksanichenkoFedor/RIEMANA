@@ -1,10 +1,9 @@
-import numpy as np
-
 from res.getero.algorithm.dynamic_profile import delete_point, create_point, give_line_arrays, give_start, give_end
+from res.getero.algorithm.ray_tracing.bvh import build_BVH
 import res.utils.config as config
 
 from omegaconf import OmegaConf
-
+import numpy as np
 from zipfile import ZipFile
 import os
 
@@ -83,6 +82,7 @@ class Wafer:
                     if (not self.is_near_void(curr_x, curr_y)) and self.border_arr[curr_x, curr_y, 0] == 1:
                         raise Exception("This cell (" + str(curr_x) + " " + str(
                             curr_y) + ") is inside wafer, but is included in border")
+        self.nodelist = build_BVH(self.border_arr)
 
     def is_near_void(self, curr_x, curr_y):
         x_size, y_size = self.is_full.shape[0], self.is_full.shape[1]
@@ -163,6 +163,7 @@ class Wafer:
         self.profiles = list(conf.profiles)
         self.is_half = bool(conf.is_half)
         self.check_correction()
+        self.nodelist = build_BVH(self.border_arr)
 
     def generate_pure_wafer(self, multiplier, Si_num, fill_sicl3=False, params={}):
 
@@ -171,8 +172,6 @@ class Wafer:
                 setattr(self, attr, params[attr])
             else:
                 setattr(self, attr, config.pure_wafer_params[attr])
-        #self.mask_height = 200
-        #self.hole_size = 200
 
         self.old_wif = []
         self.old_wca = []
@@ -180,19 +179,19 @@ class Wafer:
         self.multiplier = multiplier
         self.Si_num = Si_num
         self.border = int(self.border * self.multiplier)
-        self.xsize = int(self.xsize * self.multiplier) * 2
+        self.xsize = int(self.xsize * self.multiplier * 0.5) * 2
         self.ysize = int(self.ysize * self.multiplier)
-        self.left_area = int(self.xsize * 0.5) - int(self.hole_size * self.multiplier)
-        self.right_area = int(self.xsize * 0.5) + int(self.hole_size * self.multiplier)
+        self.left_area = int(self.xsize * 0.5 + 1) - int(self.hole_size * self.multiplier)
+        self.right_area = int(self.xsize * 0.5 + 1) + int(self.hole_size * self.multiplier)
         self.mask_height = int(self.mask_height * self.multiplier)
-        self.y0 = 0
+        self.y0 = 0.5
         self.silicon_size = int(self.silicon_size * self.multiplier)
         self.is_half = False
         # print(25*self.silicon_size)
-        self.is_full = np.fromfunction(lambda i, j: j >= self.border, (self.xsize, self.ysize), dtype=int).astype(
+        self.is_full = np.fromfunction(lambda i, j: j >= self.border, (self.xsize+2, self.ysize), dtype=int).astype(
             int)
         self.counter_arr = self.is_full.copy() * self.Si_num
-        self.mask = np.ones((self.xsize, self.ysize))
+        self.mask = np.ones((self.xsize+2, self.ysize))
         self.mask[:, :self.border] = self.mask[:, :self.border] * 0
         self.mask[:,
         self.border + self.mask_height:self.border + self.mask_height + self.silicon_size] = self.mask[:,
@@ -212,27 +211,43 @@ class Wafer:
         self.counter_arr[ind] = self.counter_arr[ind] * 0
 
         self.counter_arr[0] = self.counter_arr[0] - self.mask * self.Si_num
-        self.border_arr = np.ones((self.xsize, self.ysize, 5)) * 0.5
+        self.border_arr = np.ones((self.xsize+2, self.ysize, 5)) * 0.5
+
         for i in range(self.xsize):
-            self.border_arr[i, self.border, 0] = 1.0
+            j = i+1
+            self.border_arr[j, self.border, 0] = 1.0
             if i == 0:
-                self.border_arr[i, self.border, 1:] = [-1, -1, i + 1, self.border]
+                self.border_arr[j, self.border, 1:] = [0, self.border, j + 1, self.border]
+                self.border_arr[0, self.border] = [1, 0, self.border - 1, j, self.border]
             elif i == self.xsize - 1:
-                self.border_arr[i, self.border, 1:] = [i - 1, self.border, -1, -1]
+                self.border_arr[j, self.border, 1:] = [j - 1, self.border, j + 1, self.border]
+                self.border_arr[j + 1, self.border] = [1, j, self.border, j + 1, self.border-1]
             else:
-                self.border_arr[i, self.border, 1:] = [i - 1, self.border, i + 1, self.border]
+                self.border_arr[j, self.border, 1:] = [j - 1, self.border, j + 1, self.border]
+
+
 
         self.border_arr[:, :self.border - 0, :] = self.border_arr[:, :self.border - 0, :] * (
             -2.0)
         self.border_arr[:, self.border + 1:, :] = self.border_arr[:, self.border + 1:, :] * (
             0.0)
 
+        self.is_full[0, :] = np.ones(self.ysize) * (-1.0)
+        self.is_full[-1, :] = np.ones(self.ysize) * (-1.0)
+        for i in range(self.border):
+            if i==0:
+                self.border_arr[0, i]=[1.0, -1, -1, 0, i + 1]
+                self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, -1, -1]
+            else:
+                self.border_arr[0, i] = [1.0, 0, i - 1, 0, i + 1]
+                self.border_arr[self.xsize + 1, i]= [1.0, self.xsize + 1, i + 1, self.xsize + 1, i - 1]
+
         self.border_arr = self.border_arr.astype(int)
 
         self.clear_between_mask()
-
         X, Y = give_line_arrays(self.border_arr)  # 1.5, 1.5)
         self.profiles.append([X, Y])
+        self.nodelist = build_BVH(self.border_arr)
 
     def clear_between_mask(self):
         for i in range(self.right_area - self.left_area):
@@ -247,10 +262,10 @@ class Wafer:
         self.is_half = True
         # print(self.border_arr.shape)
         # print("x,y sizes: ", self.xsize, self.ysize)
-
-        curr_end_x = int(0.5 * self.xsize) - 1
+        print("Start xsize: ",self.xsize)
+        curr_end_x = int(0.5 * (self.xsize))
         if self.xsize % 2 != 0:
-            raise Exception("Нецело делится на 2 по горизонтали")
+            raise Exception("Не делится на 2 по горизонтали")
         unfound_end = True
         for i in range(self.ysize):
             # print(self.border_arr[curr_end_x, i, 0])
@@ -263,18 +278,27 @@ class Wafer:
         if unfound_end:
             raise Exception("Не нашли пересечения!!!")
         end_x = curr_end_x
+        print("curr_end_x: ",curr_end_x)
         end_y = curr_end_y
         # print(self.mask.shape)
-        self.is_full = self.is_full[:curr_end_x + 1, :]
-        self.border_arr = self.border_arr[:curr_end_x + 1, :, :]
-        self.border_arr[end_x, end_y, 3:] = [-1, -1]
-        self.counter_arr = self.counter_arr[:, :curr_end_x + 1, :]
-        self.mask = self.mask[:curr_end_x + 1, :]
-        self.xsize = curr_end_x + 1
-
+        self.is_full = self.is_full[:curr_end_x + 2, :]
+        self.is_full[-1] = np.ones(self.ysize)*(-1)
+        self.border_arr = self.border_arr[:curr_end_x + 2, :, :]
+        self.border_arr[curr_end_x, curr_end_y, 3:] = [curr_end_x+1, curr_end_y]
+        self.border_arr[curr_end_x + 1, curr_end_y] = [1, curr_end_x, curr_end_y, curr_end_x + 1, curr_end_y - 1]
+        for i in range(curr_end_y + 1):
+            if i == 0:
+                self.border_arr[curr_end_x + 1, i] = [1.0, curr_end_x + 1, i + 1, -1, -1]
+            else:
+                self.border_arr[curr_end_x + 1, i] = [1.0, curr_end_x + 1, i + 1, curr_end_x + 1, i - 1]
+        self.counter_arr = self.counter_arr[:, :curr_end_x + 2, :]
+        self.mask = self.mask[:curr_end_x + 2, :]
+        self.xsize = int(0.5 * self.xsize)
+        print("Half xsize: ", self.xsize)
         X, Y = give_line_arrays(self.border_arr)  # 1.5, 1.5)
         self.profiles = [[X, Y]]
         self.check_correction()
+        self.nodelist = build_BVH(self.border_arr)
 
     def return_half(self):
         if not self.is_half:
@@ -282,33 +306,39 @@ class Wafer:
         self.is_half = False
         new_xsize = int(2.0 * self.xsize)
 
-        end_x, end_y = give_end(self.border_arr)
+        end_x, end_y = give_end(self.border_arr[:-1])
         start_x, start_y = give_start(self.border_arr)
-
-        self.is_full = np.concatenate((self.is_full, self.is_full[::-1, :]), axis=0)
-        self.border_arr = np.concatenate((self.border_arr, self.border_arr[::-1, :, :]), axis=0)
-        self.counter_arr = np.concatenate((self.counter_arr, self.counter_arr[:, ::-1, :]), axis=1)
-        self.mask = np.concatenate((self.mask, self.mask[::-1, :]), axis=0)
-
+        print(end_x, end_y)
+        self.is_full = np.concatenate((self.is_full[:-1], self.is_full[:-1][::-1, :]), axis=0)
+        self.border_arr = np.concatenate((self.border_arr[:-1], self.border_arr[:-1][::-1, :, :]), axis=0)
+        self.counter_arr = np.concatenate((self.counter_arr[:,:-1], self.counter_arr[:,:-1][:, ::-1, :]), axis=1)
+        self.mask = np.concatenate((self.mask[:-1], self.mask[:-1][::-1, :]), axis=0)
         self.xsize = new_xsize
 
         curr_left_x = end_x
         curr_left_y = end_y
         curr_right_x = end_x + 1
         curr_right_y = end_y
-        self.border_arr[curr_left_x, curr_left_y, 3:] = [curr_right_x, curr_right_y]
-        self.border_arr[curr_right_x, curr_right_y, 1:3] = [curr_left_x, curr_left_y]
+        self.border_arr[end_x, end_y, 3:] = [curr_right_x, curr_right_y]
+        self.border_arr[curr_right_x, curr_right_y, 1:3] = [end_x, end_y]
         while curr_left_x != start_x:
+
             next_left_x, next_left_y = self.border_arr[curr_left_x, curr_left_y, 1:3]
             next_right_y = next_left_y
-            next_right_x = self.xsize - next_left_x - 1
+
+            next_right_x = self.xsize - next_left_x + 1
+            print(next_left_x, next_right_x)
             self.border_arr[curr_right_x, curr_right_y, 3:] = [next_right_x, next_right_y]
             self.border_arr[next_right_x, next_right_y, 1:3] = [curr_right_x, curr_right_y]
             curr_left_x, curr_left_y = next_left_x, next_left_y
             curr_right_x, curr_right_y = next_right_x, next_right_y
 
-        self.border_arr[curr_right_x, curr_right_y, 3:] = [-1, -1]
-
+        self.border_arr[curr_right_x, curr_right_y, 3:] = [curr_right_x, curr_right_y-1]
+        for i in range(end_y-1):
+            if i == 0:
+                self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, -1, -1]
+            else:
+                self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, self.xsize + 1, i - 1]
         X, Y = give_line_arrays(self.border_arr)
         self.profiles = [[X, Y]]
         self.check_correction()

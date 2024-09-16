@@ -125,6 +125,10 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             # Маска
             curr_angle = mask_reaction(is_on_horiz, curr_angle)
             changed_angle = True
+        elif is_full_arr[curr_att_x, curr_att_y] == -1.0:
+            # Грани
+            curr_angle = mask_reaction(is_on_horiz, curr_angle)
+            changed_angle = True
         else:
             if border_layer_arr[curr_att_x, curr_att_y, 0] != -1:
                 print("Некорректный расчёт профиля! ", border_layer_arr[curr_att_x, curr_att_y, 0])
@@ -140,16 +144,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 arr_y.append(curr_y - 0.5)
 
             is_on_horiz = new_is_on_horiz
-            if curr_x >= xsize:
-                if do_half:
-                    if is_on_horiz!=0:
-                        print("Incorrect is_on_horiz: ", is_on_horiz)
-                    curr_angle = straight_reflection(curr_angle, np.pi*0.5)
-                    changed_angle = True
-                else:
-                    unfound = False
-                    returned_particles[int(curr_type)] += 1
-            if curr_x < 0 or (curr_y >= ysize or curr_y < 0):
+            if curr_y >= ysize or curr_y < 0:
                 unfound = False
                 returned_particles[int(curr_type)] += 1
             elif int(curr_y) <= 1 and (curr_angle <= 1.5 * np.pi and curr_angle >= 0.5 * np.pi):

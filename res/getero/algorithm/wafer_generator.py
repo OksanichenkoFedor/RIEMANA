@@ -1,5 +1,4 @@
 from res.getero.algorithm.main_cycle import process_particles
-from res.getero.algorithm.ray_tracing.bvh import build_BVH
 from res.getero.algorithm.monte_carlo import generate_particles
 import time
 from tqdm import trange
@@ -44,7 +43,6 @@ class WaferGenerator:
         #print(self.y_ar_plus, self.y_cl, self.y_cl_plus, self.U_i, self.wafer.y0, self.wafer.xsize, num_per_iter, self.T_i)
         #print(np.max(self.wafer.counter_arr))
         #print(np.mean(self.wafer.counter_arr))
-        NodeList = build_BVH(self.wafer.border_arr)
         for i in trange(num_iter):
 
             t1 = time.time()
@@ -59,10 +57,10 @@ class WaferGenerator:
             else:
                 R = self.y_cl / self.y_cl_plus
 
-            res, _, _, _, _, NodeList = process_particles(self.wafer.counter_arr, self.wafer.is_full, self.wafer.border_arr,
+            res, _, _, _, _, self.wafer.nodelist = process_particles(self.wafer.counter_arr, self.wafer.is_full, self.wafer.border_arr,
                                                 params, self.wafer.Si_num, self.wafer.xsize,
-                                                self.wafer.ysize, R, test=False, do_half=self.wafer.is_half,
-                                                NodeList=NodeList, type="bvh")
+                                                self.wafer.ysize, R, test=True, do_half=self.wafer.is_half,
+                                                NodeList=self.wafer.nodelist, type="bvh")
 
             if i % 500 == 0:
                 X, Y = give_line_arrays(self.wafer.border_arr)
