@@ -1,8 +1,6 @@
 from res.global_entities.wafer import Wafer
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays
-from res.getero.algorithm.ray_tracing.main_cycle_line_search import process_particles as process_particle_ls
-from res.getero.algorithm.ray_tracing.main_cycle_bvh import process_particles as process_particle_bvh
-from res.getero.algorithm.main_cycle_old import process_particles as process_particle_old
+from res.getero.algorithm.main_cycle import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
 from res.getero.algorithm.ray_tracing.bvh import build_BVH
 
@@ -62,21 +60,24 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
         else:
             R = y_cl / y_cl_plus
         t1 = time.time_ns()
-        _, arr_x_ls, arr_y_ls, _, _ = process_particle_ls(
+        _, arr_x_ls, arr_y_ls, _, _ = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
-            [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R,True, c_wafer.is_half)
+            [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R,True, c_wafer.is_half,
+            type="line search")
         t2 = time.time_ns()
         Times1.append(t2-t1)
         t1 = time.time_ns()
-        _, arr_x_old, arr_y_old, _, _ = process_particle_old(
+        _, arr_x_old, arr_y_old, _, _ = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
-            [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half)
+            [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
+            type="cell by cell")
         t2 = time.time_ns()
         Times2.append(t2 - t1)
         t1 = time.time_ns()
-        _, arr_x_bvh, arr_y_bvh, _, _ = process_particle_bvh(
+        _, arr_x_bvh, arr_y_bvh, _, _ = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr, NodeList,
-            [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half)
+            [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
+            type="bvh")
         t2 = time.time_ns()
         Times3.append(t2 - t1)
         if arr_x_bvh!=arr_x_ls or arr_y_bvh!=arr_y_ls:

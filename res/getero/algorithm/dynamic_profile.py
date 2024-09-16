@@ -286,6 +286,7 @@ def give_max_y(border_layer):
             unfound = False
     return y_max
 
+@njit()
 def find_close_void(border_layer_arr, curr_x, curr_y):
     num = 0
     unfound = True

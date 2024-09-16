@@ -1,7 +1,7 @@
 from res.global_entities.wafer import Wafer
-from res.getero.algorithm.main_cycle_old import process_particles
+from res.getero.algorithm.main_cycle import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
-
+from res.getero.algorithm.ray_tracing.bvh import build_BVH
 from res.global_entities.plotter import generate_figure
 
 #import res.utils.config as config
@@ -30,7 +30,7 @@ print("Тестовый режим (c добавлением): ", round(old_star
 print("Самый ускореный результат: ", round(old_start_fast_time, 3), " ", round(old_end_fast_time, 3))
 
 
-def count_time(curr_wafer, num_iter, num_per_iter, num_mean=250, test=False):
+def count_time(curr_wafer, num_iter, num_per_iter, num_mean=250, test=False, type="cell by cell"):
     params = plasma_params
     n_full = (params["j_ar_plus"]+params["j_cl"]+params["j_cl_plus"])
 
@@ -49,7 +49,7 @@ def count_time(curr_wafer, num_iter, num_per_iter, num_mean=250, test=False):
     curr_wafer.old_wca = curr_wafer.counter_arr.copy()
     start_t = time.time()
     Times = []
-
+    NodeList = build_BVH(curr_wafer.border_arr)
     for i in trange(num_iter):
         t1 = time.time()
         curr_num_per_iter = num_per_iter
@@ -62,9 +62,10 @@ def count_time(curr_wafer, num_iter, num_per_iter, num_mean=250, test=False):
             R = 1000
         else:
             R = y_cl / y_cl_plus
-        res, _, _, _, _ = process_particles(curr_wafer.counter_arr, curr_wafer.is_full, curr_wafer.border_arr, params,
-                                        curr_wafer.Si_num, curr_wafer.xsize,
-                                        curr_wafer.ysize, R, test=test, do_half=curr_wafer.is_half)
+        res, _, _, _, _, NodeList = process_particles(curr_wafer.counter_arr, curr_wafer.is_full, curr_wafer.border_arr,
+                                                      params, curr_wafer.Si_num, curr_wafer.xsize, curr_wafer.ysize, R,
+                                                      test=test, do_half=curr_wafer.is_half, NodeList=NodeList,
+                                                      type=type)
         t2 = time.time()
         if i!=0:
             Times.append(t2-t1)
@@ -96,9 +97,18 @@ test_productivity_pure_wafer_params = {
 start_wafer = Wafer()
 start_wafer.generate_pure_wafer(multiplier, Si_num, params=test_productivity_pure_wafer_params)
 
-start_mid_time, start_middle_time = count_time(start_wafer, num_iter=num_iter,
-                                               num_per_iter=num_per_iter, num_mean=num_mean, test=False)
-print("Быстрое время в начале: ", round(1000*start_middle_time, 3), " мс")
+start_mid_time, start_middle_time = count_time(start_wafer, num_iter=num_iter, num_per_iter=num_per_iter,
+                                               num_mean=num_mean, test=False, type="cell by cell")
+print("Быстрое время в начале (cell by cell): ", round(1000*start_middle_time, 3), " мс")
+
+f = generate_figure(start_wafer, wafer_curr_type="is_cell", do_plot_line=True)
+
+start_bvh_wafer = Wafer()
+start_bvh_wafer.generate_pure_wafer(multiplier, Si_num, params=test_productivity_pure_wafer_params)
+
+start_bvh_mid_time, start_bvh_middle_time = count_time(start_wafer, num_iter=num_iter, num_per_iter=num_per_iter,
+                                                       num_mean=num_mean, test=False, type="bvh")
+print("Быстрое время в начале (bvh): ", round(1000*start_bvh_middle_time, 3), " мс")
 
 f = generate_figure(start_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 

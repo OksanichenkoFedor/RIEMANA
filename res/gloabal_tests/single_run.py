@@ -12,7 +12,9 @@ def run_Ar(y_ar, N):
             "W": 600,
             "U_i": 200,
             "time": 60.0/(1.0*N),
-            "do_half": False
+            "do_half": False,
+            "rt_type": "cell by cell",
+
             }
 
     etch = Etcher(0.2, consts_filename="../data/data.csv", Si_num=int(84/N))

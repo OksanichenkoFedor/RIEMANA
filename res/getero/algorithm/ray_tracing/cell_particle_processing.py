@@ -2,7 +2,6 @@ import numpy as np
 from numba import njit
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
-import numba as nb
 
 from res.getero.algorithm.space_orientation import find_next, give_next_cell, throw_particle_away
 
@@ -51,7 +50,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             print(curr_att_x, prev_att_x, curr_att_y, prev_att_y)
             print(curr_angle, curr_angle / np.pi)
             print(is_full_arr[curr_att_x, curr_att_y])
-        if is_full_arr[curr_att_x, curr_att_y] == 1.0 and False:
+        if is_full_arr[curr_att_x, curr_att_y] == 1.0:
             if (num > 10000 and unfound_test):
                 if curr_type == 9.0:
                     print("Argon in cage!")
@@ -92,7 +91,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
 
             if new_prev_farr != prev_farr:
                 # восстановление частицы
-                # print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
+                print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
                 create_point(border_layer_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
             counter_arr[:, curr_att_x, curr_att_y] = new_curr_counter
             counter_arr[:, prev_att_x, prev_att_y] = new_prev_counter
@@ -122,7 +121,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 changed_angle = True
 
 
-        elif is_full_arr[curr_att_x, curr_att_y] == 2.0 or is_full_arr[curr_att_x, curr_att_y] == 1.0:
+        elif is_full_arr[curr_att_x, curr_att_y] == 2.0:
             # Маска
             curr_angle = mask_reaction(is_on_horiz, curr_angle)
             changed_angle = True
@@ -161,28 +160,3 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             prev_x, prev_y = None, None
 
             changed_angle = False
-
-
-@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, test, do_half,
-                      max_value=-1.0):
-    if test:
-        arr_x, arr_y, rarr_x, rarr_y = nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8), \
-            nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8)
-    else:
-        arr_x, arr_y, rarr_x, rarr_y = None, None, None, None
-
-    returned_particles = np.zeros(11)
-    for i in range(len(params_arr)):
-        curr_params_arr = params_arr[i]
-        process_one_particle(counter_arr, is_full_arr, border_layer_arr,
-                             returned_particles, arr_x, arr_y, rarr_x, rarr_y,
-                             curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value)
-    return returned_particles, arr_x, arr_y, rarr_x, rarr_y
-
-
-@njit()
-def unite_lists(a, b):
-    for i in range(len(b)):
-        a.append(b[i])
-    return a
