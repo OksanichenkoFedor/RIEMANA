@@ -20,7 +20,7 @@ def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type, is_chose
         n_aif = arr_is_full.copy()
         n_ca = counter_arr.copy()
     if plot_type=="is_cell":
-        axis.imshow(1.0-n_aif.T, cmap="plasma")
+        axis.imshow(1.0-n_aif.T, cmap="inferno")
     elif plot_type=="Si":
         axis.imshow(n_ca[0].T, cmap='Greens')
     elif plot_type=="SiCl":

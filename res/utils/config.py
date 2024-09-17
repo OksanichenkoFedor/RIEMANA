@@ -21,6 +21,7 @@ wafer_plot_types = ["is_cell", "Si", "SiCl", "SiCl2", "SiCl3"]
 num_iter = 8001
 num_per_iter = 40000
 
+do_walls = False
 
 plasma_params = {
     "T_i": 0.12,

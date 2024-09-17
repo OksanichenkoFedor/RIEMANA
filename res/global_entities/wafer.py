@@ -212,18 +212,28 @@ class Wafer:
 
         self.counter_arr[0] = self.counter_arr[0] - self.mask * self.Si_num
         self.border_arr = np.ones((self.xsize+2, self.ysize, 5)) * 0.5
+        if config.do_walls:
+            for i in range(self.xsize):
+                j = i + 1
+                self.border_arr[j, self.border, 0] = 1.0
+                if i == 0:
+                    self.border_arr[j, self.border, 1:] = [0, self.border, j + 1, self.border]
+                    self.border_arr[0, self.border] = [1, 0, self.border - 1, j, self.border]
+                elif i == self.xsize - 1:
+                    self.border_arr[j, self.border, 1:] = [j - 1, self.border, j + 1, self.border]
+                    self.border_arr[j + 1, self.border] = [1, j, self.border, j + 1, self.border - 1]
+                else:
+                    self.border_arr[j, self.border, 1:] = [j - 1, self.border, j + 1, self.border]
+        else:
+            for i in range(self.xsize+2):
+                self.border_arr[i, self.border, 0] = 1.0
+                if i == 0:
+                    self.border_arr[i, self.border, 1:] = [-1, -1, i + 1, self.border]
+                elif i == self.xsize + 1:
+                    self.border_arr[i, self.border, 1:] = [i - 1, self.border, -1, -1]
+                else:
+                    self.border_arr[i, self.border, 1:] = [i - 1, self.border, i + 1, self.border]
 
-        for i in range(self.xsize):
-            j = i+1
-            self.border_arr[j, self.border, 0] = 1.0
-            if i == 0:
-                self.border_arr[j, self.border, 1:] = [0, self.border, j + 1, self.border]
-                self.border_arr[0, self.border] = [1, 0, self.border - 1, j, self.border]
-            elif i == self.xsize - 1:
-                self.border_arr[j, self.border, 1:] = [j - 1, self.border, j + 1, self.border]
-                self.border_arr[j + 1, self.border] = [1, j, self.border, j + 1, self.border-1]
-            else:
-                self.border_arr[j, self.border, 1:] = [j - 1, self.border, j + 1, self.border]
 
 
 
@@ -232,15 +242,16 @@ class Wafer:
         self.border_arr[:, self.border + 1:, :] = self.border_arr[:, self.border + 1:, :] * (
             0.0)
 
-        self.is_full[0, :] = np.ones(self.ysize) * (-1.0)
-        self.is_full[-1, :] = np.ones(self.ysize) * (-1.0)
-        for i in range(self.border):
-            if i==0:
-                self.border_arr[0, i]=[1.0, -1, -1, 0, i + 1]
-                self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, -1, -1]
-            else:
-                self.border_arr[0, i] = [1.0, 0, i - 1, 0, i + 1]
-                self.border_arr[self.xsize + 1, i]= [1.0, self.xsize + 1, i + 1, self.xsize + 1, i - 1]
+        if config.do_walls:
+            self.is_full[0, :] = np.ones(self.ysize) * (-1.0)
+            self.is_full[-1, :] = np.ones(self.ysize) * (-1.0)
+            for i in range(self.border):
+                if i==0:
+                    self.border_arr[0, i]=[1.0, -1, -1, 0, i + 1]
+                    self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, -1, -1]
+                else:
+                    self.border_arr[0, i] = [1.0, 0, i - 1, 0, i + 1]
+                    self.border_arr[self.xsize + 1, i]= [1.0, self.xsize + 1, i + 1, self.xsize + 1, i - 1]
 
         self.border_arr = self.border_arr.astype(int)
 
@@ -332,13 +343,15 @@ class Wafer:
             self.border_arr[next_right_x, next_right_y, 1:3] = [curr_right_x, curr_right_y]
             curr_left_x, curr_left_y = next_left_x, next_left_y
             curr_right_x, curr_right_y = next_right_x, next_right_y
-
-        self.border_arr[curr_right_x, curr_right_y, 3:] = [curr_right_x, curr_right_y-1]
-        for i in range(end_y-1):
-            if i == 0:
-                self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, -1, -1]
-            else:
-                self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, self.xsize + 1, i - 1]
+        if config.do_walls:
+            self.border_arr[curr_right_x, curr_right_y, 3:] = [curr_right_x, curr_right_y - 1]
+            for i in range(end_y - 1):
+                if i == 0:
+                    self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, -1, -1]
+                else:
+                    self.border_arr[self.xsize + 1, i] = [1.0, self.xsize + 1, i + 1, self.xsize + 1, i - 1]
+        else:
+            self.border_arr[curr_right_x, curr_right_y, 3:] = [-1, -1]
         X, Y = give_line_arrays(self.border_arr)
         self.profiles = [[X, Y]]
         self.check_correction()
