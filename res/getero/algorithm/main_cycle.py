@@ -8,7 +8,7 @@ from res.getero.algorithm.ray_tracing.cell_particle_processing import process_on
 
 from res.utils.config import do_njit, cache, parallel
 
-#@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, test, do_half,
                       max_value=-1.0, NodeList=None, type="cell by cell"):
     if test:

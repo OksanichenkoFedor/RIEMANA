@@ -41,7 +41,7 @@ class TestPlotFrame(Frame):
         self.wafer = Wafer()
         self.wafer.generate_pure_wafer(0.008, 1, fill_sicl3=True)
         self.wafer.make_half()
-        self.wafer.return_half()
+        #self.wafer.return_half()
         self.toolbarFrame = tk.Frame(master=self)
         self.toolbarFrame.grid(row=1, columnspan=2, sticky="w")
         self.toolbar1 = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)

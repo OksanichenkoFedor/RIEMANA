@@ -197,7 +197,7 @@ if True:
 #end_wafer = Wafer()
 #end_wafer.load("../files/test_wafer_16000.zip")
 #end_wafer.load("../files/wafer_U200_Ar0.5_SiNum84.zip")
-test_speed_rt(rt_wafer,num_particles=50, do_plot=True, do_plot_stat=False)
+test_speed_rt(rt_wafer,num_particles=50000, do_plot=False, do_plot_stat=True)
 
 
 #plt.show()

@@ -2,7 +2,7 @@ from numba import njit
 import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_coords_from_num
-from res.getero.algorithm.ray_tracing.utils import count_vec_mult
+#from res.getero.algorithm.ray_tracing.utils import count_vec_mult
 
 
 @njit()
@@ -65,6 +65,9 @@ def check_rect_collision(vec0, angle, left, right, up, down):
     val4 = count_vec_mult(delta_x1, delta_y1, left - x0, up - y0)
     return (val1 * val2 <= 0 or val3 * val4 <= 0) or val2*val3<=0
 
+@njit()
+def count_vec_mult(delta_x1, delta_y1, delta_x2, delta_y2):
+    return delta_x1*delta_y2-delta_x2*delta_y1
 
 
 @njit()
@@ -84,8 +87,8 @@ def count_curr_collision_cell(cross_vec, curr_segment):
 @njit()
 def count_curr_prev_att(cross_vec, curr_segment, fall_angle, border_arr):
     #print("start count_curr_prev_att: ", cross_vec, curr_segment, fall_angle)
-    start_x, start_y = curr_segment[0, 0], curr_segment[0, 1]
-    end_x, end_y = curr_segment[1, 0], curr_segment[1, 1]
+    #start_x, start_y = curr_segment[0, 0], curr_segment[0, 1]
+    #end_x, end_y = curr_segment[1, 0], curr_segment[1, 1]
     curr_point = count_curr_collision_cell(cross_vec, curr_segment)
     curr_att_x, curr_att_y = int(curr_point[0]), int(curr_point[1])
     angle = count_norm_angle(curr_segment[0,0], curr_segment[0,1], curr_segment[1,0], curr_segment[1,1]) - np.pi*0.5

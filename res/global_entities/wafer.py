@@ -184,7 +184,7 @@ class Wafer:
         self.left_area = int(self.xsize * 0.5 + 1) - int(self.hole_size * self.multiplier)
         self.right_area = int(self.xsize * 0.5 + 1) + int(self.hole_size * self.multiplier)
         self.mask_height = int(self.mask_height * self.multiplier)
-        self.y0 = 0.5
+        self.y0 = 1
         self.silicon_size = int(self.silicon_size * self.multiplier)
         self.is_half = False
         # print(25*self.silicon_size)
@@ -242,6 +242,8 @@ class Wafer:
         self.border_arr[:, self.border + 1:, :] = self.border_arr[:, self.border + 1:, :] * (
             0.0)
 
+        self.is_full[0,self.border:] = np.ones((self.ysize-self.border,))*(-1.0)
+
         if config.do_walls:
             self.is_full[0, :] = np.ones(self.ysize) * (-1.0)
             self.is_full[-1, :] = np.ones(self.ysize) * (-1.0)
@@ -273,7 +275,6 @@ class Wafer:
         self.is_half = True
         # print(self.border_arr.shape)
         # print("x,y sizes: ", self.xsize, self.ysize)
-        print("Start xsize: ",self.xsize)
         curr_end_x = int(0.5 * (self.xsize))
         if self.xsize % 2 != 0:
             raise Exception("Не делится на 2 по горизонтали")
@@ -289,7 +290,6 @@ class Wafer:
         if unfound_end:
             raise Exception("Не нашли пересечения!!!")
         end_x = curr_end_x
-        print("curr_end_x: ",curr_end_x)
         end_y = curr_end_y
         # print(self.mask.shape)
         self.is_full = self.is_full[:curr_end_x + 2, :]
@@ -305,7 +305,6 @@ class Wafer:
         self.counter_arr = self.counter_arr[:, :curr_end_x + 2, :]
         self.mask = self.mask[:curr_end_x + 2, :]
         self.xsize = int(0.5 * self.xsize)
-        print("Half xsize: ", self.xsize)
         X, Y = give_line_arrays(self.border_arr)  # 1.5, 1.5)
         self.profiles = [[X, Y]]
         self.check_correction()
@@ -319,7 +318,6 @@ class Wafer:
 
         end_x, end_y = give_end(self.border_arr[:-1])
         start_x, start_y = give_start(self.border_arr)
-        print(end_x, end_y)
         self.is_full = np.concatenate((self.is_full[:-1], self.is_full[:-1][::-1, :]), axis=0)
         self.border_arr = np.concatenate((self.border_arr[:-1], self.border_arr[:-1][::-1, :, :]), axis=0)
         self.counter_arr = np.concatenate((self.counter_arr[:,:-1], self.counter_arr[:,:-1][:, ::-1, :]), axis=1)
@@ -338,7 +336,6 @@ class Wafer:
             next_right_y = next_left_y
 
             next_right_x = self.xsize - next_left_x + 1
-            print(next_left_x, next_right_x)
             self.border_arr[curr_right_x, curr_right_y, 3:] = [next_right_x, next_right_y]
             self.border_arr[next_right_x, next_right_y, 1:3] = [curr_right_x, curr_right_y]
             curr_left_x, curr_left_y = next_left_x, next_left_y
