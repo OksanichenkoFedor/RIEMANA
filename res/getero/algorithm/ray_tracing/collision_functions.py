@@ -77,7 +77,7 @@ def count_curr_collision_cell(cross_vec, curr_segment):
         res_part=part[1]
     if np.abs(part[0]-part[1])>10**(-5) and ((curr_segment[1]-curr_segment[0])[0]!=0 and (curr_segment[1]-curr_segment[0])[1]!=0):
         print("Мы не на отрезке: ", cross_vec, curr_segment, part)
-    if res_part<0.5:
+    if res_part<0.5 and curr_segment[1,1]-0.5!=0:
         return curr_segment[0]-0.5
     else:
         return curr_segment[1]-0.5

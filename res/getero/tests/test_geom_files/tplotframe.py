@@ -11,8 +11,7 @@ matplotlib.use('TkAgg')
 
 import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
-from res.getero.algorithm.ray_tracing.cell_particle_processing import process_particles
-from res.getero.algorithm.ray_tracing.line_search_particle_processing import process_particles_ls as process_particles_rt
+from res.getero.algorithm.main_cycle import process_particles
 from res.getero.algorithm.ray_tracing.line_search import simple_count_collision_point
 
 from res.global_entities.wafer import Wafer
@@ -40,8 +39,9 @@ class TestPlotFrame(Frame):
         self.canvas.mpl_connect("button_release_event", self.unclick_mouse_event)
         self.canvas.mpl_connect('key_press_event', self.click_keyboard)
         self.wafer = Wafer()
-        self.wafer.generate_pure_wafer(0.005, 1, fill_sicl3=True)
+        self.wafer.generate_pure_wafer(0.008, 1, fill_sicl3=True)
         self.wafer.make_half()
+        self.wafer.return_half()
         self.toolbarFrame = tk.Frame(master=self)
         self.toolbarFrame.grid(row=1, columnspan=2, sticky="w")
         self.toolbar1 = NavigationToolbar2Tk(self.canvas, self.toolbarFrame)
@@ -174,7 +174,7 @@ class TestPlotFrame(Frame):
             #    params_arr, self.wafer.Si_num,
             #    self.wafer.xsize, self.wafer.ysize, R,
             #    True, self.wafer.is_half)
-            returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y = process_particles_rt(
+            returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y = process_particles(
                 self.wafer.counter_arr,
                 self.wafer.is_full, self.wafer.border_arr,
                 params_arr, self.wafer.Si_num,

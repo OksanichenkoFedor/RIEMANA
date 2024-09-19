@@ -185,7 +185,7 @@ class Wafer:
         self.left_area = int(self.xsize * 0.5) - int(self.hole_size * self.multiplier)
         self.right_area = int(self.xsize * 0.5) + int(self.hole_size * self.multiplier)
         self.mask_height = int(self.mask_height * self.multiplier)
-        self.y0 = 0
+        self.y0 = 1
         self.silicon_size = int(self.silicon_size * self.multiplier)
         self.is_half = False
         # print(25*self.silicon_size)
@@ -267,7 +267,13 @@ class Wafer:
         # print(self.mask.shape)
         self.is_full = self.is_full[:curr_end_x + 1, :]
         self.border_arr = self.border_arr[:curr_end_x + 1, :, :]
-        self.border_arr[end_x, end_y, 3:] = [-1, -1]
+
+
+        #self.border_arr[end_x, end_y, 3:] = [-1, -1]
+        self.border_arr[end_x, end_y, 3:] = [end_x, 0]
+        self.border_arr[end_x, 0] = [1,end_x, end_y, -1, -1]
+
+
         self.counter_arr = self.counter_arr[:, :curr_end_x + 1, :]
         self.mask = self.mask[:curr_end_x + 1, :]
         self.xsize = curr_end_x + 1
@@ -281,6 +287,12 @@ class Wafer:
             raise Exception("Это не половинка, что бы её восстанавливать")
         self.is_half = False
         new_xsize = int(2.0 * self.xsize)
+
+        # убираем конечную точку
+        end_x, _ = give_end(self.border_arr)
+        end_y = self.border_arr[end_x, 0, 2]
+        self.border_arr[end_x, end_y, 3:] = [-1, -1]
+        self.border_arr[end_x, 0] = [-1, -1, -1, -1, -1]
 
         end_x, end_y = give_end(self.border_arr)
         start_x, start_y = give_start(self.border_arr)

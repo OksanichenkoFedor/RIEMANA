@@ -14,7 +14,7 @@ class WaferGenerator:
         #self.wafer.generate_pure_wafer(multiplier, Si_num)
         #self.wafer.load("test.zip")
         self.wafer.generate_pure_wafer(multiplier, Si_num)
-        #self.wafer.make_half()
+        self.wafer.make_half()
         #generate_pure_wafer(self, )
         X, Y = give_line_arrays(self.wafer.border_arr)
         self.wafer.profiles = []

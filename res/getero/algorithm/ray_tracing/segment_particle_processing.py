@@ -35,12 +35,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
         else:
             is_collide, coll_vec, norm_angle, start_segment = simple_count_collision_point(border_layer_arr, curr_vec,
                                                                          curr_angle, start_segment)
-        st_x, st_y = int(start_segment[0, 0] - 0.5), int(start_segment[0, 1] - 0.5)
-        en_x, en_y = int(start_segment[1, 0] - 0.5), int(start_segment[1, 1] - 0.5)
-        if is_full_arr[st_x, st_y]==0 or is_full_arr[en_x, en_y]==0:
-            pass
-            #print("Некорректная постройка границы:", is_full_arr[st_x, st_y], is_full_arr[en_x, en_y])
-        #print("end bvh, start collision processing")
+
         if is_collide:
             if test:
                 pass
@@ -130,7 +125,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 # Маска
                 curr_angle = straight_reflection(curr_angle, norm_angle)
             else:
-                print("Мы ударились о пустоту! ",coll_vec,start_segment, curr_att_x, curr_att_y, is_full_arr[curr_att_x, curr_att_y])
+                #print("Мы ударились о пустоту! ",coll_vec,start_segment, curr_att_x, curr_att_y, is_full_arr[curr_att_x, curr_att_y])
                 curr_angle = straight_reflection(curr_angle, norm_angle)
             curr_vec = coll_vec
         else:
