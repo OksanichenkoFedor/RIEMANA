@@ -21,6 +21,7 @@ wafer_plot_types = ["is_cell", "Si", "SiCl", "SiCl2", "SiCl3"]
 num_iter = 8001
 num_per_iter = 40000
 
+do_walls = False
 
 plasma_params = {
     "T_i": 0.12,
@@ -37,7 +38,7 @@ pure_wafer_params = {
     "mask_height": 200,
     "hole_size": 300,
     "border": 500,
-    "xsize": 1000,
+    "xsize": 2000,
     "ysize": 2400,
     "silicon_size": 1600
 }

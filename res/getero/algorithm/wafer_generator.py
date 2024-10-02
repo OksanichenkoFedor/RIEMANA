@@ -1,5 +1,6 @@
+from xml.dom.minicompat import NodeList
+
 from res.getero.algorithm.main_cycle import process_particles
-from res.getero.algorithm.ray_tracing.bvh import build_BVH
 from res.getero.algorithm.monte_carlo import generate_particles
 import time
 from tqdm import trange
@@ -11,11 +12,8 @@ class WaferGenerator:
     def __init__(self, master, multiplier, Si_num):
         self.master = master
         self.wafer = Wafer()
-        #self.wafer.generate_pure_wafer(multiplier, Si_num)
-        #self.wafer.load("test.zip")
         self.wafer.generate_pure_wafer(multiplier, Si_num)
         self.wafer.make_half()
-        #generate_pure_wafer(self, )
         X, Y = give_line_arrays(self.wafer.border_arr)
         self.wafer.profiles = []
         self.wafer.profiles.append([X, Y])
@@ -44,7 +42,7 @@ class WaferGenerator:
         #print(self.y_ar_plus, self.y_cl, self.y_cl_plus, self.U_i, self.wafer.y0, self.wafer.xsize, num_per_iter, self.T_i)
         #print(np.max(self.wafer.counter_arr))
         #print(np.mean(self.wafer.counter_arr))
-        NodeList = build_BVH(self.wafer.border_arr)
+        NodeList = self.wafer.nodelist
         for i in trange(num_iter):
 
             t1 = time.time()
@@ -88,7 +86,7 @@ class WaferGenerator:
             self.master.contPanel.progress_var.set(i + 1)
             self.master.contPanel.progress_bar.update()
             self.master.contPanel.style.configure("LabeledProgressbar", text=str(i + 2) + "/" + str(num_iter))
-
+        self.wafer.nodelist = NodeList
         #self.master.plotF.replot(i)
         self.master.plotF.f.savefig("files/tmp" + "_end" + ".png")
         #master.style.configure("LabeledProgressbar", text="0/0")

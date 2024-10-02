@@ -38,7 +38,6 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
         else:
             is_collide, coll_vec, norm_angle, start_segment = simple_count_collision_point(border_layer_arr, curr_vec,
                                                                          curr_angle, start_segment)
-
         if is_collide:
             if test:
                 pass
@@ -129,7 +128,10 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 if is_react:
                     unfound = False
             elif is_full_arr[curr_att_x, curr_att_y] == 2.0:
-                # Маска
+                # Маска (пока что просто отражение)
+                curr_angle = straight_reflection(curr_angle, norm_angle)
+            elif is_full_arr[curr_att_x, curr_att_y] == -1.0:
+                # Угловые точки
                 curr_angle = straight_reflection(curr_angle, norm_angle)
             elif is_full_arr[curr_att_x, curr_att_y] == -1.0:
                 # Маска
@@ -145,5 +147,5 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 arr_x.append(curr_vec[0] - 0.5 + np.sin(curr_angle)*5)
                 arr_y.append(curr_vec[1] - 0.5 + np.cos(curr_angle)*5)
         #print("end collision processing")
-        return NodeList
+    return NodeList
 

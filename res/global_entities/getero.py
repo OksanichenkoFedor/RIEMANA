@@ -5,7 +5,6 @@ import numpy as np
 from res.getero.algorithm.monte_carlo import generate_particles
 from res.getero.algorithm.dynamic_profile import give_line_arrays, give_max_y
 from res.getero.algorithm.main_cycle import process_particles
-from res.getero.algorithm.ray_tracing.bvh import build_BVH
 from res.bot.simple import print_message, throw_plot
 
 from res.global_entities.plotter import generate_figure
@@ -66,9 +65,9 @@ class Getero:
             #w_ba = wafer.border_arr.copy()
             #res = process_particles(co_arr, w_if, w_ba, params,
             #                        wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False)
-            res, _, _, _, _, NodeList = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
+            res, _, _, _, _, wafer.nodelist = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
                                    wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False, do_half=wafer.is_half,
-                                                          NodeList=NodeList, type=self.type_ray_tracing)
+                                                          NodeList=wafer.nodelist, type=self.type_ray_tracing)
             if i % iter_add_profile == 0 and i!=0:
                 X, Y = give_line_arrays(wafer.border_arr)
                 wafer.profiles.append([X, Y])
