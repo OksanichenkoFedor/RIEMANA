@@ -7,6 +7,9 @@ from tkinter.ttk import Frame
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 
+from res.getero.algorithm.ray_tracing.bvh import build_BVH, bvh_count_collision_point
+from res.getero.algorithm.ray_tracing.profile_approximation import count_norm_angle
+
 matplotlib.use('TkAgg')
 
 import res.utils.config as config
@@ -82,14 +85,25 @@ class TestPlotFrame(Frame):
         if self.found == 1:
             circle1 = plt.Circle((self.x1 - 0.5, self.y1 - 0.5), 0.2, color='r')
             self.ax.add_patch(circle1)
-        elif self.found == 2 and False:
-            self.ax.arrow(self.x1 - 0.5, self.y1 - 0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g",
-                          linewidth=1)
+        elif self.found == 2 and self.is_collide:
+            #self.ax.arrow(self.x1 - 0.5, self.y1 - 0.5, 5 * np.sin(self.angle), 5 * np.cos(self.angle), color="g",
+            #              linewidth=1)
+            self.ax.plot([self.curr_vec[0]-0.5, self.coll_vec[0]-0.5], [self.curr_vec[1]-0.5, self.coll_vec[1]-0.5], color=(1, 0, 0, 0.1))
+            print(self.bX, self.bY)
+            self.ax.plot(self.bX-0.5, self.bY-0.5, ".", color="y")
+            self.ax.plot(self.bX - 0.5, self.bY - 0.5, color="y")
+            self.ax.plot([self.coll_vec[0]-0.5, self.coll_vec[0]-0.5 + 5 * np.cos(self.n_angle)],
+                   [self.coll_vec[1]-0.5, self.coll_vec[1]-0.5 + 5 * np.sin(self.n_angle)], color=(0.5,0,0))
+            alpha = 2.0 / (max(np.abs(self.A), np.abs(self.B)))
+            x = alpha * np.arange(-1, 1, 0.1) * self.B + self.coll_vec[0] - 0.5
+            y = alpha * np.arange(-1, 1, 0.1) * (-1.0 * self.A) + self.coll_vec[1] - 0.5
+            self.ax.plot(x, y, color="g")
         X, Y = give_line_arrays(self.wafer.border_arr)  # 0, 0)
-        plot_line(self.ax, X, Y, 0, 0, do_points=False)
+        #plot_line(self.ax, X, Y, 0, 0, do_points=False)
         if self.is_collide and False:
             #print("fffffff")
             self.ax.plot([self.x1 - 0.5, self.x_c - 0.5], [self.y1 - 0.5, self.y_c - 0.5], color="k")
+
         for x in range(self.wafer.border_arr.shape[0]):
             for y in range(self.wafer.border_arr.shape[1]):
                 color = "g"
@@ -100,10 +114,10 @@ class TestPlotFrame(Frame):
                     int(self.wafer.border_arr[x, y, 2]))
                 curr_str2 = "next: " + str(int(self.wafer.border_arr[x, y, 3])) + "," + str(
                     int(self.wafer.border_arr[x, y, 4]))
-                self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
-                self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
-                self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
-                self.ax.text(x - 0.3, y + 0.2, str(int(self.wafer.border_arr[x, y, 0])), color=color, fontsize=9)
+                #self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
+                #self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
+                #self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
+                #self.ax.text(x - 0.3, y + 0.2, str(int(self.wafer.border_arr[x, y, 0])), color=color, fontsize=9)
         self.ax.grid(True)
         if not (self.arr_y is None):
             # print("FfFFF: ",self.arr_x, self.arr_y, self.rarr_x, self.rarr_y)
@@ -153,35 +167,49 @@ class TestPlotFrame(Frame):
             self.y2 = event.ydata + 0.5
             self.found = 2
             self.count_angle()
-            self.replot()
-        elif self.found == 2:
-            self.replot()
+
             curr_en = 0
             # self.test_type = 0
-            params_arr = [[self.x1, self.y1, 1, curr_en, self.angle, self.test_type, int(self.x1), self.y1]]
+            params_arr = [[self.x1, self.y1, 1, curr_en, self.angle, self.test_type, int(self.x1),
+                           self.y1 ]]
 
             if self.y_cl_plus == 0.0:
                 R = 1000
             else:
                 R = self.y_cl / self.y_cl_plus
-            # print("fdfdfdfdfdf")
-            self.is_collide, self.x_c, self.y_c, _ = simple_count_collision_point(self.wafer.border_arr, self.x1, self.y1,
-                                                                               self.angle)
-            print(self.is_collide, self.x_c, self.y_c, self.angle/np.pi)
+            self.curr_vec = np.zeros(2)
+            self.curr_vec[0] = params_arr[0][0]
+            self.curr_vec[1] = params_arr[0][1]
+            start_segment = np.ones((2, 2)) * (-1.0)
+            curr_en = params_arr[0][3]
+            self.curr_angle = params_arr[0][4]
+            curr_type = params_arr[0][5]
+            NodeList = build_BVH(self.wafer.border_arr)
+            self.is_collide, self.coll_vec, norm_angle, start_segment = bvh_count_collision_point(NodeList,
+                                                                                                  self.curr_vec,
+                                                                                                  self.curr_angle,
+                                                                                                  start_segment)
+            self.n_angle, deb, self.bX, self.bY, self.A, self.B = count_norm_angle(self.wafer.border_arr, self.coll_vec, start_segment,
+                                                                   self.wafer.is_half,
+                                                                   num_one_side_points=2)
+
+            self.replot()
+        elif self.found == 2:
+            self.replot()
             #returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y = process_particles(
             #    self.wafer.counter_arr,
             #    self.wafer.is_full, self.wafer.border_arr,
             #    params_arr, self.wafer.Si_num,
             #    self.wafer.xsize, self.wafer.ysize, R,
             #    True, self.wafer.is_half)
-            returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y = process_particles(
-                self.wafer.counter_arr,
-                self.wafer.is_full, self.wafer.border_arr,
-                params_arr, self.wafer.Si_num,
-                self.wafer.xsize, self.wafer.ysize, R,
-                True, self.wafer.is_half)
+            #returned_particles, self.arr_x, self.arr_y, self.rarr_x, self.rarr_y = process_particles(
+            #    self.wafer.counter_arr,
+            #    self.wafer.is_full, self.wafer.border_arr,
+            #    params_arr, self.wafer.Si_num,
+            #    self.wafer.xsize, self.wafer.ysize, R,
+            #    True, self.wafer.is_half)
             self.recheck_cell()
-            self.replot()
+            #self.replot()
 
             self.canvas.draw()
             # print("fdfdfdfdfdf1")

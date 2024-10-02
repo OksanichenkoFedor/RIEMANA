@@ -1,4 +1,5 @@
 import numpy as np
+from numba import njit
 
 from res.getero.algorithm.dynamic_profile import delete_point, create_point, give_line_arrays, give_start, give_end
 import res.utils.config as config
@@ -185,7 +186,7 @@ class Wafer:
         self.left_area = int(self.xsize * 0.5) - int(self.hole_size * self.multiplier)
         self.right_area = int(self.xsize * 0.5) + int(self.hole_size * self.multiplier)
         self.mask_height = int(self.mask_height * self.multiplier)
-        self.y0 = 1
+        self.y0 = 1#self.border-2
         self.silicon_size = int(self.silicon_size * self.multiplier)
         self.is_half = False
         # print(25*self.silicon_size)
@@ -259,7 +260,8 @@ class Wafer:
                     curr_end_y = i
                     unfound_end = False
                 else:
-                    raise Exception("Два пересечения, очень плохо")
+                    pass
+                    #raise Exception("Два пересечения, очень плохо")
         if unfound_end:
             raise Exception("Не нашли пересечения!!!")
         end_x = curr_end_x
@@ -269,30 +271,39 @@ class Wafer:
         self.border_arr = self.border_arr[:curr_end_x + 1, :, :]
 
 
-        #self.border_arr[end_x, end_y, 3:] = [-1, -1]
-        self.border_arr[end_x, end_y, 3:] = [end_x, 0]
-        self.border_arr[end_x, 0] = [1,end_x, end_y, -1, -1]
+
+
 
 
         self.counter_arr = self.counter_arr[:, :curr_end_x + 1, :]
         self.mask = self.mask[:curr_end_x + 1, :]
         self.xsize = curr_end_x + 1
 
+        # self.border_arr[end_x, end_y, 3:] = [-1, -1]
+        #print(end_x)
+        self.add_reflect_wall()
+        #self.border_arr[end_x, end_y, 3:] = [end_x, 0]
+        #self.border_arr[end_x, 0] = [1, end_x, end_y, -1, -1]
+
         X, Y = give_line_arrays(self.border_arr)  # 1.5, 1.5)
         self.profiles = [[X, Y]]
         self.check_correction()
 
     def return_half(self):
+        # убираем конечную точку
+        #end_x, _ = give_end(self.border_arr)
+        #end_y = self.border_arr[end_x, 0, 2]
+        #self.border_arr[end_x, end_y, 3:] = [-1, -1]
+        #self.border_arr[end_x, 0] = [-1, -1, -1, -1, -1]
+        self.remove_reflect_wall()
+
+
         if not self.is_half:
             raise Exception("Это не половинка, что бы её восстанавливать")
         self.is_half = False
         new_xsize = int(2.0 * self.xsize)
 
-        # убираем конечную точку
-        end_x, _ = give_end(self.border_arr)
-        end_y = self.border_arr[end_x, 0, 2]
-        self.border_arr[end_x, end_y, 3:] = [-1, -1]
-        self.border_arr[end_x, 0] = [-1, -1, -1, -1, -1]
+
 
         end_x, end_y = give_end(self.border_arr)
         start_x, start_y = give_start(self.border_arr)
@@ -324,3 +335,95 @@ class Wafer:
         X, Y = give_line_arrays(self.border_arr)
         self.profiles = [[X, Y]]
         self.check_correction()
+
+    def add_reflect_wall(self):
+        if False:
+            end_x, end_y = give_end(self.border_arr)
+            #print(end_x)
+            self.border_arr[end_x, end_y, 3:] = [end_x, 0]
+            self.border_arr[end_x, 0] = [1, end_x, end_y, -1, -1]
+        else:
+            end_x, end_y = give_end(self.border_arr)
+            #print(self.border_arr.shape, self.counter_arr.shape, self.is_full.shape, self.mask.shape)
+            self.is_full = np.concatenate((self.is_full, np.ones((1,self.ysize))*(-1.0)), axis=0)
+            self.counter_arr = np.concatenate(
+                (self.counter_arr, np.zeros((self.counter_arr.shape[0], 1, self.counter_arr.shape[2]))), axis=1)
+            self.border_arr = np.concatenate((self.border_arr, np.ones((1, self.ysize, 5)) * (-1.0)), axis=0)
+            self.mask = np.concatenate((self.mask, self.mask[-1, :].reshape((1, self.mask.shape[1]))), axis=0)
+            # print(self.border_arr.shape, self.counter_arr.shape, self.is_full.shape, self.mask.shape)
+            self.border_arr[end_x, end_y, 3:] = [end_x + 1, end_y]
+            self.border_arr[end_x + 1, end_y] = [1, end_x, end_y, end_x + 1, 0]
+            self.border_arr[end_x + 1, 0] = [1, end_x + 1, end_y, -1, -1]
+
+            self.is_full = self.is_full.astype(int)
+            self.counter_arr = self.counter_arr.astype(int)
+            self.border_arr = self.border_arr.astype(int)
+            self.mask = self.mask.astype(int)
+
+            self.xsize = self.xsize + 1
+
+    def remove_reflect_wall(self):
+        if False:
+            end_x, _ = give_end(self.border_arr)
+            end_y = self.border_arr[end_x, 0, 2]
+            self.border_arr[end_x, end_y, 3:] = [-1, -1]
+            self.border_arr[end_x, 0] = [-1, -1, -1, -1, -1]
+        else:
+            end_x = give_end(self.border_arr)[0]
+            end_y = self.border_arr[end_x, 0, 2]
+            end_x -= 1
+            self.border_arr[end_x, end_y, 3:] = [-1, -1]
+
+            self.border_arr = self.border_arr[:-1, :]
+            self.counter_arr = self.counter_arr[:, :-1, :]
+            self.mask = self.mask[:-1, :]
+            self.is_full = self.is_full[:-1, :]
+
+            self.xsize = self.xsize - 1
+
+    def check_self_intersection(self, curr_x=None, curr_y=None, do_cut=False,range_cut=30):
+        X, Y = give_line_arrays(self.border_arr)
+        X, Y = prepare_segment_for_intersection_checking(X, Y, curr_x, curr_y, do_cut, range_cut)
+        X = np.array(X)
+        Y = np.array(Y)
+
+        intersect = check_inter(X,Y)
+
+        if intersect:
+            print("Intersect!!!")
+        return intersect
+
+@njit()
+def check_inter(cX, cY):
+    intersect = False
+    for i in range(len(cX) - 1):
+        for j in range(len(cX) - 1):
+            first_vec1, first_vec2 = [cX[i], cY[i]], [cX[i + 1], cY[i + 1]]
+            second_vec1, second_vec2 = [cX[j], cY[j]], [cX[j + 1], cY[j + 1]]
+            o1 = orientation(first_vec1, first_vec2, second_vec1)
+            o2 = orientation(first_vec1, first_vec2, second_vec2)
+            o3 = orientation(second_vec1, second_vec2, first_vec1)
+            o4 = orientation(second_vec1, second_vec2, first_vec2)
+            if o1 * o2 * o3 * o4 != 0 and (o1 != o2 and o3 != o4):
+                intersect = True
+    return intersect
+
+@njit()
+def orientation(p1, p2, p3):
+    val = (p2[1] - p1[1])*(p3[0] - p2[0]) - (p2[0] - p1[0])*(p3[1] - p2[1])
+    return np.sign(val)
+
+def prepare_segment_for_intersection_checking(cX, cY, curr_x, curr_y, do_cut, range_cut):
+    ind = 0
+    while ind<len(cX)-2:
+        p1, p2, p3 = [cX[ind], cY[ind]], [cX[ind + 1], cY[ind + 1]], [cX[ind + 2], cY[ind + 2]]
+        dist1 = np.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2)
+        dist2 = np.sqrt((p2[0] - p3[0]) ** 2 + (p2[1] - p3[1]) ** 2)
+        dist3 = np.sqrt((p3[0] - p1[0]) ** 2 + (p3[1] - p1[1]) ** 2)
+        if np.abs(dist3-(dist1+dist2))<10**(-5):
+            cX.pop(ind + 1)
+            cY.pop(ind + 1)
+            #print("pop: ", ind+1)
+        else:
+            ind+=1
+    return cX, cY

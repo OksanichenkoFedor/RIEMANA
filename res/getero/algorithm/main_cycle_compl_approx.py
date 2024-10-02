@@ -10,7 +10,7 @@ from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_rea
 from res.getero.algorithm.mask_reactions import mask_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point
 
-from res.getero.algorithm.profile_approximation import count_norm_angle
+from res.getero.algorithm.ray_tracing.profile_approximation import count_norm_angle
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

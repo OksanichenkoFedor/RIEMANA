@@ -1,5 +1,4 @@
 import numpy as np
-from numba import njit
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
@@ -8,7 +7,7 @@ from res.getero.algorithm.space_orientation import find_next, give_next_cell, th
 from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.mask_reactions import mask_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point
-from res.getero.algorithm.profile_approximation import count_simple_norm_angle
+from res.getero.algorithm.ray_tracing.profile_approximation import count_simple_norm_angle
 from res.getero.algorithm.utils import straight_reflection
 
 
@@ -126,8 +125,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             curr_angle = mask_reaction(is_on_horiz, curr_angle)
             changed_angle = True
         else:
-            if border_layer_arr[curr_att_x, curr_att_y, 0] != -1:
-                print("Некорректный расчёт профиля! ", border_layer_arr[curr_att_x, curr_att_y, 0])
+            if border_layer_arr[curr_att_x, curr_att_y, 0] != -1 and curr_att_x!=xsize-1:
+                print("Некорректный расчёт профиля! ", border_layer_arr[curr_att_x, curr_att_y, 0], curr_att_x, curr_att_y)
             prev_x = curr_x
             prev_y = curr_y
             prev_att_x, prev_att_y = curr_att_x, curr_att_y

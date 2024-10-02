@@ -1,4 +1,5 @@
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.reaction_consts.sputtering_argon import E_th_ar_sicl0_sp, E_th_ar_sicl1_sp, \
@@ -9,7 +10,7 @@ from res.getero.algorithm.utils import custom_choise, straight_reflection, isotr
 
 from res.getero.reaction_consts.angular_dependences import sput_an_dep
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
                     prev_farr, Si_num, normal_angle, start_angle, curr_en):
     c_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]

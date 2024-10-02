@@ -65,9 +65,9 @@ class WaferGenerator:
                                                 NodeList=NodeList, type="bvh")
 
             if i % 500 == 0:
+                self.wafer.return_half()
                 X, Y = give_line_arrays(self.wafer.border_arr)
                 self.wafer.profiles.append([X, Y])
-            if i % 500 == 0:
                 print("Num iter: "+str(i)+" Time: "+str(round(ftime*((i+1)/num_iter),3)))
                 #print("fff4")
                 y_max = give_max_y(self.wafer.border_arr)
@@ -82,6 +82,7 @@ class WaferGenerator:
                 #self.master.plotF.send_picture()
                 #self.wafer.save("test.zip")
                 #self.wafer.load("test.zip")
+                self.wafer.make_half()
             t3 = time.time()
 
             self.master.contPanel.progress_var.set(i + 1)

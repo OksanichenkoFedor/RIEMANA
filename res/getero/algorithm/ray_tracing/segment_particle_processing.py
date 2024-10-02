@@ -124,6 +124,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
             elif is_full_arr[curr_att_x, curr_att_y] == 2.0:
                 # Маска
                 curr_angle = straight_reflection(curr_angle, norm_angle)
+            elif is_full_arr[curr_att_x, curr_att_y] == -1.0:
+                # Маска
+                curr_angle = straight_reflection(curr_angle, norm_angle)
             else:
                 #print("Мы ударились о пустоту! ",coll_vec,start_segment, curr_att_x, curr_att_y, is_full_arr[curr_att_x, curr_att_y])
                 curr_angle = straight_reflection(curr_angle, norm_angle)

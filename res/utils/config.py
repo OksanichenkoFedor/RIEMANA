@@ -3,7 +3,7 @@ from numba import njit
 import numba as nb
 from numba.experimental import jitclass
 
-do_njit = True
+do_njit = False
 cache = False
 parallel = False
 
@@ -24,7 +24,7 @@ num_per_iter = 40000
 
 plasma_params = {
     "T_i": 0.12,
-    "U_i": 40,
+    "U_i": 200,
     "j_ar_plus": 1*2.041839429440525e+19,
     "j_cl_plus": 1*1.4431736576424567e+20,
     "j_cl": 2.6629180745936804e+22,
@@ -34,11 +34,14 @@ plasma_params = {
 }
 
 pure_wafer_params = {
-    "mask_height": 200,
-    "hole_size": 300,
+    "mask_height": 1000,
+    "hole_size": 600,
     "border": 500,
     "xsize": 1000,
     "ysize": 2400,
     "silicon_size": 1600
 }
+
+
+min_throw_away_angle = np.pi*(10.0/180.0)
 

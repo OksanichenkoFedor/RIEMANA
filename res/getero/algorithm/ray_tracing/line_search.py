@@ -1,11 +1,12 @@
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_start
 from res.getero.algorithm.ray_tracing.collision_functions import check_collision
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def simple_count_collision_point(border_layer_arr, ray_vec, curr_angle, start_segment):
     found = False
     cross_vec = np.zeros(2)

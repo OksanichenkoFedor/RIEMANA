@@ -1,11 +1,8 @@
 import numpy as np
-from numba import njit
-from res.utils.wrapper import clever_njit
-from res.utils.config import do_njit, cache, parallel
 import matplotlib.pyplot as plt
 import numba as nb
 
-from matplotlib.patches import Rectangle, Circle
+from matplotlib.patches import Circle
 
 from res.getero.algorithm.space_orientation import find_next, give_next_cell, throw_particle_away
 
@@ -13,7 +10,7 @@ from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_rea
 from res.getero.algorithm.mask_reactions import mask_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point
 
-from res.getero.algorithm.profile_approximation import count_norm_angle, give_part_of_border, line_approximation, is_collide
+from res.getero.algorithm.ray_tracing.profile_approximation import give_part_of_border, line_approximation, is_collide
 
 
 def process_one_particle(counter_arr, is_full_arr, border_layer_arr, params, Si_num, xsize, ysize, R, test, max_value, axis):

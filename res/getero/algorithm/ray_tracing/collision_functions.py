@@ -1,10 +1,12 @@
-from numba import njit
+from res.getero.algorithm.ray_tracing.utils import count_norm_angle
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_coords_from_num
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_collision(vec1, angle, curr_segment):
     x1, y1 = vec1[0], vec1[1]
     x3, y3 = curr_segment[0, 0], curr_segment[0, 1]
@@ -30,29 +32,9 @@ def check_collision(vec1, angle, curr_segment):
         return True, cross_vec, count_norm_angle(x3, y3, x4, y4)
 
 
-@njit()
-def count_norm_angle(x1, y1, x2, y2):
-    # Пустота всегда слева от линии поэтому мы всегда явно можем определить угол от нормали.
-    # Он будет улгом вектора ребра + 90.
-    delta_x, delta_y = x2 - x1, y2 - y1
-    cos = delta_y / np.sqrt(delta_x * delta_x + delta_y * delta_y)
-    sin = delta_x / np.sqrt(delta_x * delta_x + delta_y * delta_y)
-    if cos >= 0 and sin >= 0:
-        # первая четверть
-        angle = np.arccos(cos)
-    elif cos < 0 and sin >= 0:
-        # вторая четверть
-        angle = np.pi - np.arcsin(sin)
-    elif cos < 0 and sin < 0:
-        # третья четверть
-        angle = np.pi + np.arccos((-1.0) * cos)
-    elif cos >= 0 and sin < 0:
-        # четвёртая четверть
-        angle = (-1.0) * np.arccos(cos)
-    angle = angle + np.pi * 0.5
-    return angle
 
-@njit()
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_rect_collision(vec0, angle, left, right, up, down):
     x0, y0 = vec0[0], vec0[1]
     #up - перевёрнутый это минимальная координата на самом деле
@@ -64,11 +46,11 @@ def check_rect_collision(vec0, angle, left, right, up, down):
     val4 = count_vec_mult(delta_x1, delta_y1, left - x0, up - y0)
     return (val1 * val2 <= 0 or val3 * val4 <= 0) or val2*val3<=0
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def count_vec_mult(delta_x1, delta_y1, delta_x2, delta_y2):
     return delta_x1*delta_y2-delta_x2*delta_y1
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def count_curr_collision_cell(cross_vec, curr_segment):
     part = (cross_vec - curr_segment[0])/(curr_segment[1]-curr_segment[0])
     if (curr_segment[1]-curr_segment[0])[0]!=0:
@@ -82,7 +64,7 @@ def count_curr_collision_cell(cross_vec, curr_segment):
     else:
         return curr_segment[1]-0.5
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def count_curr_prev_att(cross_vec, curr_segment, fall_angle, border_arr):
     #print("start count_curr_prev_att: ", cross_vec, curr_segment, fall_angle)
     curr_point = count_curr_collision_cell(cross_vec, curr_segment)
