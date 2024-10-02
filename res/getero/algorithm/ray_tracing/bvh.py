@@ -1,4 +1,5 @@
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_start
@@ -7,7 +8,34 @@ from res.getero.algorithm.ray_tracing.utils import give_edges
 
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def give_edges(border_layer_arr):
+    x_start, y_start = give_start(border_layer_arr)
+    curr_x, curr_y = x_start, y_start
+    num_edges = 0
+    while border_layer_arr[curr_x, curr_y, 3] != -1 or border_layer_arr[curr_x, curr_y, 4] != -1:
+        num_edges += 1
+        curr_x, curr_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
+    Edges = np.zeros((num_edges, 6))
+    # строим массив из ячеек будет 6 точек (x1, x2, y1, y2, xm, ym)
+    # print(num_edges1, num_edges)
+    curr_x, curr_y = x_start, y_start
+    for i in range(num_edges):
+        Edges[i, 0], Edges[i, 1] = curr_x, border_layer_arr[curr_x, curr_y, 3]
+        Edges[i, 2], Edges[i, 3] = curr_y, border_layer_arr[curr_x, curr_y, 4]
+        curr_x, curr_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
+    Edges[:, 4] = 0.5 * (Edges[:, 0] + Edges[:, 1])
+    Edges[:, 5] = 0.5 * (Edges[:, 2] + Edges[:, 3])
+    return Edges
+
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def build_node_list():
+    pass
+
+
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def build_BVH(border_layer_arr):
     Edges = give_edges(border_layer_arr)
     NodeList = np.zeros((Edges.shape[0]*2-1, 7))
@@ -22,7 +50,7 @@ def build_BVH(border_layer_arr):
     return NodeList
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def build_node(curr_edges, NodeList, left_index, right_index, curr_node):
     #print("Start: ",left_index, right_index," size: ",curr_edges.shape[0])#, curr_edges)
 
@@ -67,7 +95,7 @@ def build_node(curr_edges, NodeList, left_index, right_index, curr_node):
     #возвращаем последний заполненный номер
     return end_node
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def find_split_index(curr_edges, do_split_x, split_coord):
     ind = 5
     if do_split_x:
@@ -84,7 +112,7 @@ def find_split_index(curr_edges, do_split_x, split_coord):
             curr_ind = right_ind - int(0.5*(right_ind-left_ind))
     return curr_ind
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def bvh_count_collision_point(NodeList, ray_vec, curr_angle, start_segment):
     #print("---")
 
@@ -92,7 +120,7 @@ def bvh_count_collision_point(NodeList, ray_vec, curr_angle, start_segment):
     #   print(num, int(0.5*(NodeList.shape[0]+1.0)))
     return found, cross_vec, norm_angle, new_segment
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_one_node(NodeList, curr_node, ray_vec, curr_angle, start_segment):
     if NodeList[curr_node,0]==0:
         # это не конечный номер

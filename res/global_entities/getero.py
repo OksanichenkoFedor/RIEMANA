@@ -46,6 +46,7 @@ class Getero:
         wafer.old_wca = wafer.counter_arr.copy()
         Times = []
         Depths = []
+        NodeList = build_BVH(wafer.border_arr)
         for i in trange(num_iter):
 
             t1 = time.time()

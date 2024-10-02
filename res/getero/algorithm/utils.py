@@ -1,9 +1,10 @@
-from numba import jit, njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 import res.utils.config as config
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def custom_choise(Ps):
     # np.random.seed(config.seed)
     num = np.random.random()
@@ -14,37 +15,32 @@ def custom_choise(Ps):
             return i
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def straight_reflection(curr_angle, n_angle):
     angle = 2 * n_angle - (curr_angle + np.pi)
-    while angle > 2 * np.pi:
-        angle -= 2.0 * np.pi
-
-    while angle < 0:
-        angle += 2.0 * np.pi
-    return angle
+    return angle%(2.0*np.pi)
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def generate_cos_point():
     # np.random.seed(config.seed)
     a = 2.0 * np.random.random() - 1.0
 
     # по синусу
-    x = np.arccos(a)
-    if x>np.pi/2:
-       return x-np.pi
+    # x = np.arccos(a)
+    # if x>np.pi/2:
+    #    return x-np.pi
 
     # по косинусу
-    #x = np.arcsin(a)
+    # x = np.arcsin(a)
 
     # равномерное
-    # x = a*np.pi*0.5
+    x = a*np.pi*0.5
 
     return x
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def count_falling_angle(start_angle, normal_angle):
     curr_angle = np.abs(normal_angle - (np.pi + start_angle))
     if curr_angle > np.pi * 0.5:
@@ -54,7 +50,7 @@ def count_falling_angle(start_angle, normal_angle):
               (180.0 / np.pi) * np.abs(normal_angle))
     return curr_angle
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def isotropic_reflection(curr_angle, n_angle):
     # return straight_reflection(curr_angle, n_angle)
     dop_angle = generate_cos_point()

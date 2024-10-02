@@ -1,8 +1,10 @@
-from numba import njit
+#from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def delete_point(border_layer_arr, curr_x, curr_y):
     #print("---")
     prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
@@ -50,7 +52,6 @@ def delete_point(border_layer_arr, curr_x, curr_y):
             simple_delition(border_layer_arr, curr_x, curr_y, -1)
             return 0
 
-
     add = 1
     # мы ВСЕГДА обходим по часовой
 
@@ -95,7 +96,7 @@ def delete_point(border_layer_arr, curr_x, curr_y):
     border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def give_num_in_circle(delta_x, delta_y):
     if np.abs(delta_x) > 1:
         delta_x = delta_x / np.abs(delta_x)
@@ -112,7 +113,7 @@ def give_num_in_circle(delta_x, delta_y):
         return ans + 6
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def give_coords_from_num(num, start_x, start_y):
     if num % 8 == 0:
         x, y = 0, 1
@@ -133,7 +134,7 @@ def give_coords_from_num(num, start_x, start_y):
     return x + start_x, y + start_y
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def create_point(border_layer_arr, curr_x, curr_y, next_x, next_y):
     border_layer_arr[curr_x, curr_y, 0] = 1
     if not check_if_inside(border_layer_arr, next_x, next_y):
@@ -183,7 +184,7 @@ def create_point(border_layer_arr, curr_x, curr_y, next_x, next_y):
         next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def simple_delition(border_layer_arr, curr_x, curr_y, type):
     prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
@@ -191,7 +192,7 @@ def simple_delition(border_layer_arr, curr_x, curr_y, type):
     border_layer_arr[next_x, next_y, 1], border_layer_arr[next_x, next_y, 2] = prev_x, prev_y
     border_layer_arr[curr_x, curr_y] = [type, -1, -1, -1, -1]
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def simple_addition_after(border_layer_arr, prev_x, prev_y, curr_x, curr_y):
     next_x, next_y = border_layer_arr[prev_x, prev_y, 3], border_layer_arr[prev_x, prev_y, 4]
     border_layer_arr[curr_x, curr_y, 0] = 1
@@ -203,7 +204,7 @@ def simple_addition_after(border_layer_arr, prev_x, prev_y, curr_x, curr_y):
     border_layer_arr[next_x, next_y, 1], border_layer_arr[next_x, next_y, 2] = curr_x, curr_y
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_if_inside(border_layer_arr, curr_x, curr_y):
     is_inside = True
     if border_layer_arr[curr_x, curr_y, 0]==-1:
@@ -238,7 +239,7 @@ def give_line_arrays(border_layer):
             unfound = False
     return X, Y
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def give_start(border_layer):
     unfound = True
     x, y = 0, 0
@@ -274,7 +275,7 @@ def give_max_y(border_layer):
             unfound = False
     return y_max
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def find_close_void(border_layer_arr, curr_x, curr_y):
     num = 0
     unfound = True

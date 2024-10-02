@@ -1,3 +1,6 @@
+from res.getero.algorithm.ray_tracing.bvh import build_BVH
+from res.getero.tests.tests_internal_funcks.help_test_funks import del_some_structure, defend_wafer
+from res.global_entities.plotter import generate_figure
 from res.global_entities.wafer import Wafer
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays, give_start
 from res.getero.algorithm.main_cycle import process_particles
@@ -50,6 +53,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
     if do_plot:
         ax = plot_wafer(c_wafer)
     ls, bvh = 0, 0
+    NodeList = build_BVH(c_wafer.border_arr)
     for i in trange(len(params)):
         params_arr = params[i]
         #print(params_arr)
@@ -57,11 +61,12 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             R = 1000
         else:
             R = y_cl / y_cl_plus
+        #print(NodeList.shape)
         t1 = time.time_ns()
-        _, arr_x_ls, arr_y_ls, _, _, _ = process_particles(
+        _, arr_x_ls, arr_y_ls, _, _, NodeList = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R,True, c_wafer.is_half,
-            type="line search")
+            type="bvh", NodeList=NodeList)
         t2 = time.time_ns()
         Times1.append(t2-t1)
         t1 = time.time_ns()
@@ -73,10 +78,10 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
         Times2.append(t2 - t1)
         t1 = time.time_ns()
         #print(c_wafer.nodelist is None)
-        _, arr_x_bvh, arr_y_bvh, _, _, c_wafer.nodelist = process_particles(
+        _, arr_x_bvh, arr_y_bvh, _, _, NodeList = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
-            type="bvh", NodeList=c_wafer.nodelist)
+            type="bvh", NodeList=NodeList)
         t2 = time.time_ns()
         Times3.append(t2 - t1)
         if arr_x_bvh!=arr_x_ls or arr_y_bvh!=arr_y_ls:
@@ -118,41 +123,6 @@ def process_result_time(curr_time, label, ax1, ax2, n_bins=20):
     ax1.hist(low_part, label=label, bins=n_bins)
     ax2.hist(up_part, label=label, bins=n_bins)
 
-def defend_wafer(c_wafer):
-    x, y = give_start(c_wafer.border_arr)
-    y_max = y
-    unfound = True
-    while unfound:
-        y_max = max(y, y_max)
-        x, y = c_wafer.border_arr[x, y, 3], c_wafer.border_arr[x, y, 4]
-        if x == -1 and y == -1:
-            unfound = False
-        else:
-            c_wafer.is_full[x, y] = -1
-
-
-def del_some_structure(c_wafer, num_del = 100, seed=10):
-    np.random.seed(seed)
-    X_del = []
-    Y_del = []
-    for i in range(num_del):
-        X, Y = give_line_arrays(c_wafer.border_arr)
-        unfound = True
-        while unfound:
-            j = np.random.randint(0,len(X))
-            curr_x = X[j]
-            curr_y = Y[j]
-            if c_wafer.is_full[curr_x,curr_y]==1:
-                unfound = False
-
-        c_wafer.counter_arr[:, curr_x, curr_y] = np.array([0, 0, 0, 0])
-        c_wafer.is_full[curr_x, curr_y] = 0
-        delete_point(c_wafer.border_arr, curr_x, curr_y)
-        #print(curr_x, curr_y)
-        X_del.append(curr_x)
-        Y_del.append(curr_y)
-    return X_del, Y_del
-
 def create_some_structure(c_wafer, num_crt = 100, seed=10):
     np.random.seed(seed)
     X_del = []
@@ -192,12 +162,14 @@ if True:
     rt_wafer.check_correction()
     t3 = time.time()
     #X, Y = give_line_arrays(rt_wafer.border_arr)
-    #f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
-    #plt.show()
-#end_wafer = Wafer()
-#end_wafer.load("../files/test_wafer_16000.zip")
+    f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
+    plt.show()
+end_wafer = Wafer()
+end_wafer.load("../files/wafer_1000.zip")
 #end_wafer.load("../files/wafer_U200_Ar0.5_SiNum84.zip")
-test_speed_rt(rt_wafer,num_particles=50000, do_plot=False, do_plot_stat=True)
+f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
+plt.show()
+test_speed_rt(end_wafer,num_particles=100, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()

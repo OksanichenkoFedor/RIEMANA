@@ -25,7 +25,7 @@ do_walls = False
 
 plasma_params = {
     "T_i": 0.12,
-    "U_i": 40,
+    "U_i": 200,
     "j_ar_plus": 1*2.041839429440525e+19,
     "j_cl_plus": 1*1.4431736576424567e+20,
     "j_cl": 2.6629180745936804e+22,
@@ -42,4 +42,7 @@ pure_wafer_params = {
     "ysize": 2400,
     "silicon_size": 1600
 }
+
+
+min_throw_away_angle = np.pi*(10.0/180.0)
 

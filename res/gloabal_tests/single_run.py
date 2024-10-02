@@ -11,9 +11,9 @@ def run_Ar(y_ar, N):
             "y_ar": y_ar,
             "W": 600,
             "U_i": 200,
-            "time": 60.0/(1.0*N),
-            "do_half": False,
-            "rt_type": "cell by cell",
+            "time": 240.0/(1.0*N),
+            "do_half": True,
+            "rt_type": "bvh",
 
             }
 
@@ -21,7 +21,8 @@ def run_Ar(y_ar, N):
 
     etch.init()
     etch.run(params, start_filename="../")
-Ns = [1]
+Ns = [6]
+run_Ar(0.5, 6)
 for i in range(len(Ns)):
     print(Ns[i])
     run_Ar(0.5, Ns[i])
