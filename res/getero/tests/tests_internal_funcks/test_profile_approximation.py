@@ -82,10 +82,10 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
             err_x.append(coll_vec[0])
             err_y.append(coll_vec[1])
             #print("--- ", coll_vec)
-            n_angle, deb, bX, bY, A, B = count_norm_angle(curr_wafer.border_arr, coll_vec, start_segment,
+            n_angle, deb, bX, bY, A, B, reach_left_side = count_norm_angle(curr_wafer.border_arr, coll_vec, start_segment,
                                                           curr_wafer.is_half, num_one_side_points=num_one_side_points)
 
-            #ax.plot(bX, bY, ".")
+
 
             #alpha = 2.0 / (max(np.abs(A), np.abs(B)))
             #x = alpha * np.arange(-1, 1, 0.1) * B + coll_vec[0]
@@ -126,19 +126,33 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
                 plt.show()
             if len(err_x)%5==0 and False:
                 ax = None
+                ax.plot(bX, bY, ".")
                 ax = plot_wafer(curr_wafer, ax)
                 for i in range(len(err_x)-1):
                     ax.plot([err_x[i], err_x[i+1]], [err_y[i], err_y[i+1]], color=(0, 0, 1, 0.5))
                 ax.set_xlim([min(err_x) - 5, max(err_x) + 5])
                 ax.set_ylim([max(err_y) + 5, min(err_y) - 5])
                 plt.show()
+
             color = "g"
+            #ax.plot(bX, bY, ".")
             ax.plot([curr_vec[0], coll_vec[0]], [curr_vec[1], coll_vec[1]], color=(0, 0, 1, 0.5))
 
             color = "k"
             ax.plot([coll_vec[0], coll_vec[0] + 5 * np.sin(n_angle)],
                     [coll_vec[1], coll_vec[1] + 5 * np.cos(n_angle)], color=color)
 
+            if reach_left_side and False:
+                color = "g"
+                ax.plot(bX, bY, ".")
+                ax.plot([curr_vec[0], coll_vec[0]], [curr_vec[1], coll_vec[1]], color=(0, 0, 1, 0.5))
+
+                color = "k"
+                ax.plot([coll_vec[0], coll_vec[0] + 5 * np.sin(n_angle)],
+                        [coll_vec[1], coll_vec[1] + 5 * np.cos(n_angle)], color=color)
+                plt.show()
+                ax = None
+                ax = plot_wafer(curr_wafer, ax)
 
             if is_oob and False:
 
@@ -169,11 +183,12 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
 
 end_wafer = Wafer()
 end_wafer.load("../files/wafer_2000.zip")
-#end_wafer.make_half()
+
 #end_wafer = create_test_wafer(num_del=500)
-#end_wafer.save("../files/test_wafer_500del.zip")
-end_wafer.load("../files/test_wafer_5000del.zip")
+end_wafer.save("../files/test_wafer_500del.zip")
+#end_wafer.load("../files/test_wafer_15000del.zip")
 end_wafer.check_self_intersection()
+end_wafer.make_half()
 f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 plt.show()
-test_prof_approx(end_wafer, 2000, 7)
+test_prof_approx(end_wafer, 50, 10)

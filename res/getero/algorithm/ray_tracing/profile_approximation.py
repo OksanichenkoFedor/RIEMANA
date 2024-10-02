@@ -49,21 +49,29 @@ def give_part_of_border(border_arr, curr_segment, is_half, num_one_side_points):
                 end_x, end_y = new_x, new_y
                 X[num_one_side_points + 1 + (i + 1)] = end_x + 0.5
                 Y[num_one_side_points + 1 + (i + 1)] = end_y + 0.5
-            else:
+            elif not reach_left_side:
                 # print("---")
                 print("ГОООЛ!")
                 reach_left_side = True
-                ind_ls = i - 1
-                mirror_point_x = end_x
-                end_x, end_y = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
+                ind_ls = i - 2
+
+                end_x1, end_y1 = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
+                end_x, end_y = end_x1, end_y1
+
+                end_x1, end_y1 = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
+                end_x, end_y = end_x1, end_y1
+
+                mirror_point_x = end_x + 0.5
+
         if reach_left_side:
             while ind_ls < num_one_side_points:
                 new_x, new_y = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
-                # print(border_arr[end_x, end_y], end_x, end_y)
+                print(border_arr[end_x, end_y], mirror_point_x, end_y + 0.5, mirror_point_x * 2 - end_x + 0.5)
                 X[num_one_side_points + 1 + (ind_ls + 1)] = mirror_point_x * 2 - end_x + 0.5
                 Y[num_one_side_points + 1 + (ind_ls + 1)] = end_y + 0.5
                 end_x, end_y = new_x, new_y
                 ind_ls += 1
+
     else:
         for i in range(num_one_side_points):
             new_x, new_y = border_arr[end_x, end_y, 3], border_arr[end_x, end_y, 4]
@@ -138,7 +146,7 @@ def count_norm_angle(border_arr, cross_vec, curr_segment, is_half, num_one_side_
         norm_angle = start_norm_angle
     else:
         norm_angle = (start_norm_angle+np.pi)%(2*np.pi)
-    return norm_angle, deb, bX, bY, w[0], w[1]#, reach_left_side
+    return norm_angle, deb, bX, bY, w[0], w[1], reach_left_side
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
