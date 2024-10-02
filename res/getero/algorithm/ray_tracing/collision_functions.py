@@ -1,4 +1,4 @@
-from res.getero.algorithm.ray_tracing.utils import count_norm_angle
+from res.getero.algorithm.ray_tracing.utils import count_segment_norm_angle
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 import numpy as np
@@ -29,7 +29,7 @@ def check_collision(vec1, angle, curr_segment):
         # print(x3, y3, x4, y4, x_cross, y_cross)
         cross_vec = np.zeros(2)
         cross_vec[0], cross_vec[1] = x_cross, y_cross
-        return True, cross_vec, count_norm_angle(x3, y3, x4, y4)
+        return True, cross_vec, count_segment_norm_angle(x3, y3, x4, y4)
 
 
 
@@ -69,7 +69,7 @@ def count_curr_prev_att(cross_vec, curr_segment, fall_angle, border_arr):
     #print("start count_curr_prev_att: ", cross_vec, curr_segment, fall_angle)
     curr_point = count_curr_collision_cell(cross_vec, curr_segment)
     curr_att_x, curr_att_y = int(curr_point[0]), int(curr_point[1])
-    angle = count_norm_angle(curr_segment[0,0], curr_segment[0,1], curr_segment[1,0], curr_segment[1,1]) - np.pi*0.5
+    angle = count_segment_norm_angle(curr_segment[0,0], curr_segment[0,1], curr_segment[1,0], curr_segment[1,1]) - np.pi*0.5
 
     if angle<0:
         angle+=2*np.pi

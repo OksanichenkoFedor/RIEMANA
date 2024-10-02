@@ -60,9 +60,9 @@ class WaferGenerator:
                 R = self.y_cl / self.y_cl_plus
 
             res, _, _, _, _, NodeList = process_particles(self.wafer.counter_arr, self.wafer.is_full, self.wafer.border_arr,
-                                                params, self.wafer.Si_num, self.wafer.xsize,
-                                                self.wafer.ysize, R, test=False, do_half=self.wafer.is_half,
-                                                NodeList=NodeList, type="bvh")
+                                                params, self.wafer.Si_num, self.wafer.xsize, self.wafer.ysize,
+                                                R, test=False, do_half=self.wafer.is_half, max_value=-1,
+                                                NodeList=NodeList, type="bvh", num_one_side_points=10)
 
             if i % 500 == 0:
                 self.wafer.return_half()

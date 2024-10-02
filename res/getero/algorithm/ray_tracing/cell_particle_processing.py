@@ -14,7 +14,7 @@ from res.getero.algorithm.utils import straight_reflection
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                          returned_particles, arr_x, arr_y, rarr_x, rarr_y,
-                         params, Si_num, xsize, ysize, R, test, do_half, max_value):
+                         params, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points):
     curr_x = params[0]
     curr_y = params[1]
     is_on_horiz = params[2]
@@ -108,7 +108,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 redepo_params[7] = prev_att_y
                 process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
                                      rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R, test,
-                                     do_half, max_value)
+                                     do_half, max_value, num_one_side_points)
                 if is_full_arr[prev_att_x, prev_att_y] == 1:
                     print("Ловушка джокера")
                     prev_att_x, prev_att_y, curr_x, curr_y = throw_particle_away(is_full_arr, prev_att_x, prev_att_y,

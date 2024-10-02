@@ -64,8 +64,8 @@ def create_test_wafer(num_del=2000, seed=12):
         "mask_height": 200,
         "hole_size": 200,
         "border": 500,
-        "xsize": 2000,
-        "ysize": 2400,
+        "xsize": 1000,
+        "ysize": 1200,
         "silicon_size": 1600
     }
     t1 = time.time()

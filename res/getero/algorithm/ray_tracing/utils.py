@@ -59,7 +59,7 @@ def check_angle_collision(old_angle, new_angle, curr_segment, cross_vec):
     res_angle = new_angle
     left_angle = count_angle(curr_segment[0, 1] - curr_segment[1, 1], curr_segment[0, 0] - curr_segment[1, 0])
     right_angle = count_angle(curr_segment[1, 1] - curr_segment[0, 1], curr_segment[1, 0] - curr_segment[0, 0])
-    simple_norm_angle = count_norm_angle(curr_segment[0, 0], curr_segment[0, 1], curr_segment[1, 0],
+    simple_norm_angle = count_segment_norm_angle(curr_segment[0, 0], curr_segment[0, 1], curr_segment[1, 0],
                                                  curr_segment[1, 1])
     if np.abs(((right_angle-left_angle)%(2*np.pi))/np.pi-1.0)>10**(-5):
         print("Incorrect base vectors check_angle_collision: ", left_angle/np.pi, right_angle/np.pi)
@@ -77,7 +77,7 @@ def check_angle_collision(old_angle, new_angle, curr_segment, cross_vec):
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def count_norm_angle(x1, y1, x2, y2):
+def count_segment_norm_angle(x1, y1, x2, y2):
     # Пустота всегда слева от линии поэтому мы всегда явно можем определить угол от нормали.
     # Он будет улгом вектора ребра + 90.
     delta_x, delta_y = x2 - x1, y2 - y1

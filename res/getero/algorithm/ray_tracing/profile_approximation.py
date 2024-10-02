@@ -51,7 +51,7 @@ def give_part_of_border(border_arr, curr_segment, is_half, num_one_side_points):
                 Y[num_one_side_points + 1 + (i + 1)] = end_y + 0.5
             elif not reach_left_side:
                 # print("---")
-                print("ГОООЛ!")
+                #print("ГОООЛ!")
                 reach_left_side = True
                 ind_ls = i - 2
 
@@ -66,7 +66,7 @@ def give_part_of_border(border_arr, curr_segment, is_half, num_one_side_points):
         if reach_left_side:
             while ind_ls < num_one_side_points:
                 new_x, new_y = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
-                print(border_arr[end_x, end_y], mirror_point_x, end_y + 0.5, mirror_point_x * 2 - end_x + 0.5)
+                #print(border_arr[end_x, end_y], mirror_point_x, end_y + 0.5, mirror_point_x * 2 - end_x + 0.5)
                 X[num_one_side_points + 1 + (ind_ls + 1)] = mirror_point_x * 2 - end_x + 0.5
                 Y[num_one_side_points + 1 + (ind_ls + 1)] = end_y + 0.5
                 end_x, end_y = new_x, new_y

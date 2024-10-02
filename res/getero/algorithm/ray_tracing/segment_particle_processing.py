@@ -1,4 +1,7 @@
 import numpy as np
+
+from res.getero.algorithm.ray_tracing.profile_approximation import count_norm_angle
+from res.getero.algorithm.ray_tracing.utils import check_angle_collision
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 import numba as nb
@@ -14,7 +17,7 @@ from res.getero.algorithm.space_orientation import throw_particle_away
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                          returned_particles, arr_x, arr_y, rarr_x, rarr_y,
-                         params, Si_num, xsize, ysize, R, test, do_half, max_value, type):
+                         params, Si_num, xsize, ysize, R, test, do_half, max_value, type, num_one_side_points):
     curr_vec = np.zeros(2)
     curr_vec[0] = params[0]
     curr_vec[1] = params[1]
@@ -44,6 +47,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
 
             curr_att_x, curr_att_y, prev_att_x, prev_att_y, _ = count_curr_prev_att(coll_vec, start_segment, curr_angle,
                                                                                  border_layer_arr)
+            avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, coll_vec, start_segment,
+                                                          do_half, num_one_side_points=num_one_side_points)
             if is_full_arr[prev_att_x, prev_att_y]==1:
                 print("Граница на пустоте: ", prev_att_x, prev_att_y)
             if is_full_arr[curr_att_x, curr_att_y] == 1.0:
@@ -60,9 +65,10 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 #print("start silicon_reactions")
                 new_type, new_curr_counter, new_prev_counter, new_curr_farr, new_prev_farr, is_react, new_angle, \
                     new_en, is_redepo, redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter,
-                                                                        curr_farr,
-                                                                        prev_farr, Si_num, norm_angle, curr_angle, curr_en,
-                                                                        R)
+                                                                        curr_farr, prev_farr, Si_num, avg_norm_angle,
+                                                                        curr_angle, curr_en, R)
+                _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
+                                                                                   coll_vec)
                 #print("end silicon_reactions")
                 if curr_type in [7, 8, 9] and (not test):
                     # родились бесполезные частицы рассматриваем их только когда тест
@@ -111,7 +117,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                     redepo_params[7] = prev_att_y
                     NodeList = process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                                                     returned_particles, rarr_x, rarr_y, rarr_x, rarr_y, redepo_params,
-                                                    Si_num, xsize, ysize, R, test, do_half, max_value, type)
+                                                    Si_num, xsize, ysize, R, test, do_half, max_value, type,
+                                                    num_one_side_points)
                     if is_full_arr[prev_att_x, prev_att_y] == 1:
                         pass
                         print("Ловушка джокера")

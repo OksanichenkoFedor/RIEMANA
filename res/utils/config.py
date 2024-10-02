@@ -3,7 +3,7 @@ from numba import njit
 import numba as nb
 from numba.experimental import jitclass
 
-do_njit = False
+do_njit = True
 cache = False
 parallel = False
 
@@ -34,8 +34,8 @@ plasma_params = {
 }
 
 pure_wafer_params = {
-    "mask_height": 1000,
-    "hole_size": 600,
+    "mask_height": 200,
+    "hole_size": 300,
     "border": 500,
     "xsize": 1000,
     "ysize": 2400,
