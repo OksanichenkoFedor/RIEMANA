@@ -4,8 +4,6 @@ import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_start
 from res.getero.algorithm.ray_tracing.collision_functions import check_rect_collision, check_collision
-from res.getero.algorithm.ray_tracing.utils import give_edges
-
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -32,7 +30,6 @@ def give_edges(border_layer_arr):
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def build_node_list():
     pass
-
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -119,7 +116,6 @@ def bvh_count_collision_point(NodeList, ray_vec, curr_angle, start_segment):
     found, cross_vec, norm_angle, new_segment, num = check_one_node(NodeList, 0, ray_vec, curr_angle, start_segment)
     #   print(num, int(0.5*(NodeList.shape[0]+1.0)))
     return found, cross_vec, norm_angle, new_segment
-
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_one_node(NodeList, curr_node, ray_vec, curr_angle, start_segment):
     if NodeList[curr_node,0]==0:

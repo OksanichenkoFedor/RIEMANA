@@ -6,7 +6,7 @@ import numpy as np
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def delete_point(border_layer_arr, curr_x, curr_y):
-    #print("---")
+
     prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
     #print(prev_x, prev_y, next_x, next_y)
     if (prev_x==-1 and prev_y==-1):
@@ -14,6 +14,7 @@ def delete_point(border_layer_arr, curr_x, curr_y):
 
         new_start_x, new_start_y = give_coords_from_num(0, curr_x, curr_y)
         if new_start_x == next_x and new_start_y == next_y:
+            #print("Мы попали 2!")
             border_layer_arr[next_x, next_y, 1:3] = [-1, -1]
             border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
             return 0
@@ -25,6 +26,7 @@ def delete_point(border_layer_arr, curr_x, curr_y):
 
         new_end_x, new_end_y = give_coords_from_num(0, curr_x, curr_y)
         if new_end_x == prev_x and new_end_y == prev_y:
+            #print("Мы попали 1!")
             border_layer_arr[prev_x, prev_y, 3:] = [-1,-1]
             border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
             return 0
@@ -42,6 +44,7 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         print("next: ", next_x - curr_x, next_y - curr_y)
     prev_num = give_num_in_circle(prev_x - curr_x, prev_y - curr_y)
     next_num = give_num_in_circle(next_x - curr_x, next_y - curr_y)
+
     if prev_num == next_num:
         dpx, dpy, dnx, dny = prev_x - curr_x, prev_y - curr_y, next_x - curr_x, next_y - curr_y
         # предыдущий и следующий на одной линии
@@ -227,13 +230,12 @@ def check_if_inside(border_layer_arr, curr_x, curr_y):
 def give_line_arrays(border_layer):
     X = []
     Y = []
-    #print(border_layer.shape)
     x, y = give_start(border_layer)
+    #print("fff3gla")
     unfound = True
     while unfound:
         X.append(int(x))
         Y.append(int(y))
-        #print(x, y)
         x, y = border_layer[x, y, 3], border_layer[x, y, 4]
         if x==-1 and y==-1:
             unfound = False

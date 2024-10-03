@@ -5,6 +5,7 @@ import numpy as np
 from res.getero.algorithm.monte_carlo import generate_particles
 from res.getero.algorithm.dynamic_profile import give_line_arrays, give_max_y
 from res.getero.algorithm.main_cycle import process_particles
+from res.getero.algorithm.ray_tracing.bvh import build_BVH
 from res.bot.simple import print_message, throw_plot
 
 from res.global_entities.plotter import generate_figure
@@ -32,6 +33,7 @@ class Getero:
         self.y_ar = params["y_ar"]
 
         self.type_ray_tracing = params["rt_type"]
+        self.num_one_side_points = params["num_one_side_points"]
 
     def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=1000, do_print=True, wafer_curr_type="is_cell", start_filename="", do_half=False):
         self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
@@ -51,8 +53,6 @@ class Getero:
 
             t1 = time.time()
             curr_num_per_iter = num_per_iter
-            if wafer.is_half:
-                curr_num_per_iter = int(0.5 * curr_num_per_iter)
             params = generate_particles(curr_num_per_iter, wafer.xsize, y_ar_plus=self.y_ar_plus, y_cl=self.y_cl,
                                         y_cl_plus=self.y_cl_plus, T_i=self.T_i, T_e=self.U_i, y0=wafer.y0)
             t2 = time.time()
@@ -65,9 +65,10 @@ class Getero:
             #w_ba = wafer.border_arr.copy()
             #res = process_particles(co_arr, w_if, w_ba, params,
             #                        wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False)
-            res, _, _, _, _, wafer.nodelist = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
+            res, _, _, _, _, NodeList = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
                                    wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False, do_half=wafer.is_half,
-                                                          NodeList=wafer.nodelist, type=self.type_ray_tracing)
+                                                          NodeList=NodeList, type=self.type_ray_tracing,
+                                                          num_one_side_points=self.num_one_side_points)
             if i % iter_add_profile == 0 and i!=0:
                 X, Y = give_line_arrays(wafer.border_arr)
                 wafer.profiles.append([X, Y])

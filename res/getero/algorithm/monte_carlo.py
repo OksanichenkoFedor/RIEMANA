@@ -29,7 +29,7 @@ def generate_particles(num, xsize, y_cl, y_ar_plus, y_cl_plus, T_i, T_e, y0, see
 def generate_cl(num, xsize, T_i, y0, seed):
     if seed != None:
         np.random.seed(seed)
-    x = np.random.random((num, 1)) * xsize + 1.0
+    x = np.random.random((num, 1)) * xsize
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
     ens = np.ones((num, 1))*T_i
@@ -51,7 +51,7 @@ def generate_cl(num, xsize, T_i, y0, seed):
 def generate_cl_plus(num, xsize, alpha_el, T_e, y0, seed):
     if seed != None:
         np.random.seed(seed)
-    x = np.random.random((num, 1)) * xsize + 1.0
+    x = np.random.random((num, 1)) * xsize
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
     ens = np.ones((num, 1)) * T_e
@@ -67,7 +67,7 @@ def generate_cl_plus(num, xsize, alpha_el, T_e, y0, seed):
 def generate_ar_plus(num, xsize, alpha_el, T_e, y0, seed):
     if seed != None:
         np.random.seed(seed)
-    x = np.random.random((num, 1)) * xsize + 1.0
+    x = np.random.random((num, 1)) * xsize
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
     ens = np.ones((num, 1)) * T_e
