@@ -46,8 +46,9 @@ def count_falling_angle(start_angle, normal_angle):
     if curr_angle > np.pi * 0.5:
         curr_angle = np.abs(2 * np.pi - curr_angle)
     if curr_angle > np.pi * 0.5:
-        print("В расчёт угла падениия передан некорректный угол: ", (180.0 / np.pi) * np.abs(start_angle),
-              (180.0 / np.pi) * np.abs(normal_angle))
+        #print("В расчёт угла падения передан некорректный угол: ", (180.0 / np.pi) * np.abs(start_angle),
+        #      (180.0 / np.pi) * np.abs(normal_angle))
+        curr_angle = 0
     return curr_angle
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

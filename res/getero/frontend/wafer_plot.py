@@ -50,7 +50,7 @@ class WaferPlotFrame(tk.Frame):
         plot_cells(self.ax, self.master.getero.wafer.counter_arr, self.master.getero.wafer.is_full,
                    self.master.getero.wafer.ysize, self.master.getero.wafer.xsize, curr_type)
         #X,Y = self.master.getero.wafer.profiles[-1]
-        X, Y = give_line_arrays(self.master.getero.wafer.border_arr)
+        X, Y = give_line_arrays(self.master.getero.wafer.border_arr, self.master.getero.wafer.is_half)
         if do_plot_line:
             plot_line(self.ax, X, Y, 0, 0, do_points=False)
         x_major_ticks = np.arange(0, self.master.getero.wafer.xsize, 10)+0.5

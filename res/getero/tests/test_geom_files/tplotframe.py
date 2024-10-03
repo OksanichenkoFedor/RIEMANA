@@ -98,8 +98,8 @@ class TestPlotFrame(Frame):
             x = alpha * np.arange(-1, 1, 0.1) * self.B + self.coll_vec[0] - 0.5
             y = alpha * np.arange(-1, 1, 0.1) * (-1.0 * self.A) + self.coll_vec[1] - 0.5
             self.ax.plot(x, y, color="g")
-        X, Y = give_line_arrays(self.wafer.border_arr)  # 0, 0)
-        #plot_line(self.ax, X, Y, 0, 0, do_points=False)
+        X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.is_half)  # 0, 0)
+        plot_line(self.ax, X, Y, 0, 0, do_points=False)
         if self.is_collide and False:
             #print("fffffff")
             self.ax.plot([self.x1 - 0.5, self.x_c - 0.5], [self.y1 - 0.5, self.y_c - 0.5], color="k")
@@ -114,10 +114,10 @@ class TestPlotFrame(Frame):
                     int(self.wafer.border_arr[x, y, 2]))
                 curr_str2 = "next: " + str(int(self.wafer.border_arr[x, y, 3])) + "," + str(
                     int(self.wafer.border_arr[x, y, 4]))
-                #self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
-                #self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
-                #self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
-                #self.ax.text(x - 0.3, y + 0.2, str(int(self.wafer.border_arr[x, y, 0])), color=color, fontsize=9)
+                self.ax.text(x - 0.3, y + 0.4, curr_str0, color=color, fontsize=5)
+                self.ax.text(x - 0.3, y + 0.2, curr_str1, color=color, fontsize=5)
+                self.ax.text(x - 0.3, y + 0.0, curr_str2, color=color, fontsize=5)
+                self.ax.text(x - 0.3, y + 0.2, str(int(self.wafer.border_arr[x, y, 0])), color=color, fontsize=9)
         self.ax.grid(True)
         if not (self.arr_y is None):
             # print("FfFFF: ",self.arr_x, self.arr_y, self.rarr_x, self.rarr_y)
@@ -184,7 +184,7 @@ class TestPlotFrame(Frame):
             curr_en = params_arr[0][3]
             self.curr_angle = params_arr[0][4]
             curr_type = params_arr[0][5]
-            NodeList = build_BVH(self.wafer.border_arr)
+            NodeList = build_BVH(self.wafer.border_arr, self.wafer.is_half)
             self.is_collide, self.coll_vec, norm_angle, start_segment = bvh_count_collision_point(NodeList,
                                                                                                   self.curr_vec,
                                                                                                   self.curr_angle,

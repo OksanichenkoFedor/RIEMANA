@@ -27,7 +27,7 @@ T_i = params["T_i"]
 U_i = params["U_i"]
 
 def plot_wafer(c_wafer):
-    X, Y = give_line_arrays(c_wafer.border_arr)
+    X, Y = give_line_arrays(c_wafer.border_arr, c_wafer.is_half)
     fig, ax = plt.subplots(figsize=(15, 10))
     ax.set_aspect(1)
     ax.set_ylim([np.array(Y).max(), np.array(Y).min()])
@@ -53,7 +53,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
     if do_plot:
         ax = plot_wafer(c_wafer)
     ls, bvh = 0, 0
-    NodeList = build_BVH(c_wafer.border_arr)
+    NodeList = build_BVH(c_wafer.border_arr, c_wafer.is_half)
     for i in trange(len(params)):
         params_arr = params[i]
         #print(params_arr)
@@ -128,7 +128,7 @@ def create_some_structure(c_wafer, num_crt = 100, seed=10):
     X_del = []
     Y_del = []
     for i in range(num_crt):
-        X, Y = give_line_arrays(c_wafer.border_arr)
+        X, Y = give_line_arrays(c_wafer.border_arr, c_wafer.is_half)
         unfound = True
         while unfound:
             j = np.random.randint(0,len(X))

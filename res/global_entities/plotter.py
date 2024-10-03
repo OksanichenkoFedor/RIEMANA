@@ -51,7 +51,7 @@ def generate_figure(wafer, wafer_curr_type, do_plot_line=True):
     axis.set_ylabel('y')
     # curr_type = config.wafer_plot_types[config.wafer_plot_num]
     plot_cells(axis, wafer.counter_arr, wafer.is_full, wafer.ysize, wafer.xsize, wafer_curr_type)
-    X, Y = give_line_arrays(wafer.border_arr)
+    X, Y = give_line_arrays(wafer.border_arr, wafer.is_half)
     if do_plot_line:
         plot_line(axis, X, Y, 0, 0, do_points=False)
     for x in range(wafer.border_arr.shape[0]):

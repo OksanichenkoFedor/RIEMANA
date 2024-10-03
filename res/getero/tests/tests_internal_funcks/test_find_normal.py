@@ -10,8 +10,7 @@ from matplotlib.patches import Rectangle
 W = Wafer(0.05, 1)
 W.process_file("del6.txt")
 
-X, Y = give_line_arrays(W.border_arr, W.start_x, W.start_y, W.end_x, W.end_y, 0, 0,
-                        size=1)
+X, Y = give_line_arrays(W.border_arr, W.is_half)
 
 fig, ax = plt.subplots(figsize=(10, 10))
 ax.set_aspect(1)

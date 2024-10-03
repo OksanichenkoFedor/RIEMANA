@@ -14,10 +14,10 @@ def give_part_of_border(border_arr, curr_segment, is_half, num_one_side_points):
     #print(curr_segment)
     #print("--- ", is_half)
     reach_left_side = False
+
     start_x, start_y = int(curr_segment[0, 0] - 0.5), int(curr_segment[0, 1] - 0.5)
     end_x, end_y = int(curr_segment[1, 0] - 0.5), int(curr_segment[1, 1] - 0.5)
-
-    if border_arr[end_x, end_y,3]==-1 and border_arr[end_x, end_y,4]==-1:
+    if int(2 * curr_segment[0, 0]) % 2 == 0 and int(2 * curr_segment[1, 0]) % 2 == 0:
         # мы находимся на граничной линии
         #print("Зеркальная граница: ",curr_segment)
         X = np.ones(2 * num_one_side_points + 2) * curr_segment[0, 0]
@@ -53,24 +53,31 @@ def give_part_of_border(border_arr, curr_segment, is_half, num_one_side_points):
                 # print("---")
                 #print("ГОООЛ!")
                 reach_left_side = True
-                ind_ls = i - 2
+                if int(2 * curr_segment[0, 0]) % 2 == 0 and int(2 * curr_segment[1, 0]) % 2 == 0:
+                    print("Dno: ", curr_segment[0, 0], curr_segment[0, 1])
+                X = 0.5 + curr_segment[0, 0] +  np.arange(0, 2 * num_one_side_points + 2, 1)
+                Y = np.ones(2 * num_one_side_points + 2) * curr_segment[0, 1]
+                # print(X, Y)
+                return X, Y, num_one_side_points, True
 
-                end_x1, end_y1 = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
-                end_x, end_y = end_x1, end_y1
+                #ind_ls = i - 2
 
-                end_x1, end_y1 = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
-                end_x, end_y = end_x1, end_y1
+                #end_x1, end_y1 = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
+                #end_x, end_y = end_x1, end_y1
+
+                #end_x1, end_y1 = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
+                #end_x, end_y = end_x1, end_y1
 
                 mirror_point_x = end_x + 0.5
 
-        if reach_left_side:
-            while ind_ls < num_one_side_points:
-                new_x, new_y = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
-                #print(border_arr[end_x, end_y], mirror_point_x, end_y + 0.5, mirror_point_x * 2 - end_x + 0.5)
-                X[num_one_side_points + 1 + (ind_ls + 1)] = mirror_point_x * 2 - end_x + 0.5
-                Y[num_one_side_points + 1 + (ind_ls + 1)] = end_y + 0.5
-                end_x, end_y = new_x, new_y
-                ind_ls += 1
+        #if reach_left_side:
+        #    while ind_ls < num_one_side_points:
+        #        new_x, new_y = border_arr[end_x, end_y, 1], border_arr[end_x, end_y, 2]
+        #        #print(border_arr[end_x, end_y], mirror_point_x, end_y + 0.5, mirror_point_x * 2 - end_x + 0.5)
+        #        X[num_one_side_points + 1 + (ind_ls + 1)] = mirror_point_x * 2 - end_x + 0.5
+        #        Y[num_one_side_points + 1 + (ind_ls + 1)] = end_y + 0.5
+        #        end_x, end_y = new_x, new_y
+        #        ind_ls += 1
 
     else:
         for i in range(num_one_side_points):
@@ -79,7 +86,8 @@ def give_part_of_border(border_arr, curr_segment, is_half, num_one_side_points):
                 end_x, end_y = new_x, new_y
             X[num_one_side_points + 1 + (i + 1)] = end_x + 0.5
             Y[num_one_side_points + 1 + (i + 1)] = end_y + 0.5
-
+    if int(2 * curr_segment[0, 0]) % 2 == 0 and int(2 * curr_segment[1, 0]) % 2 == 0:
+        print("Incorrect end: ", curr_segment[0, 0], curr_segment[0, 1])
     return X, Y, num_one_side_points, reach_left_side
 
 

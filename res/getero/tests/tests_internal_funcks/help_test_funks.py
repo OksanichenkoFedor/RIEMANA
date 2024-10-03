@@ -18,7 +18,7 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
     for i in trange(num_del):
         incorrect_del = True
         while incorrect_del:
-            X, Y = give_line_arrays(c_wafer.border_arr)
+            X, Y = give_line_arrays(c_wafer.border_arr, c_wafer.is_half)
             unfound = True
             while unfound:
                 j = np.random.randint(0, len(X))
