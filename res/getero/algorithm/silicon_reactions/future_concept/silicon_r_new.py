@@ -1,4 +1,5 @@
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.algorithm.silicon_reactions.chlorine import clorine_etching#, clorine_ion_etching
@@ -13,7 +14,7 @@ from res.getero.reaction_consts.sputtering_cl2 import sput_data_Cl2_plus, E_th_c
 from res.getero.algorithm.utils import straight_reflection
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr, prev_farr,
                      Si_num, is_on_horiz, curr_angle, curr_en):
     # Основное вещество (идёт активная реакция)

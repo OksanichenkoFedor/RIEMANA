@@ -1,7 +1,8 @@
 import numpy as np
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def mask_reaction(is_on_horiz, curr_angle):
     if is_on_horiz:
         curr_angle = np.pi - curr_angle

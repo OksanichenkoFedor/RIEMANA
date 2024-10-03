@@ -1,8 +1,9 @@
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def find_prev_old(curr_x, curr_y, prev_x, prev_y, curr_angle, is_on_horiz):
     """
     Реализует определение предыдущего чанка для корректного наращивания и отражения
@@ -46,7 +47,7 @@ def find_prev_old(curr_x, curr_y, prev_x, prev_y, curr_angle, is_on_horiz):
     return curr_att_x, prev_att_x, curr_att_y, prev_att_y
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def find_next(next_x, next_y, curr_x, curr_y, curr_att_x, curr_att_y):
     if (curr_x is None) and (curr_y is None):
         return int(curr_att_x), int(curr_att_y)
@@ -87,7 +88,7 @@ def find_prev1(curr_x, curr_y, prev_x, prev_y, curr_angle, is_on_horiz):
         prev_y, prev_x = curr_y, curr_x
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def give_next_cell_compl(x_coord, y_coord, angle, is_on_horiz):
     if angle > 1.5 * np.pi or angle < 0.5 * np.pi:
         if angle <= 1.0 * np.pi:
@@ -200,7 +201,7 @@ def give_next_cell_compl(x_coord, y_coord, angle, is_on_horiz):
     return 1.0 * x_coord, 1.0 * y_coord, angle, is_on_horiz
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def give_next_cell(x_coord, y_coord, angle, is_on_horiz):
     if angle > 1.5 * np.pi or angle < 0.5 * np.pi:
         x_mult = 1.0
@@ -244,7 +245,7 @@ def give_next_cell(x_coord, y_coord, angle, is_on_horiz):
     return 1.0 * x_coord, 1.0 * y_coord, is_on_horiz
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def throw_particle_away(is_full_arr, prev_att_x, prev_att_y, curr_x, curr_y):
     add_x, add_y = 0, 0
     if is_full_arr[prev_att_x - 1, prev_att_y] != 1:

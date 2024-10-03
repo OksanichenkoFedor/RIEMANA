@@ -1,4 +1,5 @@
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.reaction_consts.angular_dependences import ion_enh_etch_an_dep, sput_an_dep
@@ -6,7 +7,7 @@ from res.getero.reaction_consts.angular_dependences import ion_enh_etch_an_dep, 
 from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def ion_etching(curr_type, curr_counter, prev_counter, curr_farr, prev_farr, Si_num, is_on_horiz, curr_angle, curr_en,
                 sput_data):
     c_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]

@@ -1,10 +1,11 @@
 import numpy as np
 from res.const.modeling_params import RHO, MU, V0
 from res.const.geom_const import COS_ALPHA, SIN_ALPHA
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def initgrid(gridx, gridy, is_inside):
     grid = np.zeros((3, gridx, gridy))
     grid[0] = (np.random.random((gridx, gridy)) * 2.0 - 1) * V0*0.0
@@ -16,7 +17,7 @@ def initgrid(gridx, gridy, is_inside):
     return grid
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def step_custom_njit(grid, is_inside, is_inlet, is_outlet, is_x_walls, is_y_walls, is_inl_walls, dx, dy, dt, iter_num):
     newgrid = grid.copy()
     u = grid[0]#.copy()
@@ -83,7 +84,7 @@ def step_custom_njit(grid, is_inside, is_inlet, is_outlet, is_x_walls, is_y_wall
     return boundary_step_njit(newgrid, is_inlet, is_outlet, is_x_walls, is_y_walls, is_inl_walls, is_inside)
 
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def boundary_step_njit(grid, is_inlet, is_outlet, is_x_walls, is_y_walls, is_inl_walls, is_inside):
     newgrid = grid.copy()
 

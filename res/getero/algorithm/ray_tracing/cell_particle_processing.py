@@ -57,25 +57,30 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                     print("Starange: ", curr_type)
                     print([curr_x, curr_y, is_on_horiz, curr_en, curr_angle, curr_type, prev_att_x, prev_att_y])
                     unfound_test = False
-            curr_counter = counter_arr[:, curr_att_x, curr_att_y]
-            prev_counter = counter_arr[:, prev_att_x, prev_att_y]
-            curr_farr = is_full_arr[curr_att_x, curr_att_y]
-            prev_farr = is_full_arr[prev_att_x, prev_att_y]
-            if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] == 0:
+
+            n_angle = count_simple_norm_angle(curr_angle, is_on_horiz)
+
+            angles = np.zeros(2)
+            angles[0], angles[1] = curr_angle, n_angle
+
+            point_vector = np.zeros((2, 2))
+            point_vector[0, 0], point_vector[0, 1] = curr_att_x, curr_att_y
+            point_vector[1, 0], point_vector[1, 1] = prev_att_x, prev_att_y
+
+            if counter_arr[:, curr_att_x, curr_att_y].sum() == 0.0:
                 print("---")
                 print("Пустая не пустая!!!")
                 print(curr_att_x, curr_att_y)
                 print("---")
-            n_angle = count_simple_norm_angle(curr_angle, is_on_horiz)
-            new_type, new_curr_counter, new_prev_counter, new_curr_farr, new_prev_farr, is_react, new_angle, \
-            new_en, is_redepo, redepo_params = silicon_reaction(curr_type, curr_counter, prev_counter, curr_farr,
-                                                                prev_farr, Si_num, n_angle, curr_angle, curr_en,
-                                                                R)
+
+            new_type, new_en, flags, redepo_params, new_angle = silicon_reaction(curr_type, counter_arr,
+                                                                                 is_full_arr, point_vector,
+                                                                                 Si_num, angles, curr_en, R)
             if curr_type in [7, 8, 9] and (not test):
                 # родились бесполезные частицы рассматриваем их только когда тест
                 unfound = False
                 returned_particles[int(curr_type)] += 1
-            if new_curr_farr != curr_farr:
+            if flags[2]==1.0:
                 # удаление
                 # 0 - внутри
                 # 1 - граница
@@ -85,22 +90,18 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 #print("Delete: ", curr_att_x, curr_att_y)
                 if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                     print("Удаление не произведено!")
-                if new_curr_farr:
+                if is_full_arr[curr_att_x, curr_att_y]:
                     print("Непредсказуемое удаление!!!")
 
-            if new_prev_farr != prev_farr:
+            if flags[3]==1.0:
                 # восстановление частицы
                 print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
                 create_point(border_layer_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
-            counter_arr[:, curr_att_x, curr_att_y] = new_curr_counter
-            counter_arr[:, prev_att_x, prev_att_y] = new_prev_counter
-            is_full_arr[curr_att_x, curr_att_y] = new_curr_farr
-            is_full_arr[prev_att_x, prev_att_y] = new_prev_farr
             curr_angle = new_angle
             curr_type = new_type
             curr_en = new_en
 
-            if is_redepo:
+            if flags[1] == 1.0:
                 redepo_params[0] = curr_x
                 redepo_params[1] = curr_y
                 redepo_params[2] = is_on_horiz
@@ -114,7 +115,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                     prev_att_x, prev_att_y, curr_x, curr_y = throw_particle_away(is_full_arr, prev_att_x, prev_att_y,
                                                                                  curr_x, curr_y)
 
-            if is_react:
+            if flags[0] == 1.0:
                 unfound = False
             else:
                 changed_angle = True

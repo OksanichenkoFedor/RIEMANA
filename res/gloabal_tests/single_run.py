@@ -12,7 +12,7 @@ def run_Ar(y_ar, N, U):
             "W": 600,
             "U_i": U,
             "time": 200.0/(1.0*N),
-            "do_half": True,
+            "do_half": False,
             "rt_type": "bvh",
             "num_one_side_points": 20
             }

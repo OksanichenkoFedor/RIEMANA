@@ -1,5 +1,6 @@
 import numpy as np
-from numba import njit
+from res.utils.wrapper import clever_njit
+from res.utils.config import do_njit, cache, parallel
 
 from res.getero.algorithm.dynamic_profile import delete_point, create_point, give_line_arrays, give_start, give_end
 import res.utils.config as config
@@ -396,7 +397,7 @@ class Wafer:
             print("Intersect!!!")
         return intersect
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_inter(cX, cY):
     intersect = False
     for i in range(len(cX) - 1):
@@ -411,7 +412,7 @@ def check_inter(cX, cY):
                 intersect = True
     return intersect
 
-@njit()
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def orientation(p1, p2, p3):
     val = (p2[1] - p1[1])*(p3[0] - p2[0]) - (p2[0] - p1[0])*(p3[1] - p2[1])
     return np.sign(val)

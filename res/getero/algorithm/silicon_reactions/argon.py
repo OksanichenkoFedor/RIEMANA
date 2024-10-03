@@ -1,3 +1,4 @@
+from res.getero.algorithm.silicon_reactions.cell_retraction import retract_cell
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 import numpy as np
@@ -11,28 +12,29 @@ from res.getero.algorithm.utils import custom_choise, straight_reflection, isotr
 from res.getero.reaction_consts.angular_dependences import sput_an_dep
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
-                    prev_farr, Si_num, normal_angle, start_angle, curr_en):
-    c_sum = curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3]
+def argon_sputtering(curr_type, counter_arr, is_full_arr, point_vector, Si_num, angles, curr_en, R):
+    flags = np.zeros(4)
+    # flags = [is_react, is_redepo, is_delete, is_create]
+    curr_x, curr_y = int(point_vector[0,0]), int(point_vector[0,1])
+    c_sum = counter_arr[:, curr_x, curr_y].sum()
 
-    p_sicl0_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl0_sp)) * K_sp_ar_sicl0 * curr_counter[0]
-    p_sicl1_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl1_sp)) * K_sp_ar_sicl1 * curr_counter[1]
-    p_sicl2_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl2_sp)) * K_sp_ar_sicl2 * curr_counter[2]
-    p_sicl3_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl3_sp)) * K_sp_ar_sicl3 * curr_counter[3]
+    p_sicl0_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl0_sp)) * K_sp_ar_sicl0 * counter_arr[0 ,curr_x, curr_y]
+    p_sicl1_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl1_sp)) * K_sp_ar_sicl1 * counter_arr[1 ,curr_x, curr_y]
+    p_sicl2_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl2_sp)) * K_sp_ar_sicl2 * counter_arr[2 ,curr_x, curr_y]
+    p_sicl3_sp = max(0.0, np.sqrt(curr_en) - np.sqrt(E_th_ar_sicl3_sp)) * K_sp_ar_sicl3 * counter_arr[3 ,curr_x, curr_y]
 
-    curr_angle = count_falling_angle(start_angle, normal_angle)
+    curr_angle = count_falling_angle(angles[0], angles[1])
 
     p_sum = p_sicl0_sp + p_sicl1_sp + p_sicl2_sp + p_sicl3_sp
 
     if p_sum==0:
         #print("fffffffff")
-        is_react = False
-        is_redepo = False
+        flags[0]=0.0
+        flags[1]=0.0
         redepo_params = np.zeros((6))
         curr_type = 9  # ион аргона нейтрализуется
-        start_angle = isotropic_reflection(start_angle, normal_angle)
-        return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, start_angle, curr_en, is_redepo, redepo_params
+        new_angle = isotropic_reflection(angles[0], angles[1])
+        return curr_type, curr_en, flags, redepo_params, new_angle
 
     p_sicl0_sp = p_sicl0_sp * sput_an_dep(curr_angle) / p_sum
     p_sicl1_sp = p_sicl1_sp * sput_an_dep(curr_angle) / p_sum
@@ -45,63 +47,62 @@ def argon_sputtering(curr_type, curr_counter, prev_counter, curr_farr,
 
 
     if curr_reaction==4:
-        is_react = False
-        is_redepo = False
+        flags[0] = 0.0
+        flags[1] = 0.0
         redepo_params = np.zeros((8))
         curr_type = 9 # ион аргона нейтрализуется
-        start_angle = straight_reflection(start_angle, normal_angle)
-        return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-               is_react, start_angle, curr_en, is_redepo, redepo_params
+        new_angle = straight_reflection(angles[0], angles[1])
+        return curr_type, curr_en, flags, redepo_params, new_angle
     if curr_reaction==0:
         # sp: Si_s -> Si_g
         curr_en = curr_en-E_th_ar_sicl0_sp
         curr_type = 9 # ион аргона нейтрализуется
-        is_react = False
-        redepo_angle = isotropic_reflection(start_angle, normal_angle)
-        start_angle = straight_reflection(start_angle, normal_angle)
-        curr_counter[0] -= 1
-        is_redepo = True
+        flags[0] = 0.0
+        flags[1] = 1.0
+        redepo_angle = isotropic_reflection(angles[0], angles[1])
+        new_angle = straight_reflection(angles[0], angles[1])
+        counter_arr[0, curr_x, curr_y] -= 1
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 4, 0, 0])
         # TODO угол отражённого иона
     elif curr_reaction==1:
         # sp: SiCl_s -> SiCl_g
         curr_en = curr_en - E_th_ar_sicl1_sp
         curr_type = 9  # ион аргона нейтрализуется
-        is_react = False
-        redepo_angle = isotropic_reflection(start_angle, normal_angle)
-        start_angle = straight_reflection(start_angle, normal_angle)
-        curr_counter[1] -= 1
-        is_redepo = True
+        flags[0] = 0.0
+        flags[1] = 1.0
+        redepo_angle = isotropic_reflection(angles[0], angles[1])
+        new_angle = straight_reflection(angles[0], angles[1])
+        counter_arr[1, curr_x, curr_y] -= 1
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 5, 0, 0])
         # TODO угол отражённого иона
     elif curr_reaction==2:
         # sp: SiCl2_s -> SiCl2_g
         curr_en = curr_en - E_th_ar_sicl2_sp
         curr_type = 9  # ион аргона нейтрализуется
-        is_react = False
-        redepo_angle = isotropic_reflection(start_angle, normal_angle)
-        start_angle = straight_reflection(start_angle, normal_angle)
-        curr_counter[2] -= 1
-        is_redepo = True
+        flags[0] = 0.0
+        flags[1] = 1.0
+        redepo_angle = isotropic_reflection(angles[0], angles[1])
+        new_angle = straight_reflection(angles[0], angles[1])
+        counter_arr[2, curr_x, curr_y] -= 1
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 6, 0, 0])
         # TODO угол отражённого иона
     elif curr_reaction==3:
         # sp: SiCl3_s -> SiCl3_g
         curr_en = curr_en - E_th_ar_sicl3_sp
         curr_type = 9  # ион аргона нейтрализуется
-        is_react = False
-        redepo_angle = isotropic_reflection(start_angle, normal_angle)
-        start_angle = straight_reflection(start_angle, normal_angle)
-        curr_counter[3] -= 1
-        is_redepo = True
+        flags[0] = 0.0
+        flags[1] = 1.0
+        redepo_angle = isotropic_reflection(angles[0], angles[1])
+        new_angle = straight_reflection(angles[0], angles[1])
+        counter_arr[3, curr_x, curr_y] -= 1
         redepo_params = np.array([0, 0, 0, 0, redepo_angle, 7, 0, 0])
         # TODO угол отражённого иона
 
     # TODO разобраться с нормальным уничтожением ячейки
 
-    if curr_counter[0] + curr_counter[1] + curr_counter[2] + curr_counter[3] <= 0:
-        curr_farr = 0
-        curr_counter[0], curr_counter[1], curr_counter[2], curr_counter[3] = 0, 0, 0, 0
+    if counter_arr[:, curr_x, curr_y].sum() <= 0:
+        is_full_arr[curr_x, curr_y] = 0.0
+        flags[2] = 1.0
+        retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angles[0], True)
 
-    return curr_type, curr_counter, prev_counter, curr_farr, prev_farr, \
-           is_react, start_angle, curr_en, is_redepo, redepo_params
+    return curr_type, curr_en, flags, redepo_params, new_angle
