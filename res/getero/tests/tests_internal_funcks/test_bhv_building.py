@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.animation as animation
 
 def plot_wafer(c_wafer, ax = None):
-    X, Y = give_line_arrays(c_wafer.border_arr)
+    X, Y = give_line_arrays(c_wafer.border_arr, c_wafer.is_half)
     non_ax = ax is None
     if non_ax:
         fig, ax = plt.subplots(figsize=(10, 7))
@@ -31,7 +31,7 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
     X_del = []
     Y_del = []
     for i in range(num_del):
-        X, Y = give_line_arrays(c_wafer.border_arr)
+        X, Y = give_line_arrays(c_wafer.border_arr, c_wafer.is_half)
         unfound = True
         while unfound:
             j = np.random.randint(0,len(X))
@@ -81,7 +81,7 @@ rt_wafer.check_correction()
 t3 = time.time()
 #X, Y = give_line_arrays(rt_wafer.border_arr)
 
-NodeList = build_BVH(rt_wafer.border_arr)
+NodeList = build_BVH(rt_wafer.border_arr, rt_wafer.is_half)
 
 fig, ax = plot_wafer(rt_wafer)
 #print(NodeList)

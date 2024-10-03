@@ -12,7 +12,7 @@ def run_Ar(y_ar, N, U):
             "W": 600,
             "U_i": U,
             "time": 200.0/(1.0*N),
-            "do_half": False,
+            "do_half": True,
             "rt_type": "bvh",
             "num_one_side_points": 20
             }
@@ -21,18 +21,18 @@ def run_Ar(y_ar, N, U):
 
     etch.init()
     etch.run(params, start_filename="../")
-run_Ar(0.5, 6, 40)
-run_Ar(0.5, 6, 100)
-run_Ar(0.5, 6, 300)
+run_Ar(0.5, 12, 40)
+#run_Ar(0.5, 6, 100)
+#run_Ar(0.5, 6, 300)
 
 
-run_Ar(0.5, 6, 200)
-run_Ar(0.0, 6, 200)
-run_Ar(0.1, 6, 200)
-run_Ar(0.2, 6, 200)
-run_Ar(0.3, 6, 200)
-run_Ar(0.4, 6, 200)
-run_Ar(0.6, 6, 200)
-run_Ar(0.7, 6, 200)
-run_Ar(0.8, 6, 200)
-run_Ar(0.9, 6, 200)
+#run_Ar(0.5, 6, 200)
+#run_Ar(0.0, 6, 200)
+#run_Ar(0.1, 6, 200)
+#run_Ar(0.2, 6, 200)
+#run_Ar(0.3, 6, 200)
+#run_Ar(0.4, 6, 200)
+#run_Ar(0.6, 6, 200)
+#run_Ar(0.7, 6, 200)
+#run_Ar(0.8, 6, 200)
+#run_Ar(0.9, 6, 200)

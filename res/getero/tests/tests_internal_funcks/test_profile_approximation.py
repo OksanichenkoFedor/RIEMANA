@@ -27,7 +27,7 @@ T_i = params["T_i"]
 U_i = params["U_i"]
 
 def plot_wafer(c_wafer, ax=None):
-    X, Y = give_line_arrays(c_wafer.border_arr)
+    X, Y = give_line_arrays(c_wafer.border_arr, c_wafer.is_half)
     X, Y = prepare_segment_for_intersection_checking(X,Y, None, None, False, 10)
     X, Y = np.array(X)+0.5, np.array(Y)+0.5
     if ax is None:
@@ -73,11 +73,13 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
         curr_en = partile[3]
         curr_angle = partile[4]
         curr_type = partile[5]
-        NodeList = build_BVH(curr_wafer.border_arr)
+        ax.plot([curr_vec[0], curr_vec[0] + 5 * np.sin(curr_angle)],
+                [curr_vec[1], curr_vec[1] + 5 * np.cos(curr_angle)], color=(0, 0, 1, 0.5))
+        NodeList = build_BVH(curr_wafer.border_arr, curr_wafer.is_half)
         is_collide, coll_vec, norm_angle, start_segment = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
                                                                                    start_segment)
         num = 0
-        while is_collide and num<1000:
+        while is_collide and num<50:
             num+=1
             err_x.append(coll_vec[0])
             err_y.append(coll_vec[1])
@@ -136,7 +138,7 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
 
             color = "g"
             #ax.plot(bX, bY, ".")
-            ax.plot([curr_vec[0], coll_vec[0]], [curr_vec[1], coll_vec[1]], color=(0, 0, 1, 0.5))
+            #ax.plot([curr_vec[0], coll_vec[0]], [curr_vec[1], coll_vec[1]], color=(0, 0, 1, 0.5))
 
             color = "k"
             ax.plot([coll_vec[0], coll_vec[0] + 5 * np.sin(n_angle)],
@@ -176,19 +178,22 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
         if num>=900:
             print(partile)
 
-        #ax.plot([curr_vec[0], curr_vec[0] + 5 * np.sin(curr_angle)],
-        #        [curr_vec[1], curr_vec[1] + 5 * np.cos(curr_angle)], color=(0, 0, 1, 0.5))
+
 
     plt.show()
 
 end_wafer = Wafer()
-end_wafer.load("../files/wafer_2000.zip")
+#end_wafer.load("../files/wafer_2000.zip")
+import os
+print(os.listdir("../../"))
+#end_wafer.load("../../../data/wafer_U40_Ar0.0_SiNum14.zip")
 
-end_wafer = create_test_wafer(num_del=0)
+end_wafer = create_test_wafer(num_del=200)
 #end_wafer.save("../files/test_wafer_500del.zip")
 #end_wafer.load("../files/test_wafer_15000del.zip")
 end_wafer.check_self_intersection()
 end_wafer.make_half()
-f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
-plt.show()
-test_prof_approx(end_wafer, 100, 10)
+#end_wafer.return_half()
+#f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
+#plt.show()
+test_prof_approx(end_wafer, 600, 20)

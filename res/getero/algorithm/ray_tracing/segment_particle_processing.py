@@ -51,6 +51,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                                                           do_half, num_one_side_points=num_one_side_points)
             if is_full_arr[prev_att_x, prev_att_y]==1:
                 print("Граница на пустоте: ", prev_att_x, prev_att_y)
+            if (np.abs(coll_vec[0] - xsize)<10**(-5) and do_half) and is_full_arr[curr_att_x, curr_att_y]==1.0:
+                print("Mirror: ", is_full_arr[curr_att_x, curr_att_y])
             if is_full_arr[curr_att_x, curr_att_y] == 1.0:
 
                 curr_counter = counter_arr[:, curr_att_x, curr_att_y]
@@ -82,7 +84,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
 
                     delete_point(border_layer_arr, curr_att_x, curr_att_y)
                     if type == "bvh":
-                        NodeList = build_BVH(border_layer_arr)
+                        NodeList = build_BVH(border_layer_arr, do_half)
                     #print("Delete: ", curr_att_x, curr_att_y)
                     if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                         print("Удаление не произведено!")
@@ -94,7 +96,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                     print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
                     create_point(border_layer_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
                     if type=="bvh":
-                        NodeList = build_BVH(border_layer_arr)
+                        NodeList = build_BVH(border_layer_arr, do_half)
                     new_x, new_y = find_close_void(border_layer_arr, prev_att_x, prev_att_y)
                     coll_vec[0], coll_vec[1] = (prev_att_x+0.5+0.1*(new_x-prev_att_x),
                                                 prev_att_y+0.5+0.1*(new_y-prev_att_y))

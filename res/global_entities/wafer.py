@@ -82,8 +82,9 @@ class Wafer:
                         raise Exception("This cell (" + str(curr_x) + " " + str(
                             curr_y) + ") is located on the border, but is not included in it")
                     if (not self.is_near_void(curr_x, curr_y)) and self.border_arr[curr_x, curr_y, 0] == 1:
-                        raise Exception("This cell (" + str(curr_x) + " " + str(
-                            curr_y) + ") is inside wafer, but is included in border")
+                        print("This cell (" + str(curr_x) + " " + str(curr_y) + ") is inside wafer, but is included in border")
+                        #raise Exception("This cell (" + str(curr_x) + " " + str(
+                        #    curr_y) + ") is inside wafer, but is included in border")
 
     def is_near_void(self, curr_x, curr_y):
         x_size, y_size = self.is_full.shape[0], self.is_full.shape[1]
@@ -232,7 +233,7 @@ class Wafer:
 
         self.clear_between_mask()
 
-        X, Y = give_line_arrays(self.border_arr)  # 1.5, 1.5)
+        X, Y = give_line_arrays(self.border_arr, self.is_half)  # 1.5, 1.5)
         self.profiles.append([X, Y])
 
     def clear_between_mask(self):
@@ -279,15 +280,15 @@ class Wafer:
         self.mask = self.mask[:curr_end_x + 1, :]
         self.xsize = curr_end_x + 1
 
-        # self.border_arr[end_x, end_y, 3:] = [-1, -1]
-        #print(end_x)
-        self.add_reflect_wall()
+        self.border_arr[end_x, end_y,3:] = [-1, -1]
+        #self.add_reflect_wall()
         #self.border_arr[end_x, end_y, 3:] = [end_x, 0]
         #self.border_arr[end_x, 0] = [1, end_x, end_y, -1, -1]
 
-        X, Y = give_line_arrays(self.border_arr)  # 1.5, 1.5)
+        X, Y = give_line_arrays(self.border_arr, self.is_half)  # 1.5, 1.5)
         self.profiles = [[X, Y]]
         self.check_correction()
+        #print(self.xsize)
 
     def return_half(self):
         # убираем конечную точку
@@ -295,7 +296,7 @@ class Wafer:
         #end_y = self.border_arr[end_x, 0, 2]
         #self.border_arr[end_x, end_y, 3:] = [-1, -1]
         #self.border_arr[end_x, 0] = [-1, -1, -1, -1, -1]
-        self.remove_reflect_wall()
+        #self.remove_reflect_wall()
 
 
         if not self.is_half:
@@ -307,7 +308,7 @@ class Wafer:
 
         end_x, end_y = give_end(self.border_arr)
         start_x, start_y = give_start(self.border_arr)
-
+        #print("ffff: ",start_x,start_y, end_x, end_y)
         self.is_full = np.concatenate((self.is_full, self.is_full[::-1, :]), axis=0)
         self.border_arr = np.concatenate((self.border_arr, self.border_arr[::-1, :, :]), axis=0)
         self.counter_arr = np.concatenate((self.counter_arr, self.counter_arr[:, ::-1, :]), axis=1)
@@ -322,9 +323,11 @@ class Wafer:
         self.border_arr[curr_left_x, curr_left_y, 3:] = [curr_right_x, curr_right_y]
         self.border_arr[curr_right_x, curr_right_y, 1:3] = [curr_left_x, curr_left_y]
         while curr_left_x != start_x:
+            #print(self.border_arr[curr_left_x, curr_left_y])
             next_left_x, next_left_y = self.border_arr[curr_left_x, curr_left_y, 1:3]
             next_right_y = next_left_y
             next_right_x = self.xsize - next_left_x - 1
+            #print(next_right_x, next_left_x)
             self.border_arr[curr_right_x, curr_right_y, 3:] = [next_right_x, next_right_y]
             self.border_arr[next_right_x, next_right_y, 1:3] = [curr_right_x, curr_right_y]
             curr_left_x, curr_left_y = next_left_x, next_left_y
@@ -332,7 +335,7 @@ class Wafer:
 
         self.border_arr[curr_right_x, curr_right_y, 3:] = [-1, -1]
 
-        X, Y = give_line_arrays(self.border_arr)
+        X, Y = give_line_arrays(self.border_arr, self.is_half)
         self.profiles = [[X, Y]]
         self.check_correction()
 
@@ -382,7 +385,7 @@ class Wafer:
             self.xsize = self.xsize - 1
 
     def check_self_intersection(self, curr_x=None, curr_y=None, do_cut=False,range_cut=30):
-        X, Y = give_line_arrays(self.border_arr)
+        X, Y = give_line_arrays(self.border_arr, self.is_half)
         X, Y = prepare_segment_for_intersection_checking(X, Y, curr_x, curr_y, do_cut, range_cut)
         X = np.array(X)
         Y = np.array(Y)

@@ -227,18 +227,28 @@ def check_if_inside(border_layer_arr, curr_x, curr_y):
     return is_inside
 
 
-def give_line_arrays(border_layer):
+def give_line_arrays(border_layer, plot_refl_wall):
     X = []
     Y = []
     x, y = give_start(border_layer)
     #print("fff3gla")
     unfound = True
+    #print(border_layer.shape)
     while unfound:
         X.append(int(x))
         Y.append(int(y))
-        x, y = border_layer[x, y, 3], border_layer[x, y, 4]
-        if x==-1 and y==-1:
+        #print(x,y, border_layer[x, y])
+        new_x, new_y = border_layer[x, y, 3], border_layer[x, y, 4]
+        if new_x==-1 and new_y==-1:
             unfound = False
+        else:
+            x, y = new_x, new_y
+
+    if plot_refl_wall:
+        X.append(int(x) + 0.5)
+        Y.append(int(y))
+        X.append(int(x) + 0.5)
+        Y.append(0)
     return X, Y
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

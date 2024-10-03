@@ -16,7 +16,7 @@ class WaferGenerator:
         self.wafer.generate_pure_wafer(multiplier, Si_num)
         self.wafer.make_half()
         #generate_pure_wafer(self, )
-        X, Y = give_line_arrays(self.wafer.border_arr)
+        X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.is_half)
         self.wafer.profiles = []
         self.wafer.profiles.append([X, Y])
 
@@ -44,7 +44,7 @@ class WaferGenerator:
         #print(self.y_ar_plus, self.y_cl, self.y_cl_plus, self.U_i, self.wafer.y0, self.wafer.xsize, num_per_iter, self.T_i)
         #print(np.max(self.wafer.counter_arr))
         #print(np.mean(self.wafer.counter_arr))
-        NodeList = build_BVH(self.wafer.border_arr)
+        NodeList = build_BVH(self.wafer.border_arr, self.wafer.is_half)
         for i in trange(num_iter):
 
             t1 = time.time()
@@ -64,10 +64,10 @@ class WaferGenerator:
                                                 R, test=False, do_half=self.wafer.is_half, max_value=-1,
                                                 NodeList=NodeList, type="bvh", num_one_side_points=10)
 
-            if i % 500 == 0:
+            if i % 100 == 0:
                 if is_half:
                     self.wafer.return_half()
-                X, Y = give_line_arrays(self.wafer.border_arr)
+                X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.is_half)
                 self.wafer.profiles.append([X, Y])
                 print("Num iter: "+str(i)+" Time: "+str(round(ftime*((i+1)/num_iter),3)))
                 #print("fff4")
