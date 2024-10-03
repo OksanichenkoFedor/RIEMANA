@@ -56,8 +56,7 @@ def clorine_etching(curr_type, counter_arr, is_full_arr, point_vector, Si_num, a
 
     # TODO разобраться с нормальным уничтожением ячейки
 
-    if counter_arr[:, curr_x, curr_y].sum() <= 0:
-        is_full_arr[curr_x, curr_y] = 0.0
+    if counter_arr[:, curr_x, curr_y].sum() <= Si_num/3:
         flags[2] = 1.0
         retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angles[0], False)
 
@@ -191,8 +190,7 @@ def clorine_ion_etching(curr_type, counter_arr, is_full_arr, point_vector, Si_nu
 
     # TODO разобраться с нормальным уничтожением ячейки
 
-    if counter_arr[:, curr_x, curr_y].sum() <= 0:
-        is_full_arr[curr_x, curr_y] = 0.0
+    if counter_arr[:, curr_x, curr_y].sum() <= Si_num/3:
         flags[2] = 1.0
         retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angles[0], True)
 
