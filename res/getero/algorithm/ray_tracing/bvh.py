@@ -57,6 +57,8 @@ def build_BVH(border_layer_arr, is_half):
     return NodeList
 
 
+
+
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def build_node(curr_edges, NodeList, left_index, right_index, curr_node):
     #print("Start: ",left_index, right_index," size: ",curr_edges.shape[0])#, curr_edges)

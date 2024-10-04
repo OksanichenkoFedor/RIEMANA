@@ -36,7 +36,7 @@ class Getero:
         self.num_one_side_points = params["num_one_side_points"]
 
     def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=3000, do_print=True, wafer_curr_type="is_cell", start_filename="", do_half=False):
-        self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
+        self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0 * ((1.0*wafer.Si_num)/84.0)
         num_per_iter = int((ctime*self.N_per_sec)/num_iter)
         is_half = wafer.is_half
         print("Full time: ", str(round(ctime, 1)) + " s.")
@@ -91,7 +91,7 @@ class Getero:
                     curr_fig = generate_figure(wafer, wafer_curr_type, do_plot_line=False)
                     c_filename = start_filename + "data/pictures/tmp_f_" + add_name + "_" + str(i)
                     curr_fig.savefig(c_filename + ".png")
-                    throw_plot(c_filename + ".png", 710672679)
+                    #throw_plot(c_filename + ".png", 710672679)
                     wafer.return_half()
                 print("Num iter: " + str(i) + " Time: " + str(round(ctime * ((i + 1) / num_iter), 3)))
 
@@ -106,19 +106,19 @@ class Getero:
                 print("Depth: ", depth, " angstrem")
 
                 print("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min")
-                print_message("Depth: "+str(depth)+" angstrem", 710672679)
-                print_message("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min", 710672679)
+                #print_message("Depth: "+str(depth)+" angstrem", 710672679)
+                #print_message("Speed: " + str(round((60 * depth / curr_time))) + " angstrem/min", 710672679)
                 add_name = "U"+str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar) + "_SiNum" + str(wafer.Si_num)
                 np.save(start_filename+"data/times" + add_name +".npy", np.array(Times))
-                throw_plot(start_filename+"data/times" + add_name +".npy", 710672679)
+                #throw_plot(start_filename+"data/times" + add_name +".npy", 710672679)
                 np.save(start_filename+"data/depths" + add_name +".npy", np.array(Depths))
-                throw_plot(start_filename+"data/depths" + add_name + ".npy", 710672679)
+                #throw_plot(start_filename+"data/depths" + add_name + ".npy", 710672679)
                 curr_fig = generate_figure(wafer, wafer_curr_type, do_plot_line=False)
                 c_filename = start_filename+"data/pictures/tmp_" + add_name + "_" + str(i)
                 curr_fig.savefig(c_filename + ".png")
                 plot_animation(wafer.profiles, wafer.xsize, wafer.ysize, 0, filename=c_filename)
-                throw_plot(c_filename + ".png", 710672679)
-                throw_plot(c_filename + ".gif", 710672679)
+                #throw_plot(c_filename + ".png", 710672679)
+                #throw_plot(c_filename + ".gif", 710672679)
 
 
                 wafer.save(start_filename+"data/wafer_" + add_name + ".zip")
