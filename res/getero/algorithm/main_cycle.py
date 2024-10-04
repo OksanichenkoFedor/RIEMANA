@@ -10,8 +10,7 @@ from res.utils.config import do_njit, cache, parallel
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, test, do_half,
-                      max_value=-1.0, NodeList=np.zeros((10,7)), type="cell by cell", num_one_side_points=10):
-    num_one_side_points = 10
+                      max_value=-1.0, NodeList=np.zeros((10,7)), type="cell by cell", num_one_side_points=0):
     if test:
         arr_x, arr_y, rarr_x, rarr_y = nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8), \
                                        nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8)

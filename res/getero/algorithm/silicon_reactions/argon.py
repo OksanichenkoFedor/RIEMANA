@@ -100,8 +100,8 @@ def argon_sputtering(curr_type, counter_arr, is_full_arr, point_vector, Si_num, 
 
     # TODO разобраться с нормальным уничтожением ячейки
 
-    if counter_arr[:, curr_x, curr_y].sum() <= Si_num/3:
+    if counter_arr[:, curr_x, curr_y].sum() <= Si_num/5:
         flags[2] = 1.0
-        retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angles[0], True)
+        retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angles[0], False)
 
     return curr_type, curr_en, flags, redepo_params, new_angle

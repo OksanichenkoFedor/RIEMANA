@@ -3,40 +3,25 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 from res.getero.algorithm.silicon_reactions.cell_retraction import retract_cell
+from res.getero.algorithm.dynamic_profile import give_coords_from_num
 
 def test_one(axis=None, size=10):
     count_arr = np.zeros((4,3,3))
     is_f_arr = np.zeros((3,3))
+    is_around = np.random.randint(0,2,8)
+    for i in range(8):
+        curr_x, curr_y = give_coords_from_num(i, 1, 1)
+        if is_around[i]:
+            is_f_arr[curr_x, curr_y] = 1
     count_arr[:, 1, 1] = [100,100,100,100]
-    is_f_arr[1,1] = 1
-    is_f_arr[1, 0], is_f_arr[1, 2], is_f_arr[0, 1], is_f_arr[2, 1] = 1, 1, 1, 1
-    is_third = np.random.random()>0.5
+    #is_f_arr[1,1] = 1
     angle = np.random.random()*np.pi*2
 
     quarter = int((((angle/np.pi)*4.0+5.0)%8.0)*0.5)
+    #print("start is_around: ",is_around)
+    koeffs = retract_cell(1, 1, count_arr, is_f_arr, angle, True)
 
 
-    if quarter==0:
-        x0, y0 = 1, 2
-        x30, y30, x31, y31 = 0, 1, 2, 1
-    elif quarter==1:
-        x0, y0 = 2, 1
-        x30, y30, x31, y31 = 1, 0, 1, 2
-    elif quarter==2:
-        x0, y0 = 1, 0
-        x30, y30, x31, y31 = 0, 1, 2, 1
-    elif quarter==3:
-        x0, y0 = 0, 1
-        x30, y30, x31, y31 = 1, 0, 1, 2
-
-    is_f_arr[x0, y0] = 0
-    if is_third:
-        if np.random.random() > 0.5:
-            is_f_arr[x30, y30] = 0
-        else:
-            is_f_arr[x31, y31] = 0
-
-    retract_cell(1, 1, count_arr, is_f_arr, angle, True)
 
     for i in range(3):
         for j in range(3):
@@ -55,6 +40,11 @@ def test_one(axis=None, size=10):
                       count_arr[2, i, j], size=5.0, color="k")
             axis.text(size * (0.3 + i) - 0.25 * size, size * (0.45 + j) + 0.25 * size,
                       count_arr[3, i, j], size=5.0, color="k")
+
+    for i in range(8):
+        curr_x, curr_y = give_coords_from_num(i, 1, 1)
+        axis.text(size * curr_x + 0.5 * size, size * curr_y + 0.5 * size,
+                  round(koeffs[i],2), size=7.0, color="k")
 
     axis.axvline(x=size, color="k")
     axis.axvline(x=2 * size, color="k")

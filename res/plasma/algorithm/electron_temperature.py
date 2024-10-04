@@ -4,10 +4,10 @@ from numba import jit
 from res.plasma.reactions.consts import e, k_b, m_ar, m_cl2, m_cl
 from res.plasma.reactions.common_reactions import give_k_getero, k_ii
 from res.plasma.reactions.reactions_conts import give_k
-from res.plasma.algorithm.with_aclr.chemical_kinetic import count_m_eff, count_ks_chem
-from res.plasma.algorithm.with_aclr.beta_s import count_beta_s
+from res.plasma.algorithm.chemical_kinetic import count_m_eff, count_ks_chem
+from res.plasma.algorithm.beta_s import count_beta_s
 
-from res.plasma.algorithm.with_aclr.utils import count_T_i, count_lambda, count_v, count_d_c, count_D_i, count_j
+from res.plasma.algorithm.utils import count_T_i, count_lambda, count_v, count_d_c, count_D_i, count_j
 
 
 @jit(nopython=True)

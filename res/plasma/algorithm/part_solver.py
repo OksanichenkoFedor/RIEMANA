@@ -3,8 +3,8 @@ from numba import jit
 
 from res.plasma.reactions.consts import e, k_b
 
-from res.plasma.algorithm.with_aclr.chemical_kinetic import solve_subsistem_consist, count_ions, count_simple_start
-from res.plasma.algorithm.with_aclr.electron_temperature import count_T_e
+from res.plasma.algorithm.chemical_kinetic import solve_subsistem_consist, count_ions, count_simple_start
+from res.plasma.algorithm.electron_temperature import count_T_e
 
 @jit(nopython=True)
 def solve_part(n_e, param_vector):

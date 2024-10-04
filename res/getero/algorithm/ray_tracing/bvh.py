@@ -125,7 +125,7 @@ def bvh_count_collision_point(NodeList, ray_vec, curr_angle, start_segment):
 
     found, cross_vec, norm_angle, new_segment, num = check_one_node(NodeList, 0, ray_vec, curr_angle, start_segment)
     #   print(num, int(0.5*(NodeList.shape[0]+1.0)))
-    return found, cross_vec, norm_angle, new_segment
+    return found, cross_vec, norm_angle, new_segment, num
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_one_node(NodeList, curr_node, ray_vec, curr_angle, start_segment):
     if NodeList[curr_node,0]==0:
@@ -171,4 +171,4 @@ def check_one_node(NodeList, curr_node, ray_vec, curr_angle, start_segment):
         if is_cross and np.sum(np.abs(start_segment-curr_segment))>0:
             return True, cross_vec, norm_angle, curr_segment, 1
         else:
-            return False, np.ones(2), 0.0, np.ones((2, 2))*(-1.0), 1
+            return False, np.ones(2), 0.0, np.ones((2, 2))*(-1.0), 0

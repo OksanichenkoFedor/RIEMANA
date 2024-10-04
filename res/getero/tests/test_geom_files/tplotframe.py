@@ -185,7 +185,7 @@ class TestPlotFrame(Frame):
             self.curr_angle = params_arr[0][4]
             curr_type = params_arr[0][5]
             NodeList = build_BVH(self.wafer.border_arr, self.wafer.is_half)
-            self.is_collide, self.coll_vec, norm_angle, start_segment = bvh_count_collision_point(NodeList,
+            self.is_collide, self.coll_vec, norm_angle, start_segment, _ = bvh_count_collision_point(NodeList,
                                                                                                   self.curr_vec,
                                                                                                   self.curr_angle,
                                                                                                   start_segment)

@@ -11,17 +11,24 @@ def run_Ar(y_ar, N, U):
             "y_ar": y_ar,
             "W": 600,
             "U_i": U,
-            "time": 200.0/(1.0*N),
+            "time": 60.0/(1.0*N),
             "do_half": False,
             "rt_type": "bvh",
-            "num_one_side_points": 20
+            "num_one_side_points": 10
             }
 
     etch = Etcher(0.2, consts_filename="../data/data.csv", Si_num=int(84/N))
 
     etch.init()
     etch.run(params, start_filename="../")
+run_Ar(0.5, 1, 40)
+run_Ar(0.5, 2, 40)
+run_Ar(0.5, 3, 40)
+run_Ar(0.5, 6, 40)
 run_Ar(0.5, 12, 40)
+
+
+
 #run_Ar(0.5, 6, 100)
 #run_Ar(0.5, 6, 300)
 

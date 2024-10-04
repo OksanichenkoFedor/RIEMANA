@@ -1,4 +1,4 @@
-from res.plasma.algorithm.with_aclr.beta_s import pure_count_beta_s
+from res.plasma.algorithm.beta_s import pure_count_beta_s
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import trange

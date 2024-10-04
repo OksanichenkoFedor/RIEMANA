@@ -1,7 +1,7 @@
 import numpy as np
 from numba import jit
 
-from res.plasma.algorithm.with_aclr.beta_s import count_beta_s
+from res.plasma.algorithm.beta_s import count_beta_s
 
 from res.plasma.reactions.consts import m_cl, m_cl2, m_ar, e, k_b, e_sgs, pol_ar, pol_cl2, pol_cl
 

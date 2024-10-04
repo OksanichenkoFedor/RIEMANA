@@ -5,7 +5,7 @@ from res.plasma.reactions.consts import e, k_b, m_cl, m_cl2, m_ar
 
 from res.plasma.reactions.common_reactions import k_ii
 
-from res.plasma.algorithm.with_aclr.utils import count_m_eff
+from res.plasma.algorithm.utils import count_m_eff
 from res.plasma.reactions.reactions_conts import give_k
 
 @jit(nopython=True)

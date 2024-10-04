@@ -9,7 +9,7 @@ import numba as nb
 from res.getero.algorithm.utils import straight_reflection
 from res.getero.algorithm.ray_tracing.bvh import bvh_count_collision_point, build_BVH
 from res.getero.algorithm.ray_tracing.line_search import simple_count_collision_point
-from res.getero.algorithm.ray_tracing.collision_functions import count_curr_prev_att
+from res.getero.algorithm.ray_tracing.collision_functions import count_curr_prev_att, check_fall_inside
 from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point, find_close_void
 from res.getero.algorithm.space_orientation import throw_particle_away
@@ -34,7 +34,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
     while unfound and not_max_value:
         #print("start bvh")
         if type=="bvh":
-            is_collide, coll_vec, norm_angle, start_segment = bvh_count_collision_point(NodeList, curr_vec, curr_angle, start_segment)
+            is_collide, coll_vec, norm_angle, start_segment, num = bvh_count_collision_point(NodeList, curr_vec, curr_angle, start_segment)
+            if num!=0 and num%2==0:
+                print("Incorrect intersecting segment_particle_processing")
         else:
             is_collide, coll_vec, norm_angle, start_segment = simple_count_collision_point(border_layer_arr, curr_vec,
                                                                          curr_angle, start_segment)
@@ -104,9 +106,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                                                 prev_att_y+0.5+0.1*(new_y-prev_att_y))
                     start_segment[0, 0], start_segment[0, 1] = -1, -1
                     start_segment[1, 0], start_segment[1, 1] = -1, -1
-                curr_angle = new_angle
-                curr_type = new_type
-                curr_en = new_en
+
+
 
                 if flags[1] == 1.0:
                     #print("is_redepo!!!")
@@ -125,7 +126,19 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                         #prev_att_x, prev_att_y, curr_x, curr_y = throw_particle_away(is_full_arr, prev_att_x,
                         #                                                             prev_att_y,
                         #                                                             curr_x, curr_y)
+                # проверка на то, что после create не произошло попадание в текстуры
+                is_fall_inside = check_fall_inside(border_layer_arr, curr_vec, NodeList, start_segment)
 
+                if is_fall_inside:
+                    tmp_is_collide, tmp_coll_vec, norm_angle, tmp_start_segment, _ = bvh_count_collision_point(NodeList,
+                                                                        curr_vec, (curr_angle+np.pi)%(2.0*np.pi),
+                                                                                                             start_segment)
+                    start_segment = tmp_start_segment
+                    coll_vec = tmp_coll_vec
+
+                curr_angle = new_angle
+                curr_type = new_type
+                curr_en = new_en
                 if flags[0] == 1.0:
                     unfound = False
             elif is_full_arr[curr_att_x, curr_att_y] == 2.0:

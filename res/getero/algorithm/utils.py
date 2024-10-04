@@ -27,15 +27,15 @@ def generate_cos_point():
     a = 2.0 * np.random.random() - 1.0
 
     # по синусу
-    # x = np.arccos(a)
-    # if x>np.pi/2:
-    #    return x-np.pi
+    x = np.arccos(a)
+    if x>np.pi/2:
+       return x-np.pi
 
     # по косинусу
-    # x = np.arcsin(a)
+    #x = np.arcsin(a)
 
     # равномерное
-    x = a*np.pi*0.5
+    #x = a*np.pi*0.5
 
     return x
 

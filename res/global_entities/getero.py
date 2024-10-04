@@ -35,7 +35,7 @@ class Getero:
         self.type_ray_tracing = params["rt_type"]
         self.num_one_side_points = params["num_one_side_points"]
 
-    def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=1000, do_print=True, wafer_curr_type="is_cell", start_filename="", do_half=False):
+    def run(self, wafer, ctime, num_iter, iter_add_profile=50, iter_save_replot=3000, do_print=True, wafer_curr_type="is_cell", start_filename="", do_half=False):
         self.N_per_sec = self.j_full * wafer.xsize * self.cell_size * self.a_0
         num_per_iter = int((ctime*self.N_per_sec)/num_iter)
         is_half = wafer.is_half

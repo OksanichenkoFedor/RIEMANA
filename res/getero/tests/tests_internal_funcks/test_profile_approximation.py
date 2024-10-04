@@ -76,7 +76,7 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
         ax.plot([curr_vec[0], curr_vec[0] + 5 * np.sin(curr_angle)],
                 [curr_vec[1], curr_vec[1] + 5 * np.cos(curr_angle)], color=(0, 0, 1, 0.5))
         NodeList = build_BVH(curr_wafer.border_arr, curr_wafer.is_half)
-        is_collide, coll_vec, norm_angle, start_segment = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
+        is_collide, coll_vec, norm_angle, start_segment, _ = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
                                                                                    start_segment)
         num = 0
         while is_collide and num<50:
@@ -171,7 +171,7 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
                     [coll_vec[1], coll_vec[1] + 2 * np.cos(right_angle)], color=(1,1,0.5))
             curr_vec = coll_vec
             curr_angle = res_angle
-            is_collide, coll_vec, norm_angle, start_segment = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
+            is_collide, coll_vec, norm_angle, start_segment, _ = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
                                                                                         start_segment)
             #plt.show()
         #print("end")
@@ -186,14 +186,14 @@ end_wafer = Wafer()
 #end_wafer.load("../files/wafer_2000.zip")
 import os
 print(os.listdir("../../"))
-#end_wafer.load("../../../data/wafer_U40_Ar0.0_SiNum14.zip")
+end_wafer.load("../../../data/wafer_U40_Ar0.5_SiNum7.zip")
 
-end_wafer = create_test_wafer(num_del=200)
+#end_wafer = create_test_wafer(num_del=200)
 #end_wafer.save("../files/test_wafer_500del.zip")
 #end_wafer.load("../files/test_wafer_15000del.zip")
 end_wafer.check_self_intersection()
-end_wafer.make_half()
+#end_wafer.make_half()
 #end_wafer.return_half()
 #f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 #plt.show()
-test_prof_approx(end_wafer, 600, 20)
+test_prof_approx(end_wafer, 600, 30)

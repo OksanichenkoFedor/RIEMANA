@@ -1,48 +1,68 @@
 import numpy as np
 
+from res.getero.algorithm.dynamic_profile import give_coords_from_num
+from res.getero.algorithm.utils import custom_choise
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angle, isotropic_retraction):
-    #print()
-
-    is0 = is_full_arr[curr_x + 0, curr_y + 1]
-    is1 = is_full_arr[curr_x + 1, curr_y + 0]
-    is2 = is_full_arr[curr_x + 0, curr_y - 1]
-    is3 = is_full_arr[curr_x - 1, curr_y + 0]
-
-    num = int(is0) + int(is1) + int(is2) + int(is3)
-
-    quarter = int((((angle / np.pi) * 4.0 + 5.0) % 8.0) * 0.5)
-    quarter1 = int((quarter + 2) % 4)
-    if quarter1 == 0:
-        x_end, y_end = 0, 1
-    elif quarter1 == 1:
-        x_end, y_end = 1, 0
-    elif quarter1 == 2:
-        x_end, y_end = 0, -1
-    elif quarter1 == 3:
-        x_end, y_end = -1, 0
-    else:
-        print("Incorrect quarter retract_cell: ", quarter1)
+    is_around = np.zeros(8)
+    koeffs = np.zeros(8)
+    for i in range(8):
+        new_x, new_y = give_coords_from_num(i, curr_x, curr_y)
+        if new_x==is_full_arr.shape[0] or new_x==-1:
+            is_around[i] = 0
+        elif new_y==is_full_arr.shape[1] or new_y==-1:
+            is_around[i] = 0
+        elif is_full_arr[new_x, new_y]:
+            is_around[i] = 1
+        else:
+            is_around[i] = 0
+        if is_around[i]==0:
+            koeffs[i] = 0
+        else:
+            delta_angle = angle-i*0.25*np.pi
+            koeffs[i] = 0.5+0.5*np.cos(delta_angle)
 
     if isotropic_retraction:
-        if is0:
-            counter_arr[:, curr_x + 0, curr_y + 1] += counter_arr[:, curr_x, curr_y] // num
-        if is1:
-            counter_arr[:, curr_x + 1, curr_y + 0] += counter_arr[:, curr_x, curr_y] // num
-        if is2:
-            counter_arr[:, curr_x + 0, curr_y - 1] += counter_arr[:, curr_x, curr_y] // num
-        if is3:
-            counter_arr[:, curr_x - 1, curr_y + 0] += counter_arr[:, curr_x, curr_y] // num
-        counter_arr[:, curr_x + x_end, curr_y + y_end] += counter_arr[:, curr_x, curr_y]-num*(counter_arr[:, curr_x, curr_y] // num)
+        beta = 0
     else:
-        if is_full_arr[curr_x + x_end, curr_y + y_end]!=1.0:
-            print("Incorrect retract_cell: ", angle/np.pi, quarter1, is0, is1, is2, is3)
-        counter_arr[:, curr_x + x_end, curr_y + y_end] += counter_arr[:, curr_x, curr_y]
+        beta = 10000
+    koeffs = np.exp((koeffs - np.max(koeffs)) * beta) * is_around
+
+    koeffs = koeffs / koeffs.sum()
+    for i in range(counter_arr.shape[0]):
+        num_adds = integer_ratio(koeffs, counter_arr[i, curr_x, curr_y])
+        for j in range(8):
+            new_x, new_y = give_coords_from_num(j, curr_x, curr_y)
+            counter_arr[i, new_x, new_y]+=num_adds[j]
+
     is_full_arr[curr_x, curr_y] = 0
     counter_arr[0, curr_x, curr_y] = 0
     counter_arr[1, curr_x, curr_y] = 0
     counter_arr[2, curr_x, curr_y] = 0
     counter_arr[3, curr_x, curr_y] = 0
+    return koeffs
+
+
+
+
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def integer_ratio(koeffs,num):
+
+    result = np.zeros(koeffs.shape)
+    deltas = np.zeros(koeffs.shape)
+    for i in range(len(result)):
+        result[i] = int(koeffs[i]*num)
+        deltas[i] = koeffs[i]*num - result[i]
+    num_add = round(np.sum(deltas))
+    for i in range(num_add):
+        deltas = deltas/np.sum(deltas)
+        ind = custom_choise(deltas)
+        if deltas[int(ind)]==0.0:
+            print("incorrect add of particle cell_retraction")
+        result[int(ind)]+=1
+        deltas[int(ind)]=0.0
+    return result
