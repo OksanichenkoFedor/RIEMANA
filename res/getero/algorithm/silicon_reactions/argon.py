@@ -13,6 +13,7 @@ from res.getero.reaction_consts.angular_dependences import sput_an_dep
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def argon_sputtering(curr_type, counter_arr, is_full_arr, point_vector, Si_num, angles, curr_en, R):
+    #print("ffff")
     flags = np.zeros(4)
     # flags = [is_react, is_redepo, is_delete, is_create]
     curr_x, curr_y = int(point_vector[0,0]), int(point_vector[0,1])
@@ -100,7 +101,7 @@ def argon_sputtering(curr_type, counter_arr, is_full_arr, point_vector, Si_num, 
 
     # TODO разобраться с нормальным уничтожением ячейки
 
-    if counter_arr[:, curr_x, curr_y].sum() <= Si_num/5:
+    if counter_arr[:, curr_x, curr_y].sum() <= 0:#Si_num/5:
         flags[2] = 1.0
         retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angles[0], False)
 

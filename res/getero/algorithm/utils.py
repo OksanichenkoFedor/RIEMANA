@@ -27,12 +27,12 @@ def generate_cos_point():
     a = 2.0 * np.random.random() - 1.0
 
     # по синусу
-    x = np.arccos(a)
-    if x>np.pi/2:
-       return x-np.pi
+    #x = np.arccos(a)
+    #if x>np.pi/2:
+    #   return (x-np.pi)
 
     # по косинусу
-    #x = np.arcsin(a)
+    x = np.arcsin(a)
 
     # равномерное
     #x = a*np.pi*0.5
@@ -56,12 +56,7 @@ def isotropic_reflection(curr_angle, n_angle):
     # return straight_reflection(curr_angle, n_angle)
     dop_angle = generate_cos_point()
     angle = n_angle + dop_angle
-    if angle > 2 * np.pi:
-        angle -= 2.0 * np.pi
-
-    if angle < 0:
-        angle += 2.0 * np.pi
-    return angle
+    return angle%(2.0*np.pi)
     # if is_on_horiz:
     #    if curr_angle<np.pi*0.5 or curr_angle>np.pi*1.5:
     #        return np.pi + dop_angle

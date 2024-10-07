@@ -21,7 +21,10 @@ def run_Ar(y_ar, N, U):
 
     etch.init()
     etch.run(params, start_filename="../")
-run_Ar(0.5, 80, 40)
+#run_Ar(0.5, 80, 40)
+
+run_Ar(0.5, 10, 40)
+
 run_Ar(0.5, 60, 40)
 run_Ar(0.5, 30, 40)
 run_Ar(0.5, 20, 40)

@@ -17,24 +17,29 @@ from res.getero.reaction_consts.angular_dependences import ion_enh_etch_an_dep, 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def clorine_etching(curr_type, counter_arr, is_full_arr, point_vector, Si_num, angles, curr_en, R):
+    #print("---")
     flags = np.zeros(4)
     # flags = [is_react, is_redepo, is_delete, is_create]
     curr_x, curr_y = int(point_vector[0, 0]), int(point_vector[0, 1])
     p_sum = counter_arr[:, curr_x, curr_y].sum()
+    if p_sum == 0:
+        print("Нулевая сумма!!!")
     p_A = gamma_Cl_A * counter_arr[0 ,curr_x, curr_y] / p_sum
     p_B = gamma_Cl_B * counter_arr[1 ,curr_x, curr_y] / p_sum
     p_C = gamma_Cl_C * counter_arr[2 ,curr_x, curr_y] / p_sum
     p_D = gamma_Cl_D * counter_arr[3 ,curr_x, curr_y] / p_sum
     p_refl = 1.0 - p_A - p_B - p_C - p_D
-
+    #if (angles[1] < 0.5 * np.pi and angles[1] > 0) or (angles[1] > 1.5 * np.pi):
+    #    print("Etching: ",p_A, p_B, p_C, p_D, p_refl)
     curr_reaction = custom_choise([p_A, p_B, p_C, p_D, p_refl])
 
     flags[1] = 0.0
     redepo_params = np.zeros((8))
-
+    #redepo_params = np.zeros((5))
+    #redepo_params[0], redepo_params[1], redepo_params[2], redepo_params[3], redepo_params[4] = p_A, p_B, p_C, p_D, p_refl
     if curr_reaction == 4:
         flags[0] = 0.0
-
+        #print("refl")
         new_angle = isotropic_reflection(angles[0], angles[1])
         return curr_type, curr_en, flags, redepo_params, new_angle
 
@@ -56,15 +61,19 @@ def clorine_etching(curr_type, counter_arr, is_full_arr, point_vector, Si_num, a
 
     # TODO разобраться с нормальным уничтожением ячейки
 
-    if counter_arr[:, curr_x, curr_y].sum() <= Si_num/5:
+    if counter_arr[:, curr_x, curr_y].sum() <= 0:#Si_num/5:
         flags[2] = 1.0
         retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angles[0], True)
+
+    #redepo_params = np.zeros((5))
+    #redepo_params[0], redepo_params[1], redepo_params[2], redepo_params[3], redepo_params[4] = p_A, p_B, p_C, p_D, p_refl
 
     return curr_type, curr_en, flags, redepo_params, angles[0]
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def clorine_ion_etching(curr_type, counter_arr, is_full_arr, point_vector, Si_num, angles, curr_en, R):
+    #print("ffffff")
     flags = np.zeros(4)
     # flags = [is_react, is_redepo, is_delete, is_create]
     curr_x, curr_y = int(point_vector[0, 0]), int(point_vector[0, 1])
@@ -190,7 +199,7 @@ def clorine_ion_etching(curr_type, counter_arr, is_full_arr, point_vector, Si_nu
 
     # TODO разобраться с нормальным уничтожением ячейки
 
-    if counter_arr[:, curr_x, curr_y].sum() <= Si_num/5:
+    if counter_arr[:, curr_x, curr_y].sum() <= 0:#Si_num/5:
         flags[2] = 1.0
         retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angles[0], False)
 

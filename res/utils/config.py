@@ -11,14 +11,16 @@ use_seed= False
 
 multiplier = 0.1 # 0.2 примерно топология 180 нм
 
-Si_num = 84
+Si_num = 30
 cell_size = 2.5  # nanometers
 
 wafer_plot_num = 0
 wafer_plot_types = ["is_cell", "Si", "SiCl", "SiCl2", "SiCl3"]
 
-num_iter = 8001
-num_per_iter = 40000
+num_iter = 2001
+num_per_iter = 80000
+
+num_one_side_points = 5
 
 
 plasma_params = {
@@ -33,8 +35,8 @@ plasma_params = {
 }
 
 pure_wafer_params = {
-    "mask_height": 40,
-    "hole_size": 150,
+    "mask_height": 80,
+    "hole_size": 40,
     "border": 500,
     "xsize": 1000,
     "ysize": 2400,

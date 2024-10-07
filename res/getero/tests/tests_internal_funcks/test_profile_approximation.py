@@ -1,7 +1,12 @@
+from matplotlib.patches import Rectangle
+
 from res.getero.algorithm.dynamic_profile import give_line_arrays
 from res.getero.algorithm.ray_tracing.bvh import bvh_count_collision_point, build_BVH
+from res.getero.algorithm.ray_tracing.collision_functions import count_curr_prev_att
+from res.getero.algorithm.ray_tracing.fall_inside import check_fall_inside
 from res.getero.algorithm.ray_tracing.utils import check_angle_collision
-from res.getero.algorithm.utils import straight_reflection
+from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
+from res.getero.algorithm.utils import straight_reflection, isotropic_reflection
 from res.getero.tests.tests_internal_funcks.help_test_funks import create_test_wafer
 from res.global_entities.plotter import generate_figure
 from res.global_entities.wafer import Wafer, prepare_segment_for_intersection_checking
@@ -14,6 +19,7 @@ from tqdm import trange
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 params = config.plasma_params
 
@@ -52,7 +58,7 @@ def plot_wafer(c_wafer, ax=None):
     #ax.plot(arr_x,arr_y,color="r")
 
 def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
-
+    y_ar_plus, y_cl_plus, y_cl = 0, 0, 1
     params = generate_particles(num_particles, curr_wafer.xsize, y_ar_plus=y_ar_plus, y_cl=y_cl, y_cl_plus=y_cl_plus,
                                 T_i=T_i, T_e=U_i, y0=curr_wafer.y0)
     ax = None
@@ -73,13 +79,19 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
         curr_en = partile[3]
         curr_angle = partile[4]
         curr_type = partile[5]
-        ax.plot([curr_vec[0], curr_vec[0] + 5 * np.sin(curr_angle)],
-                [curr_vec[1], curr_vec[1] + 5 * np.cos(curr_angle)], color=(0, 0, 1, 0.5))
+        #ax.plot([curr_vec[0], curr_vec[0] + 5 * np.sin(curr_angle)],
+        #        [curr_vec[1], curr_vec[1] + 5 * np.cos(curr_angle)], color=(0, 0, 1, 0.5))
         NodeList = build_BVH(curr_wafer.border_arr, curr_wafer.is_half)
-        is_collide, coll_vec, norm_angle, start_segment, _ = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
+        is_collide, coll_vec, norm_angle, start_segment, num_per = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
                                                                                    start_segment)
         num = 0
         while is_collide and num<50:
+            #is_fall_inside = check_fall_inside(curr_wafer.border_arr, coll_vec, NodeList, start_segment)
+            #if is_fall_inside and False:
+            #    print("Incorrect intersecting segment_particle_processing: ", curr_vec, coll_vec, start_segment)
+            #    ax.plot([curr_vec[0], coll_vec[0]], [curr_vec[1], coll_vec[1]], color=(0, 0, 1, 0.5))
+            #    plt.show()
+            #    ax = plot_wafer(curr_wafer, ax)
             num+=1
             err_x.append(coll_vec[0])
             err_y.append(coll_vec[1])
@@ -106,6 +118,35 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
 
 
             new_angle = straight_reflection(curr_angle,n_angle)
+            new_angle = isotropic_reflection(curr_angle,n_angle)
+            curr_att_x, curr_att_y, prev_att_x, prev_att_y, _ = count_curr_prev_att(coll_vec, start_segment, curr_angle, curr_wafer.border_arr)
+            #print("border_arr: ",curr_wafer.border_arr[curr_att_x, curr_att_y])
+            cp_is_f = curr_wafer.is_full.copy()
+            cp_c_ar = curr_wafer.counter_arr.copy()
+
+            point_vector = np.zeros((2,2))
+            point_vector[0, 0], point_vector[0, 1] = curr_att_x, curr_att_y
+            point_vector[1, 0], point_vector[1, 1] = prev_att_x, prev_att_y
+
+            angles = np.zeros(2)
+            angles[0], angles[1] = curr_angle, n_angle
+            if curr_wafer.is_full[curr_att_x, curr_att_y] == 1:
+                curr_type, curr_en, flags, redepo_params, angles[0] = silicon_reaction(0, cp_c_ar, cp_is_f, point_vector, 84, angles, curr_en, 0)
+                if (n_angle < 0.5 * np.pi and n_angle > 0) or (n_angle > 1.5 * np.pi):
+                    pass
+                    #print("---")
+                    #print(redepo_params)
+                    #print(curr_wafer.counter_arr[:, curr_att_x, curr_att_y])
+                    #print(cp_c_ar[:, curr_att_x, curr_att_y])
+            #if curr_wafer.border_arr[curr_att_x, curr_att_y][0]!=1:
+            #    print("fffffffffff")
+
+            rect = Rectangle((curr_att_x * 1, curr_att_y * 1), 1, 1, color="r")
+            ax.add_patch(rect)
+
+            rect = Rectangle((prev_att_x * 1, prev_att_y * 1), 1, 1, color="g")
+            ax.add_patch(rect)
+
 
             is_oob, left_angle, right_angle, res_angle= check_angle_collision(curr_angle, new_angle, start_segment, coll_vec)
 
@@ -138,11 +179,11 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
 
             color = "g"
             #ax.plot(bX, bY, ".")
-            #ax.plot([curr_vec[0], coll_vec[0]], [curr_vec[1], coll_vec[1]], color=(0, 0, 1, 0.5))
-
-            color = "k"
-            ax.plot([coll_vec[0], coll_vec[0] + 5 * np.sin(n_angle)],
-                    [coll_vec[1], coll_vec[1] + 5 * np.cos(n_angle)], color=color)
+            ax.plot([curr_vec[0], coll_vec[0]], [curr_vec[1], coll_vec[1]], color=(0, 0, 1, 0.5))
+            if ((n_angle<0.5*np.pi and n_angle>0) or (n_angle>1.5*np.pi)) or True:
+                color = "k"
+                ax.plot([coll_vec[0], coll_vec[0] + 5 * np.sin(n_angle)],
+                        [coll_vec[1], coll_vec[1] + 5 * np.cos(n_angle)], color=color)
 
             if reach_left_side and False:
                 color = "g"
@@ -171,7 +212,7 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
                     [coll_vec[1], coll_vec[1] + 2 * np.cos(right_angle)], color=(1,1,0.5))
             curr_vec = coll_vec
             curr_angle = res_angle
-            is_collide, coll_vec, norm_angle, start_segment, _ = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
+            is_collide, coll_vec, norm_angle, start_segment, num_per = bvh_count_collision_point(NodeList, curr_vec, curr_angle,
                                                                                         start_segment)
             #plt.show()
         #print("end")
@@ -183,10 +224,8 @@ def test_prof_approx(curr_wafer, num_particles, num_one_side_points):
     plt.show()
 
 end_wafer = Wafer()
-#end_wafer.load("../files/wafer_2000.zip")
-import os
-print(os.listdir("../../"))
-end_wafer.load("../../../data/wafer_U40_Ar0.5_SiNum7.zip")
+end_wafer.load("../files/tmp_U200_2000.zip")
+#end_wafer.load("../../../data/wafer_U40_Ar0.5_SiNum7.zip")
 
 #end_wafer = create_test_wafer(num_del=200)
 #end_wafer.save("../files/test_wafer_500del.zip")
@@ -194,6 +233,6 @@ end_wafer.load("../../../data/wafer_U40_Ar0.5_SiNum7.zip")
 end_wafer.check_self_intersection()
 #end_wafer.make_half()
 #end_wafer.return_half()
-#f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
-#plt.show()
-test_prof_approx(end_wafer, 600, 30)
+f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
+plt.show()
+test_prof_approx(end_wafer, 200, 5)

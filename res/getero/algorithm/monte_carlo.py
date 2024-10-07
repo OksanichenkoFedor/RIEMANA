@@ -1,11 +1,13 @@
 import numpy as np
+from numpy.ma.core import left_shift
+
 import res.utils.config as config
 from res.getero.algorithm.utils import generate_cos_point
 import matplotlib.pyplot as plt
 np.random.seed(config.seed)
 
 
-def generate_particles(num, xsize, y_cl, y_ar_plus, y_cl_plus, T_i, T_e, y0, seed=None):
+def generate_particles(num, xsize, y_cl, y_ar_plus, y_cl_plus, T_i, T_e, y0, seed=None, left_xsize=None):
     if seed != None:
         np.random.seed(seed)
     sum_y = y_cl + y_cl_plus + y_ar_plus
@@ -15,9 +17,9 @@ def generate_particles(num, xsize, y_cl, y_ar_plus, y_cl_plus, T_i, T_e, y0, see
     num_cl_plus = curr_type[curr_type == 1].shape[0]
     num_ar_plus = curr_type[curr_type == 2].shape[0]
 
-    cl_particles = generate_cl(num_cl, xsize, T_i, y0, seed)
-    cl_plus_particles = generate_cl_plus(num_cl_plus, xsize, T_i/T_e, T_e, y0, seed)
-    ar_plus_particles = generate_ar_plus(num_ar_plus, xsize, T_i/T_e, T_e, y0, seed)
+    cl_particles = generate_cl(num_cl, xsize, T_i, y0, seed, left_xsize)
+    cl_plus_particles = generate_cl_plus(num_cl_plus, xsize, T_i/T_e, T_e, y0, seed, left_xsize)
+    ar_plus_particles = generate_ar_plus(num_ar_plus, xsize, T_i/T_e, T_e, y0, seed, left_xsize)
 
     res = np.concatenate((cl_particles, cl_plus_particles, ar_plus_particles), axis=0)
     if seed != None:
@@ -26,10 +28,13 @@ def generate_particles(num, xsize, y_cl, y_ar_plus, y_cl_plus, T_i, T_e, y0, see
     return res
 
 
-def generate_cl(num, xsize, T_i, y0, seed):
+def generate_cl(num, xsize, T_i, y0, seed, left_xsize):
     if seed != None:
         np.random.seed(seed)
-    x = np.random.random((num, 1)) * xsize
+    if left_xsize is None:
+        x = np.random.random((num, 1)) * xsize
+    else:
+        x = left_xsize + np.random.random((num, 1)) * (xsize-left_xsize)
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
     ens = np.ones((num, 1))*T_i
@@ -48,10 +53,13 @@ def generate_cl(num, xsize, T_i, y0, seed):
     return np.concatenate((x, y, is_on_horiz, ens, angle, curr_type, start_x, start_y), axis=1)
 
 
-def generate_cl_plus(num, xsize, alpha_el, T_e, y0, seed):
+def generate_cl_plus(num, xsize, alpha_el, T_e, y0, seed, left_xsize):
     if seed != None:
         np.random.seed(seed)
-    x = np.random.random((num, 1)) * xsize
+    if left_xsize is None:
+        x = np.random.random((num, 1)) * xsize
+    else:
+        x = left_xsize + np.random.random((num, 1)) * (xsize - left_xsize)
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
     ens = np.ones((num, 1)) * T_e
@@ -64,10 +72,13 @@ def generate_cl_plus(num, xsize, alpha_el, T_e, y0, seed):
     return np.concatenate((x, y, is_on_horiz, ens, angle, curr_type, start_x, start_y), axis=1)
 
 
-def generate_ar_plus(num, xsize, alpha_el, T_e, y0, seed):
+def generate_ar_plus(num, xsize, alpha_el, T_e, y0, seed, left_xsize):
     if seed != None:
         np.random.seed(seed)
-    x = np.random.random((num, 1)) * xsize
+    if left_xsize is None:
+        x = np.random.random((num, 1)) * xsize
+    else:
+        x = left_xsize + np.random.random((num, 1)) * (xsize - left_xsize)
     y = np.ones((num, 1)) * y0
     is_on_horiz = np.ones((num, 1))
     ens = np.ones((num, 1)) * T_e

@@ -32,16 +32,18 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
         pass
         arr_x.append(curr_vec[0] - 0.5)
         arr_y.append(curr_vec[1] - 0.5)
+    #print("--- ", curr_type)
+    first_time = True
     while unfound and not_max_value:
         #print("start bvh")
         if type=="bvh":
             is_collide, coll_vec, norm_angle, start_segment, num = bvh_count_collision_point(NodeList, curr_vec, curr_angle, start_segment)
             #if num!=0 and num%2==0:
-            #    print("Incorrect intersecting segment_particle_processing")
+            #    print("Incorrect intersecting segment_particle_processing: ", num)
         else:
             is_collide, coll_vec, norm_angle, start_segment = simple_count_collision_point(border_layer_arr, curr_vec,
                                                                          curr_angle, start_segment)
-
+        first_time = True
         if is_collide:
             if test:
                 pass
@@ -52,6 +54,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                                                                                  border_layer_arr)
             avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, coll_vec, start_segment,
                                                           do_half, num_one_side_points=num_one_side_points)
+            #avg_norm_angle = norm_angle
+            #if border_layer_arr[curr_att_x, curr_att_y][0]!=1:
+            #    print("Мы проникли внутрь! segment_particle_processing")
             if is_full_arr[prev_att_x, prev_att_y]==1:
                 print("Граница на пустоте: ", prev_att_x, prev_att_y)
             if (np.abs(coll_vec[0] - xsize)<10**(-5) and do_half) and is_full_arr[curr_att_x, curr_att_y]==1.0:
@@ -71,11 +76,22 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                     print(curr_att_x, curr_att_y)
                     print("---")
                 #print("start silicon_reactions")
+                if ((avg_norm_angle < 0.5 * np.pi and avg_norm_angle > 0) or (avg_norm_angle > 1.5 * np.pi)) and curr_type==0.0:
+                    pass
+                    #print("---")
+                    #print(redepo_params)
+                    #print(curr_att_x, curr_att_y, curr_type)
+                    #print(counter_arr[:, curr_att_x, curr_att_y])
                 new_type, new_en, flags, redepo_params, new_angle = silicon_reaction(curr_type, counter_arr,
                                                                       is_full_arr, point_vector,
                                                                       Si_num, angles, curr_en, R)
                 _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
                                                                                    coll_vec)
+                #if curr_type==0 and new_type==0:
+                #    print("Radical:", flags[0])
+                if ((avg_norm_angle < 0.5 * np.pi and avg_norm_angle > 0) or (avg_norm_angle > 1.5 * np.pi)) and curr_type==0.0:
+                    pass
+                    #print(counter_arr[:, curr_att_x, curr_att_y])
                 #print("end silicon_reactions")
                 if curr_type in [7, 8, 9] and (not test):
                     # родились бесполезные частицы рассматриваем их только когда тест
@@ -159,5 +175,5 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 arr_x.append(curr_vec[0] - 0.5 + np.sin(curr_angle)*5)
                 arr_y.append(curr_vec[1] - 0.5 + np.cos(curr_angle)*5)
         #print("end collision processing")
-        return NodeList
+    return NodeList
 
