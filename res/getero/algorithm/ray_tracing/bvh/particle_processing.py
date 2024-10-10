@@ -1,19 +1,17 @@
 import numpy as np
 
-from res.getero.algorithm.ray_tracing.fall_inside import check_fall_inside
 from res.getero.algorithm.ray_tracing.profile_approximation import count_norm_angle
 from res.getero.algorithm.ray_tracing.utils import check_angle_collision
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
-import numba as nb
 
 from res.getero.algorithm.utils import straight_reflection
-from res.getero.algorithm.ray_tracing.bvh import bvh_count_collision_point, build_BVH
-from res.getero.algorithm.ray_tracing.line_search import simple_count_collision_point
-from res.getero.algorithm.ray_tracing.collision_functions import count_curr_prev_att
+from res.getero.algorithm.ray_tracing.bvh.algorithm import bvh_count_collision_point, build_BVH
+from res.getero.algorithm.ray_tracing.line_search.algorithm import simple_count_collision_point
+from res.getero.algorithm.ray_tracing.bvh.collision_functions import count_curr_prev_att
 from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point, find_close_void
-from res.getero.algorithm.space_orientation import throw_particle_away
+
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
@@ -160,20 +158,26 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                     unfound = False
             elif is_full_arr[curr_att_x, curr_att_y] == 2.0:
                 # Маска
-                curr_angle = straight_reflection(curr_angle, norm_angle)
+                new_angle = straight_reflection(curr_angle, avg_norm_angle)
+                _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
+                                                           coll_vec)
+                curr_angle = new_angle
             elif is_full_arr[curr_att_x, curr_att_y] == -1.0:
                 # Маска
-                curr_angle = straight_reflection(curr_angle, norm_angle)
+                new_angle = straight_reflection(curr_angle, avg_norm_angle)
+                _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
+                                                           coll_vec)
+                curr_angle = new_angle
             else:
                 #print("Мы ударились о пустоту! ",coll_vec,start_segment, curr_att_x, curr_att_y, is_full_arr[curr_att_x, curr_att_y])
-                curr_angle = straight_reflection(curr_angle, norm_angle)
+                curr_angle = straight_reflection(curr_angle, avg_norm_angle)
             curr_vec = coll_vec
         else:
             unfound = False
             if test:
                 pass
-                arr_x.append(curr_vec[0] - 0.5 + np.sin(curr_angle)*5)
-                arr_y.append(curr_vec[1] - 0.5 + np.cos(curr_angle)*5)
+                arr_x.append(curr_vec[0] - 0.5 + np.sin(curr_angle)*500)
+                arr_y.append(curr_vec[1] - 0.5 + np.cos(curr_angle)*500)
         #print("end collision processing")
     return NodeList
 

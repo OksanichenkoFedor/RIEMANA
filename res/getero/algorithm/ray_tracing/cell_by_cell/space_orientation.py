@@ -48,8 +48,8 @@ def find_prev_old(curr_x, curr_y, prev_x, prev_y, curr_angle, is_on_horiz):
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def find_next(next_x, next_y, curr_x, curr_y, curr_att_x, curr_att_y):
-    if (curr_x is None) and (curr_y is None):
+def find_next(next_x, next_y, curr_x, curr_y, curr_att_x, curr_att_y, empty_prev):
+    if empty_prev:
         return int(curr_att_x), int(curr_att_y)
     if int(next_x) - next_x == 0:
         if next_y > curr_att_y + 1:
@@ -83,9 +83,6 @@ def find_next(next_x, next_y, curr_x, curr_y, curr_att_x, curr_att_y):
     return int(next_att_x), int(next_att_y)
 
 
-def find_prev1(curr_x, curr_y, prev_x, prev_y, curr_angle, is_on_horiz):
-    if (prev_x is None) and (prev_y is None):
-        prev_y, prev_x = curr_y, curr_x
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

@@ -1,4 +1,4 @@
-from res.getero.algorithm.ray_tracing.collision_functions import count_curr_prev_att
+from res.getero.algorithm.ray_tracing.bvh.collision_functions import count_curr_prev_att
 from res.getero.algorithm.dynamic_profile import give_coords_from_num
 from matplotlib.patches import Rectangle
 import numpy as np

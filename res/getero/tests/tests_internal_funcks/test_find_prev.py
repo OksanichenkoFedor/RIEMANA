@@ -1,4 +1,4 @@
-from res.getero.algorithm.space_orientation import give_next_cell, find_next
+from res.getero.algorithm.ray_tracing.cell_by_cell.space_orientation import give_next_cell, find_next
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np
@@ -42,7 +42,7 @@ def generate_point(axis):
     new_x, new_y, new_is_on_horiz = give_next_cell(x, y, angle, is_on_horiz)
     #print(angle/np.pi)
     #print(new_x, new_y)
-    next_att_x, next_att_y = find_next(new_x, new_y, x, y, start_x, start_y)
+    next_att_x, next_att_y = find_next(new_x, new_y, x, y, start_x, start_y, False)
 
     rect = Rectangle((start_x, start_y), 1, 1, alpha=0.5, color="b")
     axis.add_patch(rect)

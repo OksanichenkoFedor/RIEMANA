@@ -3,8 +3,8 @@ import numpy as np
 from res.utils.wrapper import clever_njit
 
 
-from res.getero.algorithm.ray_tracing.segment_particle_processing import process_one_particle as segm_pp
-from res.getero.algorithm.ray_tracing.cell_particle_processing import process_one_particle as cbc_pp
+from res.getero.algorithm.ray_tracing.bvh.particle_processing import process_one_particle as segm_pp
+from res.getero.algorithm.ray_tracing.cell_by_cell.particle_processing import process_one_particle as cbc_pp
 
 from res.utils.config import do_njit, cache, parallel
 

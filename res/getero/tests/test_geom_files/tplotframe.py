@@ -7,7 +7,7 @@ from tkinter.ttk import Frame
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 
-from res.getero.algorithm.ray_tracing.bvh import build_BVH, bvh_count_collision_point
+from res.getero.algorithm.ray_tracing.bvh.algorithm import build_BVH, bvh_count_collision_point
 from res.getero.algorithm.ray_tracing.profile_approximation import count_norm_angle
 
 matplotlib.use('TkAgg')
@@ -15,7 +15,6 @@ matplotlib.use('TkAgg')
 import res.utils.config as config
 from res.getero.frontend.grafic_funcs import plot_cells, plot_line
 from res.getero.algorithm.main_cycle import process_particles
-from res.getero.algorithm.ray_tracing.line_search import simple_count_collision_point
 
 from res.global_entities.wafer import Wafer
 

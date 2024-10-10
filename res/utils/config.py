@@ -2,7 +2,7 @@ import numpy as np
 import numba as nb
 from numba.experimental import jitclass
 
-do_njit = True
+do_njit = False
 cache = False
 parallel = False
 
@@ -26,8 +26,8 @@ num_one_side_points = 5
 plasma_params = {
     "T_i": 0.12,
     "U_i": 200,
-    "j_ar_plus": 0*2.041839429440525e+19,
-    "j_cl_plus": 0*1.4431736576424567e+20,
+    "j_ar_plus": 1*2.041839429440525e+19,
+    "j_cl_plus": 1*1.4431736576424567e+20,
     "j_cl": 2.6629180745936804e+22,
     "cell_size": cell_size*(10.0**(-9)),
     "time": 50,
@@ -35,8 +35,8 @@ plasma_params = {
 }
 
 pure_wafer_params = {
-    "mask_height": 80,
-    "hole_size": 40,
+    "mask_height": 40,
+    "hole_size": 150,
     "border": 500,
     "xsize": 1000,
     "ysize": 2400,

@@ -66,11 +66,14 @@ def check_angle_collision(old_angle, new_angle, curr_segment, cross_vec):
         return is_oob, left_angle, right_angle, None
     if (new_angle-right_angle)%(2*np.pi)>np.pi:
         is_oob = True
-        #res_angle = simple_norm_angle
+
+        #coeff = np.random.random()
+        coeff = 0.455549692
+
         if (old_angle-right_angle)%(2*np.pi)>1.5*np.pi:
-            res_angle = (right_angle+np.random.random()*min_throw_away_angle)%(2*np.pi)
+            res_angle = (right_angle+coeff*min_throw_away_angle)%(2*np.pi)
         else:
-            res_angle = (left_angle-np.random.random()*min_throw_away_angle)%(2*np.pi)
+            res_angle = (left_angle-coeff*min_throw_away_angle)%(2*np.pi)
 
     return is_oob, left_angle, right_angle, res_angle
     #print()
@@ -97,3 +100,33 @@ def count_segment_norm_angle(x1, y1, x2, y2):
         angle = (-1.0) * np.arccos(cos)
     angle = angle + np.pi * 0.5
     return angle
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_collision(vec1, angle, curr_segment):
+    x1, y1 = vec1[0], vec1[1]
+    x3, y3 = curr_segment[0, 0], curr_segment[0, 1]
+    x4, y4 = curr_segment[1, 0], curr_segment[1, 1]
+    x2 = x1 + np.sin(angle)
+    y2 = y1 + np.cos(angle)
+    div = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+    if div == 0:
+        # прямая и луч параллельны друг другу
+        return False, np.zeros(2), 0.0
+    x_cross = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / div
+    y_cross = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / div
+
+    if (x_cross - x4) * (x_cross - x3) + (y_cross - y4) * (y_cross - y3) > 0 or (x_cross - x1) * (x2 - x1) + (
+            y_cross - y1) * (y2 - y1) <= 0:
+        # пересечение вне отрезка
+        return False, np.zeros(2), 0.0
+    else:
+        # пересечение на отрезке
+        # print(x3, y3, x4, y4, x_cross, y_cross)
+        cross_vec = np.zeros(2)
+        cross_vec[0], cross_vec[1] = x_cross, y_cross
+        return True, cross_vec, count_segment_norm_angle(x3, y3, x4, y4)
+
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def count_vec_mult(delta_x1, delta_y1, delta_x2, delta_y2):
+    return delta_x1*delta_y2-delta_x2*delta_y1

@@ -1,7 +1,7 @@
 from res.global_entities.wafer import Wafer
 from res.getero.algorithm.main_cycle import process_particles
 from res.getero.algorithm.monte_carlo import generate_particles
-from res.getero.algorithm.ray_tracing.bvh import build_BVH
+from res.getero.algorithm.ray_tracing.bvh.algorithm import build_BVH
 from res.global_entities.plotter import generate_figure
 
 #import res.utils.config as config

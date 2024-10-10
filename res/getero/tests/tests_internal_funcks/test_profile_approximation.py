@@ -1,13 +1,11 @@
 from matplotlib.patches import Rectangle
 
 from res.getero.algorithm.dynamic_profile import give_line_arrays
-from res.getero.algorithm.ray_tracing.bvh import bvh_count_collision_point, build_BVH
-from res.getero.algorithm.ray_tracing.collision_functions import count_curr_prev_att
-from res.getero.algorithm.ray_tracing.fall_inside import check_fall_inside
+from res.getero.algorithm.ray_tracing.bvh.algorithm import bvh_count_collision_point, build_BVH
+from res.getero.algorithm.ray_tracing.bvh.collision_functions import count_curr_prev_att
 from res.getero.algorithm.ray_tracing.utils import check_angle_collision
 from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.utils import straight_reflection, isotropic_reflection
-from res.getero.tests.tests_internal_funcks.help_test_funks import create_test_wafer
 from res.global_entities.plotter import generate_figure
 from res.global_entities.wafer import Wafer, prepare_segment_for_intersection_checking
 from res.getero.algorithm.monte_carlo import generate_particles
@@ -16,7 +14,6 @@ from res.getero.algorithm.ray_tracing.profile_approximation import count_norm_an
 import res.utils.config as config
 
 from tqdm import trange
-import time
 import matplotlib.pyplot as plt
 import numpy as np
 

@@ -1,6 +1,6 @@
 from res.global_entities.wafer import Wafer
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays
-from res.getero.algorithm.ray_tracing.bvh import build_BVH
+from res.getero.algorithm.ray_tracing.bvh.algorithm import build_BVH
 
 import res.utils.config as config
 

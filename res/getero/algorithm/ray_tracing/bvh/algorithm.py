@@ -3,7 +3,8 @@ from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_start
-from res.getero.algorithm.ray_tracing.collision_functions import check_rect_collision, check_collision
+from res.getero.algorithm.ray_tracing.bvh.collision_functions import check_rect_collision
+from res.getero.algorithm.ray_tracing.utils import check_collision
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -15,22 +16,26 @@ def give_edges(border_layer_arr, is_half):
         num_edges += 1
         curr_x, curr_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
     if is_half:
-        Edges = np.zeros((num_edges+2, 6))
+        Edges = np.zeros((num_edges+3, 6))
     else:
-        Edges = np.zeros((num_edges, 6))
+        Edges = np.zeros((num_edges+2, 6))
     # строим массив из ячеек будет 6 точек (x1, x2, y1, y2, xm, ym)
     # print(num_edges1, num_edges)
     curr_x, curr_y = x_start, y_start
-    for i in range(num_edges):
+    Edges[0, 0], Edges[0, 1] = curr_x-0.5, curr_x
+    Edges[0, 2], Edges[0, 3] = curr_y, curr_y
+
+    for i in range(1, num_edges+1):
         Edges[i, 0], Edges[i, 1] = curr_x, border_layer_arr[curr_x, curr_y, 3]
         Edges[i, 2], Edges[i, 3] = curr_y, border_layer_arr[curr_x, curr_y, 4]
         curr_x, curr_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
     #print("bvh: ",curr_x, curr_y, border_layer_arr[curr_x, curr_y])
+    Edges[num_edges + 1, 0], Edges[num_edges + 1, 1] = curr_x, curr_x + 0.5
+    Edges[num_edges + 1, 2], Edges[num_edges + 1, 3] = curr_y, curr_y
+
     if is_half:
-        Edges[num_edges, 0], Edges[num_edges, 1] = curr_x, curr_x+0.5
-        Edges[num_edges, 2], Edges[num_edges, 3] = curr_y, curr_y
-        Edges[num_edges + 1, 0], Edges[num_edges + 1, 1] = curr_x + 0.5, curr_x + 0.5
-        Edges[num_edges + 1, 2], Edges[num_edges + 1, 3] = curr_y, 0
+        Edges[num_edges + 2, 0], Edges[num_edges + 2, 1] = curr_x + 0.5, curr_x + 0.5
+        Edges[num_edges + 2, 2], Edges[num_edges + 2, 3] = curr_y, 0
 
     Edges[:, 4] = 0.5 * (Edges[:, 0] + Edges[:, 1])
     Edges[:, 5] = 0.5 * (Edges[:, 2] + Edges[:, 3])

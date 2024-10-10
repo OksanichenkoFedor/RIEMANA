@@ -3,7 +3,7 @@ from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_start
-from res.getero.algorithm.ray_tracing.collision_functions import check_collision
+from res.getero.algorithm.ray_tracing.utils import check_collision
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
