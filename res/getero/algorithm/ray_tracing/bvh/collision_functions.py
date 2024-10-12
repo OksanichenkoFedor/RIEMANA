@@ -46,13 +46,15 @@ def count_curr_prev_att(cross_vec, curr_segment, fall_angle, border_arr):
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def count_curr_collision_cell(cross_vec, curr_segment):
-    part = (cross_vec - curr_segment[0])/(curr_segment[1]-curr_segment[0])
     if (curr_segment[1]-curr_segment[0])[0]!=0:
-        res_part=part[0]
+        res_part=((cross_vec - curr_segment[0])[0])/((curr_segment[1]-curr_segment[0])[0])
     else:
-        res_part=part[1]
-    if np.abs(part[0]-part[1])>10**(-5) and ((curr_segment[1]-curr_segment[0])[0]!=0 and (curr_segment[1]-curr_segment[0])[1]!=0):
-        print("Мы не на отрезке: ", cross_vec, curr_segment, part)
+        res_part=((cross_vec - curr_segment[0])[1])/((curr_segment[1]-curr_segment[0])[1])
+    if (curr_segment[1]-curr_segment[0])[0]!=0 and (curr_segment[1]-curr_segment[0])[1]!=0:
+        part = (cross_vec - curr_segment[0]) / (curr_segment[1] - curr_segment[0])
+        if np.abs(part[0]-part[1])>10**(-5):
+            print("Мы не на отрезке: ", cross_vec, curr_segment, part)
+
     if res_part<0.5 and curr_segment[1,1]-0.5!=0:
         return curr_segment[0]-0.5
     else:
