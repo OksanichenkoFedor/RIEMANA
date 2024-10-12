@@ -183,10 +183,10 @@ if False:
 end_wafer = Wafer()
 #end_wafer = create_test_wafer(num_del=200)
 
-end_wafer.load("../files/tmp_U200_2000_1.zip")
+#end_wafer.load("../files/tmp_U200_2000_1.zip")
 
 
-#end_wafer.load("../files/wafer_1000.zip")
+end_wafer.load("../files/wafer_1000.zip")
 
 #end_wafer.load("../files/tmp_U200_2000_2.zip")
 f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
