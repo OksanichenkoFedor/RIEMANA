@@ -1,11 +1,16 @@
 #from numba import njit
+from res.getero.ray_tracing.cell_by_cell.collision_functions import particle_on_wall
+from res.getero.ray_tracing.cell_by_cell.space_orientation import give_next_cell
+from res.getero.ray_tracing.utils import count_angle
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def delete_point(border_layer_arr, curr_x, curr_y):
+def delete_point(border_layer_arr, is_full_arr, curr_x, curr_y):
+
+    fin_prev_x, fin_prev_y, fin_next_x, fin_next_y = -1, -1, -1, -1
 
     prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
     #print(prev_x, prev_y, next_x, next_y)
@@ -35,6 +40,7 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         border_layer_arr[curr_x, curr_y, 3:] = [new_end_x, new_end_y]
 
     prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
+    border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
 
     if np.abs(prev_x - curr_x) + np.abs(prev_y - curr_y) == 0:
 
@@ -49,10 +55,10 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         dpx, dpy, dnx, dny = prev_x - curr_x, prev_y - curr_y, next_x - curr_x, next_y - curr_y
         # предыдущий и следующий на одной линии
         if dpy==0 and dny==0:
-            simple_delition(border_layer_arr, curr_x, curr_y, -1)
+            simple_delition(border_layer_arr, is_full_arr, curr_x, curr_y, -1)
             return 0
         if (1.0*dpx)/(1.0*dpy)==(1.0*dnx)/(1.0*dny):
-            simple_delition(border_layer_arr, curr_x, curr_y, -1)
+            simple_delition(border_layer_arr, is_full_arr, curr_x, curr_y, -1)
             return 0
 
     add = 1
@@ -66,11 +72,8 @@ def delete_point(border_layer_arr, curr_x, curr_y):
         x, y = give_coords_from_num(i, curr_x, curr_y)
         if (i % 2 == 0 and border_layer_arr[x, y, 0] == 0) and ( (x>=0 and y>=0) and (x<border_layer_arr.shape[0] and y<border_layer_arr.shape[1]) ):
             unfound_connector = False
-            border_layer_arr[tmp_prev_x, tmp_prev_y, 3] = x
-            border_layer_arr[tmp_prev_x, tmp_prev_y, 4] = y
-            border_layer_arr[x, y, 1] = tmp_prev_x
-            border_layer_arr[x, y, 2] = tmp_prev_y
             border_layer_arr[x, y, 0] = 1
+            connection(border_layer_arr, is_full_arr, tmp_prev_x, tmp_prev_y, x, y)
             tmp_prev_x, tmp_prev_y = x, y
         i = (i + add) % 8
     if unfound_connector:
@@ -83,20 +86,13 @@ def delete_point(border_layer_arr, curr_x, curr_y):
             x, y = give_coords_from_num(i, curr_x, curr_y)
             if  (i % 2 == 0 and border_layer_arr[x, y, 0] == 0) and ( (x>=0 and y>=0) and (x<border_layer_arr.shape[0] and y<border_layer_arr.shape[1]) ):
                 #print("->")
-                border_layer_arr[tmp_prev_x, tmp_prev_y, 3] = x
-                border_layer_arr[tmp_prev_x, tmp_prev_y, 4] = y
-                border_layer_arr[x, y, 1] = tmp_prev_x
-                border_layer_arr[x, y, 2] = tmp_prev_y
                 border_layer_arr[x, y, 0] = 1
+                connection(border_layer_arr, is_full_arr, tmp_prev_x, tmp_prev_y, x, y)
                 tmp_prev_x, tmp_prev_y = x, y
             i = (i + add) % 8
 
-    border_layer_arr[tmp_prev_x, tmp_prev_y, 3] = next_x
-    border_layer_arr[tmp_prev_x, tmp_prev_y, 4] = next_y
-    border_layer_arr[next_x, next_y, 1] = tmp_prev_x
-    border_layer_arr[next_x, next_y, 2] = tmp_prev_y
+    connection(border_layer_arr, is_full_arr, tmp_prev_x, tmp_prev_y, next_x, next_y)
 
-    border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -138,7 +134,7 @@ def give_coords_from_num(num, start_x, start_y):
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def create_point(border_layer_arr, curr_x, curr_y, next_x, next_y):
+def create_point(border_layer_arr, is_full_arr, curr_x, curr_y, next_x, next_y):
     border_layer_arr[curr_x, curr_y, 0] = 1
     if not check_if_inside(border_layer_arr, next_x, next_y):
         # проверка на то, что мы не закрываем более старую клетку границы
@@ -178,22 +174,29 @@ def create_point(border_layer_arr, curr_x, curr_y, next_x, next_y):
     # назад
     prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     while check_if_inside(border_layer_arr, prev_x, prev_y):
-        simple_delition(border_layer_arr, prev_x, prev_y, 0)
+        simple_delition(border_layer_arr, is_full_arr, prev_x, prev_y, 0)
         prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     # вперёд
     next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
     while check_if_inside(border_layer_arr, next_x, next_y):
-        simple_delition(border_layer_arr, next_x, next_y, 0)
+        simple_delition(border_layer_arr, is_full_arr, next_x, next_y, 0)
         next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def simple_delition(border_layer_arr, curr_x, curr_y, type):
+def simple_delition(border_layer_arr, is_full_arr, curr_x, curr_y, type):
     prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
+    connection(border_layer_arr, is_full_arr, prev_x, prev_y, next_x, next_y)
+    border_layer_arr[curr_x, curr_y] = [type, -1, -1, -1, -1]
+
+
+
+def connection(border_layer_arr, is_full_arr, prev_x, prev_y, next_x, next_y):
     border_layer_arr[prev_x, prev_y, 3], border_layer_arr[prev_x, prev_y, 4] = next_x, next_y
     border_layer_arr[next_x, next_y, 1], border_layer_arr[next_x, next_y, 2] = prev_x, prev_y
-    border_layer_arr[curr_x, curr_y] = [type, -1, -1, -1, -1]
+    # проверяем промежуточные точки
+    create_void_line_points(prev_x, prev_y, next_x, next_y, border_layer_arr, is_full_arr)
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def simple_addition_after(border_layer_arr, prev_x, prev_y, curr_x, curr_y):
@@ -297,4 +300,62 @@ def find_close_void(border_layer_arr, curr_x, curr_y):
             unfound = False
         num+=1
     return new_x, new_y
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def create_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full):
+    print("start: ", start_x, start_y, end_x, end_y)
+    inc_x, inc_y = np.sign(end_x - start_x), np.sign(end_y - start_y)
+    angle = count_angle(end_y - start_y, end_x - start_x)
+    print(angle/np.pi)
+    if border_arr[start_x, start_y, 0]==-1:
+        if is_full[start_x, start_y] == -1:
+            print("Already line point dynamic_profile")
+        else:
+            is_full[start_x, start_y] = -1
+            border_arr[start_x, start_y, 1:] = [start_x, start_y, end_x, end_y]
+    curr_vec = np.zeros(2)
+    curr_vec[0], curr_vec[1] = start_x+0.5, start_y+0.5
+    new_vec, _, _ = particle_on_wall(start_x, start_y, curr_vec, angle)
+    curr_x, curr_y = new_vec[0], new_vec[1]
+    print(new_vec, int(curr_x) - curr_x==0, curr_y%1<10**(-5)<10**(-5) or (-curr_y)%1<10**(-5))
+    if (curr_x%1<10**(-5)<10**(-5) or (-curr_x)%1<10**(-5)) and (curr_y%1<10**(-5)<10**(-5) or (-curr_y)%1<10**(-5)):
+        is_on_horiz = 0
+        curr_att_x, curr_att_y = start_x + inc_x, start_y + inc_y
+    elif curr_x%1<10**(-5)<10**(-5) or (-curr_x)%1<10**(-5):
+        is_on_horiz = 0
+        curr_att_x, curr_att_y = start_x + inc_x, start_y + 0
+    elif curr_y%1<10**(-5)<10**(-5) or (-curr_y)%1<10**(-5):
+        is_on_horiz = 1
+        curr_att_x, curr_att_y = start_x + 0, start_y + inc_y
+    print(curr_att_x, curr_att_y)
+    if border_arr[curr_att_x, curr_att_y, 0]==-1:
+        if is_full[curr_att_x, curr_att_y] == -1:
+            print("Already line point dynamic_profile")
+        else:
+            is_full[curr_att_x, curr_att_y] = -1
+            border_arr[curr_att_x, curr_att_y, 1:] = [start_x, start_y, end_x, end_y]
+    if int(curr_x) - curr_x == 0:
+        is_on_horiz = 0
+    else:
+        is_on_horiz = 1
+    while (curr_att_x-end_x!=0) or (curr_att_y-end_y!=0):
+        #print("---")
+        curr_x, curr_y, is_on_horiz = give_next_cell(curr_x,curr_y,angle,is_on_horiz)
+        if (curr_x%1<10**(-5)<10**(-5) or (-curr_x)%1<10**(-5)) and (curr_y%1<10**(-5)<10**(-5) or (-curr_y)%1<10**(-5)):
+            is_on_horiz = 0
+            curr_att_x += inc_x
+            curr_att_y += inc_y
+        elif curr_x%1<10**(-5)<10**(-5) or (-curr_x)%1<10**(-5):
+            is_on_horiz = 1
+            curr_att_y += inc_y
+        elif curr_y%1<10**(-5)<10**(-5) or (-curr_y)%1<10**(-5):
+            is_on_horiz = 0
+            curr_att_x += inc_x
+        print(curr_att_x, curr_att_y)
+        if border_arr[curr_att_x, curr_att_y, 0] == -1:
+            if is_full[curr_att_x, curr_att_y] == -1:
+                print("Already line point dynamic_profile")
+            else:
+                is_full[curr_att_x, curr_att_y] = -1
+                border_arr[curr_att_x, curr_att_y, 1:] = [start_x, start_y, end_x, end_y]
 

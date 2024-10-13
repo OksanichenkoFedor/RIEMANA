@@ -1,4 +1,4 @@
-from res.gloabal_tests.for_diploma.funks import parce_wafer
+from res.global_tests.for_diploma.funks import parce_wafer
 import os
 from tqdm import trange
 import matplotlib.pyplot as plt

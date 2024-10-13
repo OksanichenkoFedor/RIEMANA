@@ -7,8 +7,8 @@ from tkinter.ttk import Frame
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 
-from res.getero.algorithm.ray_tracing.bvh.algorithm import build_BVH, bvh_count_collision_point
-from res.getero.algorithm.ray_tracing.profile_approximation import count_norm_angle
+from res.getero.ray_tracing.bvh.algorithm import build_BVH, bvh_count_collision_point
+from res.getero.ray_tracing.profile_approximation import count_norm_angle
 
 matplotlib.use('TkAgg')
 
@@ -238,7 +238,7 @@ class TestPlotFrame(Frame):
         elif event.key == "d":
             self.wafer.counter_arr[:, self.test_x, self.test_y] = np.array([0, 0, 0, 0])
             self.wafer.is_full[self.test_x, self.test_y] = 0
-            delete_point(self.wafer.border_arr, self.test_x, self.test_y)
+            delete_point(self.wafer.border_arr, self.wafer.is_full, self.test_x, self.test_y)
         elif event.key == "c":
             if self.click_mode:
                 print("click mode off")
@@ -260,7 +260,7 @@ class TestPlotFrame(Frame):
                     y = int(line[2])
                     self.wafer.counter_arr[:, x, y] = np.array([0, 0, 0, 0])
                     self.wafer.is_full[x, y] = 0
-                    delete_point(self.wafer.border_arr, x, y)
+                    delete_point(self.wafer.border_arr, self.wafer.is_full, x, y)
                     # time.sleep(0.05)
                     print("Delete: ", x, y)
                     # self.replot()
@@ -271,7 +271,7 @@ class TestPlotFrame(Frame):
                     curr_y = int(line[5])
                     self.wafer.counter_arr[:, prev_x, prev_y] = np.array([0, 0, 0, 1])
                     self.wafer.is_full[prev_x, prev_y] = 1
-                    create_point(self.wafer.border_arr, prev_x, prev_y, curr_x, curr_y)
+                    create_point(self.wafer.border_arr, self.wafer.is_full, prev_x, prev_y, curr_x, curr_y)
                     print("Create: ", prev_x, prev_y, " from: ", curr_x, curr_y)
             self.replot()
             # self.ax.plot(self.cursed_params[0][0], self.cursed_params[0][1], ".", color=(0.5, 0.7, 0.3))

@@ -1,11 +1,8 @@
 import numpy as np
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 
-from res.getero.algorithm.ray_tracing.bvh.collision_functions import count_curr_collision_cell
-from res.getero.algorithm.ray_tracing.utils import count_angle
+from res.getero.ray_tracing.utils import count_angle
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

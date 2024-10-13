@@ -53,6 +53,7 @@ def count_angle(delta_x, delta_y):
             return np.pi + np.arctan(delta_y / delta_x)
 
 
+
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_angle_collision(old_angle, new_angle, curr_segment, cross_vec):
     is_oob = False

@@ -1,4 +1,4 @@
-from res.getero.algorithm.ray_tracing.cell_by_cell.space_orientation import give_next_cell, find_next
+from res.getero.ray_tracing.cell_by_cell.space_orientation import give_next_cell, find_next
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import numpy as np

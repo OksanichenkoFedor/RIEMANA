@@ -1,5 +1,5 @@
 from res.getero.algorithm.main_cycle import process_particles
-from res.getero.algorithm.ray_tracing.bvh.algorithm import build_BVH
+from res.getero.ray_tracing.bvh.algorithm import build_BVH
 from res.getero.algorithm.monte_carlo import generate_particles
 import time
 from tqdm import trange

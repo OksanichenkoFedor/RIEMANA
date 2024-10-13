@@ -99,7 +99,7 @@ for i in range(x_size):
 
         border_layer2 = border_layer.copy()
         #print(border_layer2)
-        delete_point(border_layer2, curr_x, curr_y)
+        delete_point(border_layer2, is_full_arr, curr_x, curr_y)
 
         plot_border(border_layer2, axes[2*i+1, j], curr_x, curr_y)
         plot_line(border_layer2, axes[2*i+1, j], prev_x, prev_y, next_x, next_y, curr_x, curr_y)

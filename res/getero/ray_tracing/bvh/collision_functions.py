@@ -1,7 +1,7 @@
 import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_coords_from_num
-from res.getero.algorithm.ray_tracing.utils import count_segment_norm_angle, count_vec_mult
+from res.getero.ray_tracing.utils import count_segment_norm_angle, count_vec_mult
 from res.utils.config import do_njit, cache, parallel
 from res.utils.wrapper import clever_njit
 

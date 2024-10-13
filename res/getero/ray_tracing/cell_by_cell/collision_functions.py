@@ -1,6 +1,6 @@
 import numpy as np
 
-from res.getero.algorithm.ray_tracing.utils import check_collision
+from res.getero.ray_tracing.utils import check_collision
 from res.utils.config import do_njit, cache, parallel
 from res.utils.wrapper import clever_njit
 
@@ -37,17 +37,8 @@ def check_cell_intersection(border_arr, curr_att_x, curr_att_y, curr_vec, curr_a
     if start_segment is None:
         pass
     else:
-        #print("---")
-        #print("ffff")
-        #print(left_collide, right_collide)
-        #print("left_segment: ",left_segment)
-        #print("right_segment: ", right_segment)
-        #print("start_segment: ", start_segment)
         left_collide =  np.abs(start_segment - left_segment).sum() != 0 and left_collide
         right_collide = np.abs(start_segment - right_segment).sum() != 0 and right_collide
-        #print(np.abs(start_segment - left_segment).sum())
-        #print(np.abs(start_segment - left_segment).sum()==0)
-        #print(left_collide, right_collide)
 
     if left_collide and right_collide:
         if np.pow(curr_vec-left_cross_vec,2).sum() < np.pow(curr_vec-right_cross_vec,2).sum():
@@ -114,8 +105,8 @@ def particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle):
     second_collide, second_cross_vec, second_norm_angle = check_collision(curr_vec, curr_angle, second_segment)
 
     if first_collide and second_collide:
-        print("Both intersect  -> incorrect cell_by_cell/collision_functions particle_on_wall")
-        return np.zeros(2), 0, 0
+        #print("Both intersect  -> incorrect cell_by_cell/collision_functions particle_on_wall")
+        return first_cross_vec, curr_att_x + first_delta_x, curr_att_y + first_delta_y
     elif (not first_collide) and (not second_collide):
         print("None intersect -> incorrect cell_by_cell/collision_functions particle_on_wall")
         return np.zeros(2), 0, 0

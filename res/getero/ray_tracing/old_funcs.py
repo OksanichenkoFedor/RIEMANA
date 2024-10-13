@@ -2,7 +2,7 @@ import numpy as np
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
-from res.getero.algorithm.ray_tracing.utils import count_angle
+from res.getero.ray_tracing.utils import count_angle
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

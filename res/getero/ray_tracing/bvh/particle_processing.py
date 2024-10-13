@@ -1,14 +1,14 @@
 import numpy as np
 
-from res.getero.algorithm.ray_tracing.profile_approximation import count_norm_angle
-from res.getero.algorithm.ray_tracing.utils import check_angle_collision
+from res.getero.ray_tracing.profile_approximation import count_norm_angle
+from res.getero.ray_tracing.utils import check_angle_collision
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
 from res.getero.algorithm.utils import straight_reflection
-from res.getero.algorithm.ray_tracing.bvh.algorithm import bvh_count_collision_point, build_BVH
-from res.getero.algorithm.ray_tracing.line_search.algorithm import simple_count_collision_point
-from res.getero.algorithm.ray_tracing.bvh.collision_functions import count_curr_prev_att
+from res.getero.ray_tracing.bvh.algorithm import bvh_count_collision_point, build_BVH
+from res.getero.ray_tracing.line_search.algorithm import simple_count_collision_point
+from res.getero.ray_tracing.bvh.collision_functions import count_curr_prev_att
 from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point, find_close_void
 
@@ -101,7 +101,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                     # 1 - граница
                     # -1 - снаружи
 
-                    delete_point(border_layer_arr, curr_att_x, curr_att_y)
+                    delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
                     if type == "bvh":
                         NodeList = build_BVH(border_layer_arr, do_half)
                     #print("Delete: ", curr_att_x, curr_att_y)
@@ -113,7 +113,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 if flags[3]==1.0:
                     # восстановление частицы
                     print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
-                    create_point(border_layer_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
+                    create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
                     if type=="bvh":
                         NodeList = build_BVH(border_layer_arr, do_half)
                     new_x, new_y = find_close_void(border_layer_arr, prev_att_x, prev_att_y)

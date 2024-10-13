@@ -1,5 +1,5 @@
-from res.getero.algorithm.ray_tracing.bvh.algorithm import bvh_count_collision_point
-from res.getero.algorithm.ray_tracing.utils import count_angle
+from res.getero.ray_tracing.bvh.algorithm import bvh_count_collision_point
+from res.getero.ray_tracing.utils import count_angle
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 

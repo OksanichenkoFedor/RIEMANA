@@ -27,7 +27,7 @@ class Wafer:
                 y = int(line[2])
                 self.counter_arr[:, x, y] = np.array([0, 0, 0, 0])
                 self.is_full[x, y] = 0
-                delete_point(self.border_arr, x, y)
+                delete_point(self.border_arr, self.is_full, x, y)
                 # time.sleep(0.05)
                 if verbose:
                     print("Delete: ", x, y)
@@ -39,7 +39,7 @@ class Wafer:
                 curr_y = int(line[5])
                 self.counter_arr[:, prev_x, prev_y] = np.array([0, 0, 0, 1])
                 self.is_full[prev_x, prev_y] = 1
-                create_point(self.border_arr, prev_x, prev_y, curr_x, curr_y)
+                create_point(self.border_arr, self.is_full, prev_x, prev_y, curr_x, curr_y)
                 if verbose:
                     print("Create: ", prev_x, prev_y, " from: ", curr_x, curr_y)
 
@@ -240,7 +240,7 @@ class Wafer:
     def clear_between_mask(self):
         for i in range(self.right_area - self.left_area):
             for j in range(self.mask_height):
-                delete_point(self.border_arr, i + self.left_area, j + self.border)
+                delete_point(self.border_arr, self.is_full, i + self.left_area, j + self.border)
                 self.counter_arr[:, i + self.left_area, j + self.border] = np.array([0, 0, 0, 0])
                 self.is_full[i + self.left_area, j + self.border] = 0
 

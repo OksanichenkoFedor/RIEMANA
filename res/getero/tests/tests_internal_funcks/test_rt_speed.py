@@ -1,5 +1,5 @@
-from res.getero.algorithm.ray_tracing.bvh.algorithm import build_BVH
-from res.getero.tests.tests_internal_funcks.help_test_funks import del_some_structure, defend_wafer
+from res.getero.ray_tracing.bvh.algorithm import build_BVH
+from res.getero.tests.tests_internal_funcks.help_test_funks import defend_wafer
 from res.global_entities.plotter import generate_figure
 from res.global_entities.wafer import Wafer, prepare_segment_for_intersection_checking
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays
@@ -100,13 +100,13 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             print("Ошибка!!!")
         if do_plot and True:
             if Times1[-1] > 9 * 10 ** 5 or True:
-                #ax.plot(arr_x_ls, arr_y_ls,color="r")
+                ax.plot(arr_x_ls, arr_y_ls,color="r")
                 ls+=1
             if Times3[-1] > 9 * 10 ** 5 or True:
-                #ax.plot(arr_x_bvh, arr_y_bvh, color=(0, 0, 1, 0.5))
+                ax.plot(arr_x_bvh, arr_y_bvh, color=(0, 0, 1, 0.5))
                 bvh+=1
             if Times3[-1] > 9 * 10 ** 5 or True:
-                ax.plot(arr_x_old, arr_y_old, color=(0, 1, 0, 1))
+                ax.plot(arr_x_old, arr_y_old, color=(0, 1, 0, 0.5))
                 old += 1
     Times1 = np.array(Times1)[1:]
     Times2 = np.array(Times2)[1:]
@@ -155,7 +155,7 @@ def create_some_structure(c_wafer, num_crt = 100, seed=10):
 
         c_wafer.counter_arr[:, curr_x, curr_y] = np.array([0, 0, 0, 0])
         c_wafer.is_full[curr_x, curr_y] = 0
-        delete_point(c_wafer.border_arr, curr_x, curr_y)
+        delete_point(c_wafer.border_arr, c_wafer.is_full, curr_x, curr_y)
         X_del.append(curr_x)
         Y_del.append(curr_y)
     return X_del, Y_del
@@ -181,11 +181,11 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-#end_wafer = create_test_wafer(num_del=200)
+end_wafer = create_test_wafer(num_del=200)
 
 #end_wafer.load("../files/tmp_U200_2000_1.zip")
 
-end_wafer.load("../files/tmp_U200_1000_1.zip")
+#end_wafer.load("../files/tmp_U200_1000_1.zip")
 
 
 #end_wafer.load("../files/wafer_1000.zip")
@@ -195,7 +195,7 @@ f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 plt.show()
 defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=500, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=200, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()

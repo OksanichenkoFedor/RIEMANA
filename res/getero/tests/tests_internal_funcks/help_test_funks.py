@@ -31,7 +31,7 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
             tmp_i = deepcopy(c_wafer.is_full)
             c_wafer.counter_arr[:, curr_x, curr_y] = np.array([0, 0, 0, 0])
             c_wafer.is_full[curr_x, curr_y] = 0
-            delete_point(c_wafer.border_arr, curr_x, curr_y)
+            delete_point(c_wafer.border_arr, c_wafer.is_full, curr_x, curr_y)
             intersect = c_wafer.check_self_intersection()
             if intersect:
                 c_wafer.border_arr = tmp_ba

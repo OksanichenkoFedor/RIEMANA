@@ -3,9 +3,9 @@ import numpy as np
 from res.utils.wrapper import clever_njit
 
 
-from res.getero.algorithm.ray_tracing.bvh.particle_processing import process_one_particle as segm_pp
-#from res.getero.algorithm.ray_tracing.cell_by_cell.particle_processing import process_one_particle as cbc_pp
-from res.getero.algorithm.ray_tracing.cell_by_cell.old_pc import process_one_particle as cbc_pp
+from res.getero.ray_tracing.bvh.particle_processing import process_one_particle as segm_pp
+from res.getero.ray_tracing.cell_by_cell.particle_processing import process_one_particle as cbc_pp
+from res.getero.ray_tracing.cell_by_cell.old_pc import process_one_particle as old_cbc_pp
 
 from res.utils.config import do_njit, cache, parallel
 
@@ -23,6 +23,10 @@ def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si
         curr_params_arr = params_arr[i]
         if type=="cell by cell":
             cbc_pp(counter_arr, is_full_arr, border_layer_arr,
+                             returned_particles, arr_x, arr_y, rarr_x, rarr_y,
+                             curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points)
+        elif type=="old cell by cell":
+            old_cbc_pp(counter_arr, is_full_arr, border_layer_arr,
                              returned_particles, arr_x, arr_y, rarr_x, rarr_y,
                              curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points)
         elif type=="line search":

@@ -1,6 +1,6 @@
 from res.global_entities.wafer import Wafer
 from res.getero.algorithm.dynamic_profile import delete_point, give_line_arrays
-from res.getero.algorithm.ray_tracing.bvh.algorithm import build_BVH
+from res.getero.ray_tracing.bvh.algorithm import build_BVH
 
 import res.utils.config as config
 
@@ -41,7 +41,7 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
                 unfound = False
         c_wafer.counter_arr[:, curr_x, curr_y] = np.array([0, 0, 0, 0])
         c_wafer.is_full[curr_x, curr_y] = 0
-        delete_point(c_wafer.border_arr, curr_x, curr_y)
+        delete_point(c_wafer.border_arr, c_wafer.is_full, curr_x, curr_y)
         X_del.append(curr_x)
         Y_del.append(curr_y)
     return X_del, Y_del

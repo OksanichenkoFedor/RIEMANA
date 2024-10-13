@@ -1,9 +1,7 @@
-from pickletools import bytes1
-
 import numpy as np
 import matplotlib.pyplot as plt
 
-from res.getero.algorithm.ray_tracing.profile_approximation import give_coefs_line
+from res.getero.ray_tracing.profile_approximation import give_coefs_line
 
 
 #veber = np.array([2.1, 2.8, 3.45, 4.05, 5.0, 5.35, 5.95, 6.4, 7.05, 7.45, 7.65, 7.9, 8.05, 8.2, 6.5])#Веберы,вычесть 2

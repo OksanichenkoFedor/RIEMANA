@@ -5,7 +5,7 @@ import numpy as np
 from res.getero.algorithm.monte_carlo import generate_particles
 from res.getero.algorithm.dynamic_profile import give_line_arrays, give_max_y
 from res.getero.algorithm.main_cycle import process_particles
-from res.getero.algorithm.ray_tracing.bvh.algorithm import build_BVH
+from res.getero.ray_tracing.bvh.algorithm import build_BVH
 from res.bot.simple import print_message, throw_plot
 
 from res.global_entities.plotter import generate_figure

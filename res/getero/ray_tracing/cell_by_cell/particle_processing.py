@@ -3,20 +3,17 @@
 
 import numpy as np
 
-from res.getero.algorithm.ray_tracing.cell_by_cell.collision_functions import check_cell_intersection, particle_on_wall
-from res.getero.algorithm.ray_tracing.surface_cycle import surface_cycle
-from res.getero.algorithm.ray_tracing.utils import check_angle_collision
+from res.getero.ray_tracing.cell_by_cell.collision_functions import check_cell_intersection, particle_on_wall
+from res.getero.ray_tracing.utils import check_angle_collision
 
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
-from res.getero.algorithm.ray_tracing.cell_by_cell.space_orientation import find_next, give_next_cell, \
-    throw_particle_away
+from res.getero.ray_tracing.cell_by_cell.space_orientation import find_next, give_next_cell
 
 from res.getero.algorithm.silicon_reactions.silicon_reactions import silicon_reaction
-from res.getero.algorithm.mask_reactions import mask_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point
-from res.getero.algorithm.ray_tracing.profile_approximation import count_simple_norm_angle, count_norm_angle
+from res.getero.ray_tracing.profile_approximation import count_norm_angle
 from res.getero.algorithm.utils import straight_reflection
 
 
@@ -122,8 +119,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                             # 0 - внутри
                             # 1 - граница
                             # -1 - снаружи
-                            # 2 - граница, но пустые точки
-                            delete_point(border_layer_arr, curr_att_x, curr_att_y)
+                            delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
                             #print("Delete: ", curr_att_x, curr_att_y)
                             if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                                 print("Удаление не произведено!")
@@ -133,7 +129,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                         if flags[3] == 1.0:
                             # восстановление частицы
                             print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
-                            create_point(border_layer_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
+                            create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
                         curr_type = new_type
                         curr_en = new_en
 
@@ -244,7 +240,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                             # 1 - граница
                             # -1 - снаружи
                             # 2 - граница, но пустые точки
-                            delete_point(border_layer_arr, curr_att_x, curr_att_y)
+                            delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
                             print("Delete: ", curr_att_x, curr_att_y)
                             if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                                 print("Удаление не произведено!")
@@ -254,7 +250,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                         if flags[3] == 1.0:
                             # восстановление частицы
                             print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
-                            create_point(border_layer_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
+                            create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
                         curr_type = new_type
                         curr_en = new_en
 
