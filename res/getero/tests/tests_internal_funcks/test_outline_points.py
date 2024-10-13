@@ -53,7 +53,7 @@ def plot_pixels(cX, cY, axis):
         axis.add_patch(rect)
 
 
-x0, y0 = 119 71 118 70
+
 
 x0, y0 = np.random.randint(100)+0.5, np.random.randint(100)+0.5
 
