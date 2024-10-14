@@ -67,9 +67,9 @@ class WaferGenerator:
             res, _, _, _, _, NodeList = process_particles(self.wafer.counter_arr, self.wafer.is_full, self.wafer.border_arr,
                                                 params, self.wafer.Si_num, self.wafer.xsize, self.wafer.ysize,
                                                 R, test=False, do_half=self.wafer.is_half, max_value=-1,
-                                                NodeList=NodeList, type="cell by cell", num_one_side_points=config.num_one_side_points)
+                                                NodeList=NodeList, type="bvh", num_one_side_points=config.num_one_side_points)
 
-            if i % 1000 == 0:
+            if i % 200 == 0:
                 if is_half:
                     self.wafer.return_half()
                 X, Y = give_line_arrays(self.wafer.border_arr, self.wafer.is_half)
@@ -83,10 +83,10 @@ class WaferGenerator:
                 #print("Depth: ", depth, " angstrem")
                 #print("Speed: "+str(round((60*depth/(ftime*((i+1)/num_iter)))))+" angstrem/min")
                 self.master.plotF.replot(i, True)
-                self.master.plotF.f.savefig("files/tmp_U"+str(round(self.U_i,1))+"_"+str(i)+".png")
-                self.wafer.save("files/wafer_"+str(i)+".zip")
+                #self.master.plotF.f.savefig("files/tmp_U"+str(round(self.U_i,1))+"_"+str(i)+".png")
+                #self.wafer.save("files/wafer_"+str(i)+".zip")
                 #self.master.plotF.send_picture()
-                self.wafer.save("files/tmp_U"+str(round(self.U_i,1))+"_"+str(i)+".zip")
+                #self.wafer.save("files/tmp_U"+str(round(self.U_i,1))+"_"+str(i)+".zip")
                 #self.wafer.load("test.zip")
                 if is_half:
                     self.wafer.make_half()

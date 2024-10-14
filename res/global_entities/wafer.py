@@ -15,6 +15,7 @@ class Wafer:
     def __init__(self, multiplier=None, Si_num=84):
         if not (multiplier is None):
             self.generate_pure_wafer(multiplier, Si_num)
+            self.check_correction()
 
     def process_file(self, filename, verbose=0):
         f = open(filename)
@@ -78,6 +79,9 @@ class Wafer:
     def check_correction(self):
         for curr_x in range(self.border_arr.shape[0]):
             for curr_y in range(self.border_arr.shape[1]):
+                if self.border_arr[curr_x,curr_y, 0] == 0 and self.border_arr[curr_x,curr_y, 1]==0:
+                    pass
+                    print("Пустой border_arr: ", curr_x, curr_y, self.border_arr[curr_x,curr_y])
                 if self.is_full[curr_x, curr_y] in [1, 2]:
                     if self.is_near_void(curr_x, curr_y) and self.border_arr[curr_x, curr_y, 0] != 1:
                         raise Exception("This cell (" + str(curr_x) + " " + str(
@@ -86,6 +90,7 @@ class Wafer:
                         print("This cell (" + str(curr_x) + " " + str(curr_y) + ") is inside wafer, but is included in border")
                         #raise Exception("This cell (" + str(curr_x) + " " + str(
                         #    curr_y) + ") is inside wafer, but is included in border")
+
 
     def is_near_void(self, curr_x, curr_y):
         x_size, y_size = self.is_full.shape[0], self.is_full.shape[1]
@@ -225,10 +230,9 @@ class Wafer:
             else:
                 self.border_arr[i, self.border, 1:] = [i - 1, self.border, i + 1, self.border]
 
-        self.border_arr[:, :self.border - 0, :] = self.border_arr[:, :self.border - 0, :] * (
-            -2.0)
-        self.border_arr[:, self.border + 1:, :] = self.border_arr[:, self.border + 1:, :] * (
-            0.0)
+        self.border_arr[:, :self.border - 0, :] = self.border_arr[:, :self.border - 0, :] * (-2.0)
+        self.border_arr[:, self.border + 1:, 1:] = self.border_arr[:, self.border + 1:, 1:] * (-2.0)
+        self.border_arr[:, self.border + 1:, 0] = self.border_arr[:, self.border + 1:, 0] * (0.0)
 
         self.border_arr = self.border_arr.astype(int)
 

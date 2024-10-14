@@ -11,7 +11,7 @@ def run_Ar(y_ar, N, U):
             "y_ar": y_ar,
             "W": 600,
             "U_i": U,
-            "time": 60.0,
+            "time": 30.0,
             "do_half": False,
             "rt_type": "bvh",
             "num_one_side_points": 5
@@ -23,7 +23,7 @@ def run_Ar(y_ar, N, U):
     etch.run(params, start_filename="../")
 #run_Ar(0.5, 80, 40)
 
-run_Ar(0.5, 84, 40)
+run_Ar(0.5, 30, 40)
 
 #run_Ar(0.5, 6, 40)
 #run_Ar(0.5, 12, 40)

@@ -9,8 +9,7 @@ import numpy as np
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def delete_point(border_layer_arr, is_full_arr, curr_x, curr_y):
-
-    fin_prev_x, fin_prev_y, fin_next_x, fin_next_y = -1, -1, -1, -1
+    #print("start del")
 
     prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
     #print(prev_x, prev_y, next_x, next_y)
@@ -40,7 +39,7 @@ def delete_point(border_layer_arr, is_full_arr, curr_x, curr_y):
         border_layer_arr[curr_x, curr_y, 3:] = [new_end_x, new_end_y]
 
     prev_x, prev_y, next_x, next_y = border_layer_arr[curr_x, curr_y][1:]
-    border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
+    #
 
     if np.abs(prev_x - curr_x) + np.abs(prev_y - curr_y) == 0:
 
@@ -60,7 +59,7 @@ def delete_point(border_layer_arr, is_full_arr, curr_x, curr_y):
         if (1.0*dpx)/(1.0*dpy)==(1.0*dnx)/(1.0*dny):
             simple_delition(border_layer_arr, is_full_arr, curr_x, curr_y, -1)
             return 0
-
+    border_layer_arr[curr_x, curr_y] = [-1, -1, -1, -1, -1]
     add = 1
     # мы ВСЕГДА обходим по часовой
 
@@ -92,7 +91,7 @@ def delete_point(border_layer_arr, is_full_arr, curr_x, curr_y):
             i = (i + add) % 8
 
     connection(border_layer_arr, is_full_arr, tmp_prev_x, tmp_prev_y, curr_x, curr_y, next_x, next_y)
-
+    #print("end del")
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -305,7 +304,10 @@ def find_close_void(border_layer_arr, curr_x, curr_y):
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, do_create):
+    #print("start cvlp")
     #print("start: ", start_x, start_y, end_x, end_y)
+    if (start_x==-1 or start_y==-1) or (end_x==-1 or end_y==-1):
+        print("Incorrect connection dynamic_profile/check_void_line_points: ", start_x, start_y, end_x, end_y)
     inc_x, inc_y = np.sign(end_x - start_x), np.sign(end_y - start_y)
     if np.abs(end_x - start_x) == np.abs(end_y - start_y):
         for i in range(1,np.abs(end_x - start_x)):
@@ -336,9 +338,12 @@ def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, 
                 curr_att_x += inc_x
             #print(curr_att_x, curr_att_y)
             process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, do_create, start_x, start_y, end_x, end_y)
+    #print("end cvlp")
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, do_create, start_x, start_y, end_x, end_y):
+    #print("start pvlp: ", curr_att_x, curr_att_y)
+    #print(border_arr[curr_att_x, curr_att_y], is_full[curr_att_x, curr_att_y])
     if border_arr[curr_att_x, curr_att_y, 0] == -1:
         if is_full[curr_att_x, curr_att_y] == -1:
             if do_create:
@@ -351,3 +356,4 @@ def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, do_crea
             if do_create:
                 is_full[curr_att_x, curr_att_y] = -1
                 border_arr[curr_att_x, curr_att_y, 1:] = [start_x, start_y, end_x, end_y]
+    #print("end pvlp")

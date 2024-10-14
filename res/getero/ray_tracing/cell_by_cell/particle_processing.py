@@ -3,6 +3,7 @@
 
 import numpy as np
 
+from res.getero.ray_tracing.bvh.collision_functions import count_curr_prev_att
 from res.getero.ray_tracing.cell_by_cell.collision_functions import check_cell_intersection, particle_on_wall
 from res.getero.ray_tracing.utils import check_angle_collision
 
@@ -56,7 +57,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 print([curr_vec[0], curr_vec[1], is_on_horiz, curr_en, curr_angle, curr_type, prev_att_x,
                        prev_att_y])
                 unfound_test = False
-                unfound = False
+                #unfound = False
         if is_inside_cell:
             if (curr_att_x!=int(curr_vec[0])) or (curr_att_y!=int(curr_vec[1])):
                 print("fff: ", curr_vec ,curr_att_x, curr_att_y)
@@ -83,80 +84,28 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                     avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, curr_vec, curr_segment,
                                                                         do_half,
                                                                         num_one_side_points=num_one_side_points)
+                    tmp_att = count_curr_prev_att(cross_vec, curr_segment, curr_angle, border_layer_arr)
+                    tmp_curr_att_x, tmp_curr_att_y, tmp_prev_att_x, tmp_prev_att_y, _ = tmp_att
                     if test:
                         pass
                         arr_x.append(curr_vec[0] - 0.5)
                         arr_y.append(curr_vec[1] - 0.5)
 
-                    if is_full_arr[curr_att_x, curr_att_y] == 2.0:
+                    if is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 2.0:
                         new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                    elif is_full_arr[curr_att_x, curr_att_y] == 1.0:
-
-                        angles = np.zeros(2)
-                        angles[0], angles[1] = curr_angle, avg_norm_angle
-
-                        point_vector = np.zeros((2, 2))
-                        point_vector[0, 0], point_vector[0, 1] = curr_att_x, curr_att_y
-                        point_vector[1, 0], point_vector[1, 1] = prev_att_x, prev_att_y
-
-                        if counter_arr[:, curr_att_x, curr_att_y].sum() == 0.0:
-                            print("---")
-                            print("Пустая не пустая!!!")
-                            print(curr_att_x, curr_att_y)
-                            print("---")
-
-                        new_type, new_en, flags, redepo_params, new_angle = silicon_reaction(curr_type, counter_arr,
-                                                                                             is_full_arr, point_vector,
-                                                                                             Si_num, angles, curr_en, R)
-
-                        if new_type in [7, 8, 9] and (not test):
-                            # родились бесполезные частицы рассматриваем их только когда тест
-                            unfound = False
-                            returned_particles[int(curr_type)] += 1
-
-                        if flags[2] == 1.0:
-                            # удаление
-                            # 0 - внутри
-                            # 1 - граница
-                            # -1 - снаружи
-                            delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
-                            #print("Delete: ", curr_att_x, curr_att_y)
-                            if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
-                                print("Удаление не произведено!")
-                            if is_full_arr[curr_att_x, curr_att_y]:
-                                print("Непредсказуемое удаление!!!")
-
-                        if flags[3] == 1.0:
-                            # восстановление частицы
-                            print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
-                            create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
-                        curr_type = new_type
-                        curr_en = new_en
-
-                        if flags[1] == 1.0:
-                            #print("in")
-                            redepo_params[0] = curr_vec[0]
-                            redepo_params[1] = curr_vec[1]
-                            redepo_params[2] = is_on_horiz
-                            redepo_params[6] = curr_att_x
-                            redepo_params[7] = curr_att_y
-                            # _, _, _, new_redepo_angle = check_angle_collision(curr_angle, redepo_params[4],
-                            #                                                  curr_segment, curr_vec)
-                            # redepo_params[4] = new_redepo_angle
-                            process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
-                                                 rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R,
-                                                 test, do_half, max_value, num_one_side_points, curr_segment)
-                            #print("out")
-                            # if is_full_arr[prev_att_x, prev_att_y] == 1:
-                            #    print("Ловушка джокера")
-                            #    print(prev_att_x, prev_att_y, curr_att_x, curr_att_y)
-                            #    prev_att_x, prev_att_y, curr_vec[0], curr_vec[1] = throw_particle_away(is_full_arr,
-                            #                                                                           prev_att_x,
-                            #                                                                           prev_att_y,
-                            #                                                                           curr_vec[0],
-                            #                                                                           curr_vec[1])
-                        if flags[0] == 1.0:
-                            unfound = False
+                    elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == -1.0:
+                        print("Unexpected is_full_arr[curr_att_x, curr_att_y] == -1.0")
+                        new_angle = straight_reflection(curr_angle, avg_norm_angle)
+                    elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 1.0:
+                        curr_type, curr_en, unfound, new_angle = silicon_cycle(counter_arr, is_full_arr,
+                                                                               border_layer_arr, returned_particles,
+                                                                               curr_angle, avg_norm_angle,
+                                                                               tmp_curr_att_x, tmp_curr_att_y,
+                                                                               tmp_prev_att_x, tmp_prev_att_y,
+                                                                               curr_type, Si_num, curr_en, R,
+                                                                               xsize, ysize, test,
+                                                                               curr_vec, is_on_horiz, rarr_x, rarr_y,
+                                                                               do_half, max_value, num_one_side_points)
 
                     _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, curr_segment, curr_vec)
                     curr_angle = new_angle
@@ -203,81 +152,28 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                     avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, curr_vec, curr_segment,
                                                                         do_half,
                                                                         num_one_side_points=num_one_side_points)
+                    tmp_att = count_curr_prev_att(cross_vec, curr_segment, curr_angle, border_layer_arr)
+                    tmp_curr_att_x, tmp_curr_att_y, tmp_prev_att_x, tmp_prev_att_y, _ = tmp_att
                     if test:
                         pass
                         arr_x.append(curr_vec[0] - 0.5)
                         arr_y.append(curr_vec[1] - 0.5)
 
-                    if is_full_arr[curr_att_x, curr_att_y] == 2.0:
+                    if is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 2.0:
                         new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                    elif is_full_arr[curr_att_x, curr_att_y] == 1.0:
-
-                        angles = np.zeros(2)
-                        angles[0], angles[1] = curr_angle, avg_norm_angle
-
-                        point_vector = np.zeros((2, 2))
-                        point_vector[0, 0], point_vector[0, 1] = curr_att_x, curr_att_y
-                        point_vector[1, 0], point_vector[1, 1] = prev_att_x, prev_att_y
-
-                        if counter_arr[:, curr_att_x, curr_att_y].sum() == 0.0:
-                            print("---")
-                            print("Пустая не пустая!!!")
-                            print(curr_att_x, curr_att_y)
-                            print("---")
-
-                        new_type, new_en, flags, redepo_params, new_angle = silicon_reaction(curr_type, counter_arr,
-                                                                                             is_full_arr, point_vector,
-                                                                                             Si_num, angles, curr_en, R)
-
-                        if new_type in [7, 8, 9] and (not test):
-                            # родились бесполезные частицы рассматриваем их только когда тест
-                            unfound = False
-                            returned_particles[int(curr_type)] += 1
-
-                        if flags[2] == 1.0:
-                            # удаление
-                            # 0 - внутри
-                            # 1 - граница
-                            # -1 - снаружи
-                            # 2 - граница, но пустые точки
-                            delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
-                            print("Delete: ", curr_att_x, curr_att_y)
-                            if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
-                                print("Удаление не произведено!")
-                            if is_full_arr[curr_att_x, curr_att_y]:
-                                print("Непредсказуемое удаление!!!")
-
-                        if flags[3] == 1.0:
-                            # восстановление частицы
-                            print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
-                            create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
-                        curr_type = new_type
-                        curr_en = new_en
-
-                        if flags[1] == 1.0:
-                            #print("in")
-                            redepo_params[0] = curr_vec[0]
-                            redepo_params[1] = curr_vec[1]
-                            redepo_params[2] = is_on_horiz
-                            redepo_params[6] = curr_att_x
-                            redepo_params[7] = curr_att_y
-                            # _, _, _, new_redepo_angle = check_angle_collision(curr_angle, redepo_params[4],
-                            #                                                  curr_segment, curr_vec)
-                            # redepo_params[4] = new_redepo_angle
-                            process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
-                                                 rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R,
-                                                 test, do_half, max_value, num_one_side_points)
-                            #print("out")
-                            #if is_full_arr[prev_att_x, prev_att_y] == 1:
-                            #    print("Ловушка джокера")
-                            #    print(prev_att_x, prev_att_y, curr_att_x, curr_att_y)
-                            #    prev_att_x, prev_att_y, curr_vec[0], curr_vec[1] = throw_particle_away(is_full_arr,
-                            #                                                                           prev_att_x,
-                            #                                                                           prev_att_y,
-                            #                                                                           curr_vec[0],
-                            #                                                                           curr_vec[1])
-                        if flags[0] == 1.0:
-                            unfound = False
+                    elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == -1.0:
+                        print("Unexpected is_full_arr[curr_att_x, curr_att_y] == -1.0")
+                        new_angle = straight_reflection(curr_angle, avg_norm_angle)
+                    elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 1.0:
+                        curr_type, curr_en, unfound, new_angle = silicon_cycle(counter_arr, is_full_arr,
+                                                                               border_layer_arr, returned_particles,
+                                                                               curr_angle, avg_norm_angle,
+                                                                               tmp_curr_att_x, tmp_curr_att_y,
+                                                                               tmp_prev_att_x, tmp_prev_att_y,
+                                                                               curr_type, Si_num, curr_en, R,
+                                                                               xsize, ysize, test,
+                                                                               curr_vec, is_on_horiz, rarr_x, rarr_y,
+                                                                               do_half, max_value, num_one_side_points)
 
                     _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, curr_segment, curr_vec)
                     curr_angle = new_angle
@@ -329,5 +225,63 @@ def check_out(curr_vec, xsize, ysize, do_half, curr_att_x, curr_att_y, prev_att_
         returned_particles[int(curr_type)] += 1
 
     return new_angle, new_prev_att_x, new_prev_att_y, unfound, changed_angle
+
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def silicon_cycle(counter_arr, is_full_arr, border_layer_arr, returned_particles, curr_angle, avg_norm_angle,
+                  curr_att_x, curr_att_y, prev_att_x, prev_att_y, curr_type, Si_num, curr_en, R, xsize, ysize, test,
+                  curr_vec, is_on_horiz, rarr_x, rarr_y, do_half, max_value, num_one_side_points):
+    angles = np.zeros(2)
+    angles[0], angles[1] = curr_angle, avg_norm_angle
+
+    point_vector = np.zeros((2, 2))
+    point_vector[0, 0], point_vector[0, 1] = curr_att_x, curr_att_y
+    point_vector[1, 0], point_vector[1, 1] = prev_att_x, prev_att_y
+
+    if counter_arr[:, curr_att_x, curr_att_y].sum() == 0.0:
+        print("---")
+        print("Пустая не пустая!!!")
+        print(curr_att_x, curr_att_y)
+        print("---")
+
+    new_type, new_en, flags, redepo_params, new_angle = silicon_reaction(curr_type, counter_arr,
+                                                                         is_full_arr, point_vector,
+                                                                         Si_num, angles, curr_en, R)
+
+    if new_type in [7, 8, 9] and (not test):
+        # родились бесполезные частицы рассматриваем их только когда тест
+        unfound = False
+        returned_particles[int(curr_type)] += 1
+
+    if flags[2] == 1.0:
+        # удаление
+        # 0 - внутри
+        # 1 - граница
+        # -1 - снаружи
+        # 2 - граница, но пустые точки
+        delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
+        print("Delete: ", curr_att_x, curr_att_y)
+        if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
+            print("Удаление не произведено!")
+        if is_full_arr[curr_att_x, curr_att_y]:
+            print("Непредсказуемое удаление!!!")
+
+    if flags[3] == 1.0:
+        # восстановление частицы
+        print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
+        create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
+
+    if flags[1] == 1.0:
+        redepo_params[0] = curr_vec[0]
+        redepo_params[1] = curr_vec[1]
+        redepo_params[2] = is_on_horiz
+        redepo_params[6] = curr_att_x
+        redepo_params[7] = curr_att_y
+        process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
+                             rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R,
+                             test, do_half, max_value, num_one_side_points)
+    if flags[0] == 1.0:
+        unfound = False
+    return new_type, new_en, unfound, new_angle
 
 

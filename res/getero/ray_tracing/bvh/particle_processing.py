@@ -47,11 +47,12 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 pass
                 arr_x.append(coll_vec[0] - 0.5)
                 arr_y.append(coll_vec[1] - 0.5)
-
+            #print("start count_curr_prev_att and count_norm_angle")
             curr_att_x, curr_att_y, prev_att_x, prev_att_y, _ = count_curr_prev_att(coll_vec, start_segment, curr_angle,
                                                                                  border_layer_arr)
             avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, coll_vec, start_segment,
                                                           do_half, num_one_side_points=num_one_side_points)
+            #print("end count_curr_prev_att and count_norm_angle")
             #avg_norm_angle = norm_angle
             #if border_layer_arr[curr_att_x, curr_att_y][0]!=1:
             #    print("Мы проникли внутрь! segment_particle_processing")
@@ -102,13 +103,14 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                     # -1 - снаружи
 
                     delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
+
                     if type == "bvh":
                         NodeList = build_BVH(border_layer_arr, do_half)
                     #print("Delete: ", curr_att_x, curr_att_y)
                     if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                         print("Удаление не произведено!")
-                    if is_full_arr[curr_att_x, curr_att_y]:
-                        print("Непредсказуемое удаление!!!")
+                    if is_full_arr[curr_att_x, curr_att_y] and not (is_full_arr[curr_att_x, curr_att_y] == -1):
+                        print("Непредсказуемое удаление!!!: ", is_full_arr[curr_att_x, curr_att_y])
 
                 if flags[3]==1.0:
                     # восстановление частицы
@@ -164,13 +166,17 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 curr_angle = new_angle
             elif is_full_arr[curr_att_x, curr_att_y] == -1.0:
                 # Маска
+                print("Мы ударились о пустоту! ", is_full_arr[curr_att_x, curr_att_y])
                 new_angle = straight_reflection(curr_angle, avg_norm_angle)
                 _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
                                                            coll_vec)
                 curr_angle = new_angle
             else:
-                #print("Мы ударились о пустоту! ",coll_vec,start_segment, curr_att_x, curr_att_y, is_full_arr[curr_att_x, curr_att_y])
-                curr_angle = straight_reflection(curr_angle, avg_norm_angle)
+                #print("Мы ударились о пустоту! ", is_full_arr[curr_att_x, curr_att_y])
+                new_angle = straight_reflection(curr_angle, avg_norm_angle)
+                _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
+                                                           coll_vec)
+                curr_angle = new_angle
             curr_vec = coll_vec
         else:
             unfound = False
