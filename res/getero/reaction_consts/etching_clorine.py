@@ -5,7 +5,7 @@ test_ver1 = [1,1,1,1]
 test_ver2 = [0.1,0.1,0.1,0.1]
 
 #curr_ver = test_ver2
-curr_ver = ver_2
+curr_ver = ver_1
 
 gamma_Cl_A = curr_ver[0] # Si_s + Cl_g -> SiCl_s
 gamma_Cl_B = curr_ver[1] # SiCl_s + Cl_g -> SiCl2_s

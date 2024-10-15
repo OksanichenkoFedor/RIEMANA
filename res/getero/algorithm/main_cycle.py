@@ -11,7 +11,7 @@ from res.utils.config import do_njit, cache, parallel
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si_num, xsize, ysize, R, test, do_half,
-                      max_value=-1.0, NodeList=np.zeros((10,7)), type="cell by cell", num_one_side_points=0):
+                      max_value=-1.0, NodeList=np.zeros((10,7)), type="cell by cell", num_one_side_points=0, seed=-1):
     if test:
         arr_x, arr_y, rarr_x, rarr_y = nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8), \
                                        nb.typed.List.empty_list(nb.f8), nb.typed.List.empty_list(nb.f8)
@@ -23,22 +23,21 @@ def process_particles(counter_arr, is_full_arr, border_layer_arr, params_arr, Si
         curr_params_arr = params_arr[i]
         if type=="cell by cell":
             cbc_pp(counter_arr, is_full_arr, border_layer_arr,
-                             returned_particles, arr_x, arr_y, rarr_x, rarr_y,
-                             curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points)
+                   returned_particles, arr_x, arr_y, rarr_x, rarr_y,
+                   curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points, seed)
         elif type=="old cell by cell":
             old_cbc_pp(counter_arr, is_full_arr, border_layer_arr,
-                             returned_particles, arr_x, arr_y, rarr_x, rarr_y,
-                             curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points)
+                       returned_particles, arr_x, arr_y, rarr_x, rarr_y,
+                       curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points)
         elif type=="line search":
-            NodeList = segm_pp(counter_arr, is_full_arr, border_layer_arr, NodeList,
-                   returned_particles, arr_x, arr_y, rarr_x, rarr_y,
-                   curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value, "line search",
-                               num_one_side_points)
+            NodeList = segm_pp(counter_arr, is_full_arr, border_layer_arr, NodeList, returned_particles, arr_x, arr_y,
+                               rarr_x, rarr_y, curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value,
+                               "line search", num_one_side_points, seed)
         elif type=="bvh":
             NodeList = segm_pp(counter_arr, is_full_arr, border_layer_arr, NodeList,
                    returned_particles, arr_x, arr_y, rarr_x, rarr_y,
                    curr_params_arr, Si_num, xsize, ysize, R, test, do_half, max_value, "bvh",
-                               num_one_side_points)
+                               num_one_side_points, seed)
         else:
             print("process_particles, wrong type: ", type)
     return returned_particles, arr_x, arr_y, rarr_x, rarr_y, NodeList

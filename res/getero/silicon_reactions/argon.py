@@ -1,4 +1,4 @@
-from res.getero.algorithm.silicon_reactions.cell_retraction import retract_cell
+from res.getero.silicon_reactions.cell_retraction import retract_cell
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 import numpy as np

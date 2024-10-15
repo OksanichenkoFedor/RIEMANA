@@ -96,16 +96,16 @@ class Wafer:
         x_size, y_size = self.is_full.shape[0], self.is_full.shape[1]
         unfound = True
         if curr_x != 0:
-            if self.is_full[curr_x - 1, curr_y] == 0:
+            if self.is_full[curr_x - 1, curr_y] in [0, -1]:
                 unfound = False
         if curr_x != x_size - 1:
-            if self.is_full[curr_x + 1, curr_y] == 0:
+            if self.is_full[curr_x + 1, curr_y] in [0, -1]:
                 unfound = False
         if curr_y != 0:
-            if self.is_full[curr_x, curr_y - 1] == 0:
+            if self.is_full[curr_x, curr_y - 1] in [0, -1]:
                 unfound = False
         if curr_y != y_size - 1:
-            if self.is_full[curr_x, curr_y + 1] == 0:
+            if self.is_full[curr_x, curr_y + 1] in [0, -1]:
                 unfound = False
         return not unfound
 
@@ -290,8 +290,8 @@ class Wafer:
         #self.border_arr[end_x, end_y, 3:] = [end_x, 0]
         #self.border_arr[end_x, 0] = [1, end_x, end_y, -1, -1]
 
-        X, Y = give_line_arrays(self.border_arr, self.is_half)  # 1.5, 1.5)
-        self.profiles = [[X, Y]]
+        #X, Y = give_line_arrays(self.border_arr, self.is_half)  # 1.5, 1.5)
+        #self.profiles = [[X, Y]]
         self.check_correction()
         #print(self.xsize)
 
@@ -340,8 +340,8 @@ class Wafer:
 
         self.border_arr[curr_right_x, curr_right_y, 3:] = [-1, -1]
 
-        X, Y = give_line_arrays(self.border_arr, self.is_half)
-        self.profiles = [[X, Y]]
+        #X, Y = give_line_arrays(self.border_arr, self.is_half)
+        #self.profiles = [[X, Y]]
         self.check_correction()
 
     def add_reflect_wall(self):

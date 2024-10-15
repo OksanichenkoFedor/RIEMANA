@@ -5,11 +5,11 @@ import numpy as np
 
 from res.getero.reaction_consts.ion_etching_clorine import E_th_Cl_ie
 
-from res.getero.algorithm.silicon_reactions.chlorine import clorine_etching, clorine_ion_etching
-from res.getero.algorithm.silicon_reactions.argon import argon_sputtering
-from res.getero.algorithm.silicon_reactions.silicon_redepo import Si_redepo, SiCl_redepo, SiCl2_redepo
+from res.getero.silicon_reactions.chlorine import clorine_etching, clorine_ion_etching
+from res.getero.silicon_reactions.argon import argon_sputtering
+from res.getero.silicon_reactions.silicon_redepo import Si_redepo, SiCl_redepo, SiCl2_redepo
 
-from res.getero.algorithm.utils import straight_reflection, isotropic_reflection
+from res.getero.algorithm.utils import isotropic_reflection
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

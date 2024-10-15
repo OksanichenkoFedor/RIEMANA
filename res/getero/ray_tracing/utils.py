@@ -52,24 +52,36 @@ def count_angle(delta_x, delta_y):
             # III-quarter
             return np.pi + np.arctan(delta_y / delta_x)
 
-
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_if_part_inside(old_angle, curr_segment):
+    left_angle = count_angle(curr_segment[0, 1] - curr_segment[1, 1], curr_segment[0, 0] - curr_segment[1, 0])
+    right_angle = count_angle(curr_segment[1, 1] - curr_segment[0, 1], curr_segment[1, 0] - curr_segment[0, 0])
+    delta = (right_angle - old_angle)/np.pi
+    if delta<0:
+        delta+=2
+    delta = delta%2
+    if delta>1:
+        print("check_angle_collision inside angle: ", old_angle / np.pi, left_angle / np.pi, right_angle / np.pi)
+        return True
+    return False
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def check_angle_collision(old_angle, new_angle, curr_segment, cross_vec):
+def check_angle_collision(old_angle, new_angle, curr_segment, cross_vec, seed):
     is_oob = False
     res_angle = new_angle
     left_angle = count_angle(curr_segment[0, 1] - curr_segment[1, 1], curr_segment[0, 0] - curr_segment[1, 0])
     right_angle = count_angle(curr_segment[1, 1] - curr_segment[0, 1], curr_segment[1, 0] - curr_segment[0, 0])
-    simple_norm_angle = count_segment_norm_angle(curr_segment[0, 0], curr_segment[0, 1], curr_segment[1, 0],
-                                                 curr_segment[1, 1])
+
     if np.abs(((right_angle-left_angle)%(2*np.pi))/np.pi-1.0)>10**(-5):
         print("Incorrect base vectors check_angle_collision: ", left_angle/np.pi, right_angle/np.pi)
-        return is_oob, left_angle, right_angle, None
+        return is_oob, left_angle, right_angle, 0
     if (new_angle-right_angle)%(2*np.pi)>np.pi:
         is_oob = True
+        if seed == -1:
+            coeff = np.random.random()
+        else:
+            coeff = seed
 
-        #coeff = np.random.random()
-        coeff = 0.455549692
 
         if (old_angle-right_angle)%(2*np.pi)>1.5*np.pi:
             res_angle = (right_angle+coeff*min_throw_away_angle)%(2*np.pi)

@@ -44,7 +44,14 @@ def plot_wafer(c_wafer):
     #ax.plot(arr_x,arr_y,color="r")
 
 
-
+def process_str_particle(curr_str):
+    curr_str = curr_str.replace("\n", "")
+    curr_str = curr_str[1:-1].split()
+    res = []
+    for i in range(len(curr_str)):
+        res.append(float(curr_str[i]))
+    print(res)
+    return np.array(res)
 
 
 def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
@@ -58,24 +65,30 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
     NodeList = build_BVH(c_wafer.border_arr, c_wafer.is_half)
     for i in trange(len(params)):
         params_arr = params[i]
+        #params_arr = process_str_particle("[1.73703609e+02 1.00000000e+00 1.00000000e+00 1.20000000e-01 3.54052006e-01 0.00000000e+00 1.73000000e+02 1.00000000e+00]")
         #print(params_arr)
         if y_cl_plus == 0.0:
             R = 1000
         else:
             R = y_cl / y_cl_plus
         #print(NodeList.shape)
+        seed = np.random.random()
         t1 = time.time_ns()
+        print("start bvh")
         _, arr_x_ls, arr_y_ls, _, _, NodeList = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R,True, c_wafer.is_half,
-            type="bvh", NodeList=NodeList, num_one_side_points=10)
+            type="bvh", NodeList=NodeList, num_one_side_points=5, seed=seed)
+        print("end bvh")
         t2 = time.time_ns()
         Times1.append(t2-t1)
         t1 = time.time_ns()
+        print("start cbc")
         _, arr_x_old, arr_y_old, _, _, _ = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
-            type="cell by cell", num_one_side_points=10)
+            type="cell by cell", num_one_side_points=5, seed=seed)
+        print("end cbc")
         arr_x_old, arr_y_old = prepare_segment_for_intersection_checking(arr_x_old, arr_y_old, None, None, None, None)
         t2 = time.time_ns()
         Times2.append(t2 - t1)
@@ -84,7 +97,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
         _, arr_x_bvh, arr_y_bvh, _, _, NodeList = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
-            type="bvh", NodeList=NodeList, num_one_side_points=10)
+            type="bvh", NodeList=NodeList, num_one_side_points=5, seed=seed)
         t2 = time.time_ns()
         Times3.append(t2 - t1)
         delta = 0
@@ -96,8 +109,12 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
                 delta = 0
             if delta>10**(-5):
                 print("Ошибка!!!")
+                print(params_arr)
+                print(seed)
         else:
             print("Ошибка!!!")
+            print(params_arr)
+            print(seed)
         if do_plot and True:
             if Times1[-1] > 9 * 10 ** 5 or True:
                 ax.plot(arr_x_ls, arr_y_ls,color="r")
@@ -185,17 +202,17 @@ end_wafer = Wafer()
 
 #end_wafer.load("../files/tmp_U200_2000_1.zip")
 
-end_wafer.load("../files/tmp_U200_2000_1.zip")
+end_wafer.load("../files/tmp_U200_1000_1.zip")
 
 
-#end_wafer.load("../files/wafer_1000.zip")
+#end_wafer.load("../files/wafer_U40_Ar0.5_SiNum30.zip")
 
 #end_wafer.load("../files/tmp_U200_2000_2.zip")
 f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 plt.show()
 defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=100, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=1000, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()
