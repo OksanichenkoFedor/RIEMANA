@@ -97,9 +97,6 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
 
                         if is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 2.0:
                             new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                        elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == -1.0:
-                            print("Unexpected is_full_arr[curr_att_x, curr_att_y] == -1.0 ", curr_segment)
-                            new_angle = straight_reflection(curr_angle, avg_norm_angle)
                         elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 1.0:
                             if border_layer_arr[tmp_curr_att_x, tmp_curr_att_y, 0] != 1.0:
                                 print("We inside!!!")
@@ -150,7 +147,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
             empty_prev = False
 
             if is_full_arr[curr_att_x, curr_att_y] == 0:
-                if border_layer_arr[curr_att_x, curr_att_y, 0] != -1 and curr_att_x != xsize - 1:
+                if curr_att_x != xsize - 1:
                     print("Некорректный расчёт профиля! ", border_layer_arr[curr_att_x, curr_att_y, 0], curr_att_x,
                           curr_att_y)
                 prev_vec = curr_vec.copy()
@@ -188,9 +185,6 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                             arr_y.append(curr_vec[1] - 0.5)
 
                         if is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 2.0:
-                            new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                        elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == -1.0:
-                            print("Unexpected is_full_arr[curr_att_x, curr_att_y] == -1.0 ", curr_segment)
                             new_angle = straight_reflection(curr_angle, avg_norm_angle)
                         elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 1.0:
                             if border_layer_arr[tmp_curr_att_x, tmp_curr_att_y, 0] != 1.0:
@@ -299,12 +293,11 @@ def silicon_cycle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_
         # 0 - внутри
         # 1 - граница
         # -1 - снаружи
-        # 2 - граница, но пустые точки
         add_segments = delete_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_att_x, curr_att_y)
         print("Delete: ", curr_att_x, curr_att_y)
         if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
             print("Удаление не произведено!")
-        if is_full_arr[curr_att_x, curr_att_y] and is_full_arr[curr_att_x, curr_att_y]!=-1:
+        if is_full_arr[curr_att_x, curr_att_y]:
             print("Непредсказуемое удаление!!!")
 
     if flags[3] == 1.0:

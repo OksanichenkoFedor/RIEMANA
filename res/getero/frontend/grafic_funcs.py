@@ -1,4 +1,5 @@
 import numpy as np
+
 from res.utils.config import seed
 np.random.seed(seed)
 import matplotlib
@@ -7,7 +8,12 @@ from res.getero.algorithm.dynamic_profile import give_line_arrays
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
-def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type, is_chosen_cell=False, ch_x = None, ch_y = None, do_cut=False, cut_x=[0,-1], cut_y=[0,-1]):
+def plot_cells(axis, wafer, plot_type, is_chosen_cell=False, ch_x = None, ch_y = None, do_cut=False, cut_x=[0,-1], cut_y=[0,-1]):
+    counter_arr = wafer.counter_arr
+    arr_is_full = wafer.is_full
+    ysize, xsize = wafer.xsize, wafer.ysize
+
+
     if cut_x[1]==-1:
         cut_x[1] = xsize
     if cut_y[1]==-1:
@@ -17,7 +23,7 @@ def plot_cells(axis, counter_arr, arr_is_full, ysize, xsize, plot_type, is_chose
         n_aif = arr_is_full.copy()[cut_x[0]:cut_x[1], cut_y[0]:cut_y[1]]
         n_ca = counter_arr.copy()[:, cut_x[0]:cut_x[1], cut_y[0]:cut_y[1]]
     else:
-        n_aif = arr_is_full.copy()
+        n_aif = arr_is_full.copy() + (wafer.is_hard.copy()).astype(float)*(-5.0)
         n_ca = counter_arr.copy()
     if plot_type=="is_cell":
         axis.imshow(1.0-n_aif.T, cmap="inferno")

@@ -18,8 +18,7 @@ def generate_figure(wafer, wafer_curr_type, do_plot_line=True, axis=None, x_cut=
     axis.set_ylabel('y')
     # curr_type = config.wafer_plot_types[config.wafer_plot_num]
     #print(y_start)
-    plot_cells(axis, wafer.counter_arr, wafer.is_full, wafer.ysize, wafer.xsize, wafer_curr_type, do_cut=True,
-               cut_x=[x_cut, wafer.xsize-x_cut], cut_y=[y_start, wafer.ysize-y_end])
+    plot_cells(axis, wafer, wafer_curr_type, do_cut=True, cut_x=[x_cut, wafer.xsize-x_cut], cut_y=[y_start, wafer.ysize-y_end])
     X, Y = wafer.profiles[-1]
     if do_plot_line:
         plot_line(axis, X, Y, wafer.start_x, wafer.start_y, 0, 0,

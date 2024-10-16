@@ -97,16 +97,16 @@ class Wafer:
         x_size, y_size = self.is_full.shape[0], self.is_full.shape[1]
         unfound = True
         if curr_x != 0:
-            if self.is_full[curr_x - 1, curr_y] in [0, -1]:
+            if self.is_full[curr_x - 1, curr_y] in [0]:
                 unfound = False
         if curr_x != x_size - 1:
-            if self.is_full[curr_x + 1, curr_y] in [0, -1]:
+            if self.is_full[curr_x + 1, curr_y] in [0]:
                 unfound = False
         if curr_y != 0:
-            if self.is_full[curr_x, curr_y - 1] in [0, -1]:
+            if self.is_full[curr_x, curr_y - 1] in [0]:
                 unfound = False
         if curr_y != y_size - 1:
-            if self.is_full[curr_x, curr_y + 1] in [0, -1]:
+            if self.is_full[curr_x, curr_y + 1] in [0]:
                 unfound = False
         return not unfound
 
@@ -214,7 +214,7 @@ class Wafer:
             self.counter_arr.reshape(1, self.counter_arr.shape[0], self.counter_arr.shape[1]),
             4, axis=0)
         self.is_hard = np.zeros(self.is_full.shape).astype(np.bool)
-        self.add_segments = np.array([])
+        self.add_segments = np.array([[-1.0,-1.0,0.0,0.0,0.0,0.0]])
         self.counter_arr[1] = self.counter_arr[1] * 0
         self.counter_arr[2] = self.counter_arr[2] * 0
         ind = 3

@@ -79,8 +79,7 @@ class TestPlotFrame(Frame):
         self.ax.set_ylabel('y')
         # self.ax.plot([1,2,3],[1,2,3])
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
-        plot_cells(self.ax, self.wafer.counter_arr, self.wafer.is_full,
-                   self.wafer.ysize, self.wafer.xsize, curr_type, True, self.test_x, self.test_y)
+        plot_cells(self.ax, self.wafer, curr_type, True, self.test_x, self.test_y)
         if self.found == 1:
             circle1 = plt.Circle((self.x1 - 0.5, self.y1 - 0.5), 0.2, color='r')
             self.ax.add_patch(circle1)

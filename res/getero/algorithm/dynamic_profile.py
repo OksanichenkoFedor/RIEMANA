@@ -325,15 +325,16 @@ def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, 
         angle = count_angle(end_y - start_y, end_x - start_x)
 
         #print(angle/np.pi)
-        add_segments = process_void_line_point(start_x, start_y, border_arr, is_full, is_hard, add_segments,
-                                               do_create, start_x, start_y, end_x, end_y)
+        #add_segments = process_void_line_point(start_x, start_y, border_arr, is_full, is_hard, add_segments,
+        #                                       do_create, start_x, start_y, end_x, end_y)
         curr_vec = np.zeros(2)
         curr_vec[0], curr_vec[1] = start_x+0.5, start_y+0.5
         new_vec, curr_att_x, curr_att_y = particle_on_wall(start_x, start_y, curr_vec, angle)
         curr_x, curr_y = new_vec[0], new_vec[1]
 
         #print(curr_att_x, curr_att_y)
-        add_segments = process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard, add_segments,
+        if (curr_att_x!=start_x or curr_att_y!=start_y) and (curr_att_x!=end_x or curr_att_y!=end_y):
+            add_segments = process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard, add_segments,
                                                do_create, start_x, start_y, end_x, end_y)
         if int(curr_x) - curr_x == 0:
             is_on_horiz = 0
@@ -347,24 +348,59 @@ def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, 
             else:
                 curr_att_x += inc_x
             #print(curr_att_x, curr_att_y)
-            add_segments = process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard, add_segments,
-                                                   do_create, start_x, start_y, end_x, end_y)
+            if (curr_att_x != start_x or curr_att_y != start_y) and (curr_att_x != end_x or curr_att_y != end_y):
+                add_segments = process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard,
+                                                       add_segments,
+                                                       do_create, start_x, start_y, end_x, end_y)
     return add_segments
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard, add_segments, do_create, start_x, start_y, end_x, end_y):
     #print("start pvlp: ", curr_att_x, curr_att_y)
     #print(border_arr[curr_att_x, curr_att_y], is_full[curr_att_x, curr_att_y])
-    if border_arr[curr_att_x, curr_att_y, 0] == -1:
-        if is_full[curr_att_x, curr_att_y] == -1:
-            if do_create:
-                print("Already line point dynamic_profile")
-            else:
-                pass
-                is_full[curr_att_x, curr_att_y] = 0
-                border_arr[curr_att_x, curr_att_y, 1:] = [-1, -1, -1, -1]
+
+    curr_segm = np.zeros(6)
+    curr_segm[0], curr_segm[1], curr_segm[2], curr_segm[3], curr_segm[4], curr_segm[
+        5] = curr_att_x, curr_att_y, start_x, start_y, end_x, end_y
+    #if curr_att_x==101 and curr_att_y==71:
+        #print("! ",do_create, curr_segm)
+    if is_hard[curr_att_x, curr_att_y]:
+        if do_create:
+            unfound = True
+            for i in range(add_segments.shape[0]):
+                if np.sum(np.abs(add_segments[i] - curr_segm)) == 0:
+                    unfound = False
+            if unfound:
+                nadd_segments = np.zeros((add_segments.shape[0] + 1, 6))
+                nadd_segments[:-1, :] = add_segments
+                nadd_segments[-1, :] = curr_segm
+                add_segments = nadd_segments
         else:
-            if do_create:
-                is_full[curr_att_x, curr_att_y] = -1
-                border_arr[curr_att_x, curr_att_y, 1:] = [start_x, start_y, end_x, end_y]
+            unfound = True
+            for i in range(add_segments.shape[0]):
+                if np.sum(np.abs(add_segments[i] - curr_segm)) == 0:
+                    if unfound:
+                        unfound = False
+                        add_segments[i:-1] = add_segments[i + 1:]
+                        add_segments = add_segments[:-1]
+            if unfound:
+                print("unfound segment: ", curr_segm)
+            else:
+                unfound = True
+                for i in range(add_segments.shape[0]):
+                    if add_segments[i, 0] - curr_att_x == 0.0 and add_segments[i, 1] - curr_att_y == 0.0:
+                        unfound = False
+                #if curr_att_x == 101 and curr_att_y == 71:
+                #    print(unfound, add_segments)
+                if unfound:
+                    #print("fffff")
+                    is_hard[curr_att_x, curr_att_y] = False
+    else:
+        if do_create:
+            is_hard[curr_att_x, curr_att_y] = True
+            nadd_segments = np.zeros((add_segments.shape[0] + 1, 6))
+            nadd_segments[:-1, :] = add_segments
+            nadd_segments[-1, :] = curr_segm
+            add_segments = nadd_segments
+    #print(add_segments.shape)
     return add_segments

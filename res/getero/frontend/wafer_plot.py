@@ -47,8 +47,7 @@ class WaferPlotFrame(tk.Frame):
         self.ax.set_xlabel('x')
         self.ax.set_ylabel('y')
         curr_type = config.wafer_plot_types[config.wafer_plot_num]
-        plot_cells(self.ax, self.master.getero.wafer.counter_arr, self.master.getero.wafer.is_full,
-                   self.master.getero.wafer.ysize, self.master.getero.wafer.xsize, curr_type)
+        plot_cells(self.ax, self.master.getero.wafer, curr_type)
         #X,Y = self.master.getero.wafer.profiles[-1]
         X, Y = give_line_arrays(self.master.getero.wafer.border_arr, self.master.getero.wafer.is_half)
         if do_plot_line:

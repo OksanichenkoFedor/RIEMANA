@@ -126,7 +126,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                         # print("Delete: ", curr_att_x, curr_att_y)
                         if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                             print("Удаление не произведено!")
-                        if is_full_arr[curr_att_x, curr_att_y] and not (is_full_arr[curr_att_x, curr_att_y] == -1):
+                        if is_full_arr[curr_att_x, curr_att_y]:
                             print("Непредсказуемое удаление!!!: ", is_full_arr[curr_att_x, curr_att_y])
 
                     if flags[3] == 1.0:
@@ -186,15 +186,6 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                         unfound = False
                 elif is_full_arr[curr_att_x, curr_att_y] == 2.0:
                     # Маска
-                    new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                    _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
-                                                               coll_vec, seed)
-                    if seed != -1:
-                        seed = (seed * 1.534534534) % 1
-                    curr_angle = new_angle
-                elif is_full_arr[curr_att_x, curr_att_y] == -1.0:
-                    # Маска
-                    print("Мы ударились о пустоту! ", is_full_arr[curr_att_x, curr_att_y])
                     new_angle = straight_reflection(curr_angle, avg_norm_angle)
                     _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
                                                                coll_vec, seed)
