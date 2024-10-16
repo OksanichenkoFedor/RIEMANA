@@ -94,7 +94,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
         Times2.append(t2 - t1)
         t1 = time.time_ns()
         #print(c_wafer.nodelist is None)
-        _, arr_x_bvh, arr_y_bvh, _, _, NodeList = process_particles(
+        _, arr_x_bvh, arr_y_bvh, _, _, NodeList, c_wafer.add_segments = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.is_hard, c_wafer.add_segments, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
             type="bvh", NodeList=NodeList, num_one_side_points=5, seed=seed)
@@ -199,7 +199,7 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-end_wafer = create_test_wafer(num_del=200)
+end_wafer = create_test_wafer(num_del=20)
 
 #end_wafer.load("../files/tmp_U200_2000_1.zip")
 
@@ -213,7 +213,7 @@ f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 plt.show()
 defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=1000, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=100, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()

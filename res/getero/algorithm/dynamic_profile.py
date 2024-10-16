@@ -378,8 +378,8 @@ def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard
         else:
             unfound = True
             for i in range(add_segments.shape[0]):
-                if np.sum(np.abs(add_segments[i] - curr_segm)) == 0:
-                    if unfound:
+                if unfound:
+                    if np.sum(np.abs(add_segments[i] - curr_segm)) == 0:
                         unfound = False
                         add_segments[i:-1] = add_segments[i + 1:]
                         add_segments = add_segments[:-1]
