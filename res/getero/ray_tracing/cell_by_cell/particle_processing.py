@@ -19,7 +19,7 @@ from res.getero.algorithm.utils import straight_reflection
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
+def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr,
                          returned_particles, arr_x, arr_y, rarr_x, rarr_y,
                          params, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points, seed,
                          curr_segment=np.zeros((2, 2))):
@@ -106,18 +106,28 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                                 unfound = True
                                 new_angle = straight_reflection(curr_angle, avg_norm_angle)
                             else:
-                                curr_type, curr_en, unfound, new_angle = silicon_cycle(counter_arr, is_full_arr,
-                                                                                       border_layer_arr,
-                                                                                       returned_particles,
-                                                                                       curr_angle, avg_norm_angle,
-                                                                                       tmp_curr_att_x, tmp_curr_att_y,
-                                                                                       tmp_prev_att_x, tmp_prev_att_y,
-                                                                                       curr_type, Si_num, curr_en, R,
-                                                                                       xsize, ysize, test, curr_vec,
-                                                                                       is_on_horiz, rarr_x, rarr_y,
-                                                                                       do_half,
-                                                                                       max_value, num_one_side_points,
-                                                                                       seed, curr_segment)
+                                curr_type, curr_en, unfound, new_angle, add_segments = silicon_cycle(counter_arr,
+                                                                                                     is_full_arr,
+                                                                                                     is_hard,
+                                                                                                     add_segments,
+                                                                                                     border_layer_arr,
+                                                                                                     returned_particles,
+                                                                                                     curr_angle,
+                                                                                                     avg_norm_angle,
+                                                                                                     tmp_curr_att_x,
+                                                                                                     tmp_curr_att_y,
+                                                                                                     tmp_prev_att_x,
+                                                                                                     tmp_prev_att_y,
+                                                                                                     curr_type, Si_num,
+                                                                                                     curr_en, R,
+                                                                                                     xsize, ysize, test,
+                                                                                                     curr_vec,
+                                                                                                     is_on_horiz,
+                                                                                                     rarr_x, rarr_y,
+                                                                                                     do_half, unfound,
+                                                                                                     max_value,
+                                                                                                     num_one_side_points,
+                                                                                                     seed, curr_segment)
 
                         _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, curr_segment,
                                                                               curr_vec, seed)
@@ -188,8 +198,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                                 unfound = True
                                 new_angle = straight_reflection(curr_angle, avg_norm_angle)
                             else:
-                                curr_type, curr_en, unfound, new_angle = silicon_cycle(counter_arr, is_full_arr,
-                                                                                       border_layer_arr,
+                                curr_type, curr_en, unfound, new_angle, add_segments = silicon_cycle(counter_arr,
+                                                                                       is_full_arr, is_hard,
+                                                                                       add_segments, border_layer_arr,
                                                                                        returned_particles,
                                                                                        curr_angle, avg_norm_angle,
                                                                                        tmp_curr_att_x, tmp_curr_att_y,
@@ -197,7 +208,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                                                                                        curr_type, Si_num, curr_en, R,
                                                                                        xsize, ysize, test, curr_vec,
                                                                                        is_on_horiz, rarr_x, rarr_y,
-                                                                                       do_half,
+                                                                                       do_half, unfound,
                                                                                        max_value, num_one_side_points,
                                                                                        seed, curr_segment)
 
@@ -229,7 +240,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             empty_prev = True
 
             changed_angle = False
-
+    return add_segments
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_out(curr_vec, xsize, ysize, do_half, curr_att_x, curr_att_y, prev_att_x, prev_att_y, is_on_horiz, curr_angle,
@@ -257,9 +268,10 @@ def check_out(curr_vec, xsize, ysize, do_half, curr_att_x, curr_att_y, prev_att_
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def silicon_cycle(counter_arr, is_full_arr, border_layer_arr, returned_particles, curr_angle, avg_norm_angle,
+def silicon_cycle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr, returned_particles, curr_angle, avg_norm_angle,
                   curr_att_x, curr_att_y, prev_att_x, prev_att_y, curr_type, Si_num, curr_en, R, xsize, ysize, test,
-                  curr_vec, is_on_horiz, rarr_x, rarr_y, do_half, max_value, num_one_side_points, seed, curr_segment):
+                  curr_vec, is_on_horiz, rarr_x, rarr_y, do_half, unfound, max_value, num_one_side_points, seed,
+                  curr_segment):
     angles = np.zeros(2)
     angles[0], angles[1] = curr_angle, avg_norm_angle
 
@@ -288,7 +300,7 @@ def silicon_cycle(counter_arr, is_full_arr, border_layer_arr, returned_particles
         # 1 - граница
         # -1 - снаружи
         # 2 - граница, но пустые точки
-        delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
+        add_segments = delete_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_att_x, curr_att_y)
         print("Delete: ", curr_att_x, curr_att_y)
         if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
             print("Удаление не произведено!")
@@ -298,7 +310,8 @@ def silicon_cycle(counter_arr, is_full_arr, border_layer_arr, returned_particles
     if flags[3] == 1.0:
         # восстановление частицы
         print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
-        create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
+        add_segments = create_point(border_layer_arr, is_full_arr, is_hard, add_segments, prev_att_x,
+                                    prev_att_y, curr_att_x, curr_att_y)
 
     if flags[1] == 1.0:
         print("start redepo")
@@ -309,12 +322,12 @@ def silicon_cycle(counter_arr, is_full_arr, border_layer_arr, returned_particles
         redepo_params[2] = is_on_horiz
         redepo_params[6] = curr_att_x
         redepo_params[7] = curr_att_y
-        process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
-                             rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R,
+        add_segments = process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr,
+                             returned_particles, rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R,
                              test, do_half, max_value, num_one_side_points, seed, curr_segment)
         print("end redepo")
     if flags[0] == 1.0:
         unfound = False
-    return new_type, new_en, unfound, new_angle
+    return new_type, new_en, unfound, new_angle, add_segments
 
 

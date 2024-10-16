@@ -28,7 +28,7 @@ class Wafer:
                 y = int(line[2])
                 self.counter_arr[:, x, y] = np.array([0, 0, 0, 0])
                 self.is_full[x, y] = 0
-                delete_point(self.border_arr, self.is_full, x, y)
+                self.add_segments = delete_point(self.border_arr, self.is_full, self.is_hard, self.add_segments, x, y)
                 # time.sleep(0.05)
                 if verbose:
                     print("Delete: ", x, y)
@@ -40,7 +40,8 @@ class Wafer:
                 curr_y = int(line[5])
                 self.counter_arr[:, prev_x, prev_y] = np.array([0, 0, 0, 1])
                 self.is_full[prev_x, prev_y] = 1
-                create_point(self.border_arr, self.is_full, prev_x, prev_y, curr_x, curr_y)
+                self.add_segments = create_point(self.border_arr, self.is_full, self.is_hard, self.add_segments, prev_x,
+                                                 prev_y, curr_x, curr_y)
                 if verbose:
                     print("Create: ", prev_x, prev_y, " from: ", curr_x, curr_y)
 
@@ -212,6 +213,8 @@ class Wafer:
         self.counter_arr = np.repeat(
             self.counter_arr.reshape(1, self.counter_arr.shape[0], self.counter_arr.shape[1]),
             4, axis=0)
+        self.is_hard = np.zeros(self.is_full.shape).astype(np.bool)
+        self.add_segments = np.array([])
         self.counter_arr[1] = self.counter_arr[1] * 0
         self.counter_arr[2] = self.counter_arr[2] * 0
         ind = 3
@@ -244,7 +247,8 @@ class Wafer:
     def clear_between_mask(self):
         for i in range(self.right_area - self.left_area):
             for j in range(self.mask_height):
-                delete_point(self.border_arr, self.is_full, i + self.left_area, j + self.border)
+                self.add_segments = delete_point(self.border_arr, self.is_full, self.is_hard, self.add_segments,
+                                                 i + self.left_area, j + self.border)
                 self.counter_arr[:, i + self.left_area, j + self.border] = np.array([0, 0, 0, 0])
                 self.is_full[i + self.left_area, j + self.border] = 0
 
@@ -252,8 +256,6 @@ class Wafer:
         if self.is_half:
             raise Exception("Не надо из уже половинки делать половинку (((((")
         self.is_half = True
-        # print(self.border_arr.shape)
-        # print("x,y sizes: ", self.xsize, self.ysize)
 
         curr_end_x = int(0.5 * self.xsize) - 1
         if self.xsize % 2 != 0:
@@ -272,45 +274,23 @@ class Wafer:
             raise Exception("Не нашли пересечения!!!")
         end_x = curr_end_x
         end_y = curr_end_y
-        # print(self.mask.shape)
         self.is_full = self.is_full[:curr_end_x + 1, :]
         self.border_arr = self.border_arr[:curr_end_x + 1, :, :]
-
-
-
-
-
-
         self.counter_arr = self.counter_arr[:, :curr_end_x + 1, :]
         self.mask = self.mask[:curr_end_x + 1, :]
+        self.is_hard = self.is_hard[:curr_end_x + 1, :]
+        #TODO доделать переработку add_segments
         self.xsize = curr_end_x + 1
 
         self.border_arr[end_x, end_y,3:] = [-1, -1]
-        #self.add_reflect_wall()
-        #self.border_arr[end_x, end_y, 3:] = [end_x, 0]
-        #self.border_arr[end_x, 0] = [1, end_x, end_y, -1, -1]
-
-        #X, Y = give_line_arrays(self.border_arr, self.is_half)  # 1.5, 1.5)
-        #self.profiles = [[X, Y]]
         self.check_correction()
-        #print(self.xsize)
 
     def return_half(self):
         # убираем конечную точку
-        #end_x, _ = give_end(self.border_arr)
-        #end_y = self.border_arr[end_x, 0, 2]
-        #self.border_arr[end_x, end_y, 3:] = [-1, -1]
-        #self.border_arr[end_x, 0] = [-1, -1, -1, -1, -1]
-        #self.remove_reflect_wall()
-
-
         if not self.is_half:
             raise Exception("Это не половинка, что бы её восстанавливать")
         self.is_half = False
         new_xsize = int(2.0 * self.xsize)
-
-
-
         end_x, end_y = give_end(self.border_arr)
         start_x, start_y = give_start(self.border_arr)
         #print("ffff: ",start_x,start_y, end_x, end_y)
@@ -318,7 +298,8 @@ class Wafer:
         self.border_arr = np.concatenate((self.border_arr, self.border_arr[::-1, :, :]), axis=0)
         self.counter_arr = np.concatenate((self.counter_arr, self.counter_arr[:, ::-1, :]), axis=1)
         self.mask = np.concatenate((self.mask, self.mask[::-1, :]), axis=0)
-
+        self.is_hard = np.concatenate((self.is_hard, self.is_hard[::-1, :]), axis=0)
+        #TODO доделать переработку add_segments
         self.xsize = new_xsize
 
         curr_left_x = end_x

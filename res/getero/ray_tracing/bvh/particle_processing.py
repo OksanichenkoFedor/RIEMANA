@@ -14,7 +14,7 @@ from res.getero.algorithm.dynamic_profile import delete_point, create_point, fin
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
+def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr, NodeList,
                          returned_particles, arr_x, arr_y, rarr_x, rarr_y,
                          params, Si_num, xsize, ysize, R, test, do_half, max_value, type, num_one_side_points, seed,
                          start_segment=np.ones((2,2))*(-1.0)):
@@ -119,7 +119,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                         # 1 - граница
                         # -1 - снаружи
 
-                        delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
+                        add_segments = delete_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_att_x, curr_att_y)
 
                         if type == "bvh":
                             NodeList = build_BVH(border_layer_arr, do_half)
@@ -132,7 +132,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                     if flags[3] == 1.0:
                         # восстановление частицы
                         print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
-                        create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
+                        add_segments = create_point(border_layer_arr, is_full_arr, is_hard, add_segments, prev_att_x,
+                                                    prev_att_y, curr_att_x, curr_att_y)
                         if type == "bvh":
                             NodeList = build_BVH(border_layer_arr, do_half)
                         new_x, new_y = find_close_void(border_layer_arr, prev_att_x, prev_att_y)
@@ -155,7 +156,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                         redepo_params[2] = 0  # is_on_horiz
                         redepo_params[6] = prev_att_x
                         redepo_params[7] = prev_att_y
-                        NodeList = process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
+                        NodeList, add_segments = process_one_particle(counter_arr, is_full_arr, is_hard,
+                                                        add_segments, border_layer_arr, NodeList,
                                                         returned_particles, rarr_x, rarr_y, rarr_x, rarr_y,
                                                         redepo_params,
                                                         Si_num, xsize, ysize, R, test, do_half, max_value, type,
@@ -215,5 +217,5 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr, NodeList,
                 arr_x.append(curr_vec[0] - 0.5 + np.sin(curr_angle)*500)
                 arr_y.append(curr_vec[1] - 0.5 + np.cos(curr_angle)*500)
         #print("end collision processing")
-    return NodeList
+    return NodeList, add_segments
 

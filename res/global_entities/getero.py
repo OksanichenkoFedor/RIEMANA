@@ -65,7 +65,8 @@ class Getero:
             #w_ba = wafer.border_arr.copy()
             #res = process_particles(co_arr, w_if, w_ba, params,
             #                        wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False)
-            res, _, _, _, _, NodeList = process_particles(wafer.counter_arr, wafer.is_full, wafer.border_arr, params,
+            res, _, _, _, _, NodeList, wafer.add_segments = process_particles(wafer.counter_arr, wafer.is_full,
+                                   wafer.is_hard, wafer.add_segments, wafer.border_arr, params,
                                    wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False, do_half=wafer.is_half,
                                                           NodeList=NodeList, type=self.type_ray_tracing,
                                                           num_one_side_points=self.num_one_side_points)
@@ -74,6 +75,10 @@ class Getero:
                     wafer.return_half()
                 X, Y = give_line_arrays(wafer.border_arr, wafer.is_half)
                 wafer.profiles.append([X, Y])
+                curr_fig = generate_figure(wafer, wafer_curr_type, do_plot_line=False)
+                add_name = "U" + str(round(self.U_i, 1)) + "_Ar" + str(self.y_ar) + "_SiNum" + str(wafer.Si_num)
+                c_filename = start_filename + "data/pictures/tmp_" + add_name + "_" + str(i)
+                curr_fig.savefig(c_filename + ".png")
                 if is_half:
                     wafer.make_half()
             if i % 100 == 0:

@@ -62,8 +62,10 @@ def count_time(curr_wafer, num_iter, num_per_iter, num_mean=250, test=False, typ
             R = 1000
         else:
             R = y_cl / y_cl_plus
-        res, _, _, _, _, NodeList = process_particles(curr_wafer.counter_arr, curr_wafer.is_full, curr_wafer.border_arr,
-                                                      params, curr_wafer.Si_num, curr_wafer.xsize, curr_wafer.ysize, R,
+        res, _, _, _, _, NodeList, curr_wafer.add_segments = process_particles(curr_wafer.counter_arr,
+                                                      curr_wafer.is_full, curr_wafer.is_hard, curr_wafer.add_segments,
+                                                      curr_wafer.border_arr, params, curr_wafer.Si_num,
+                                                      curr_wafer.xsize, curr_wafer.ysize, R,
                                                       test=test, do_half=curr_wafer.is_half, NodeList=NodeList,
                                                       type=type)
         t2 = time.time()

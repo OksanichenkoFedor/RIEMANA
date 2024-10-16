@@ -74,35 +74,35 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
         #print(NodeList.shape)
         seed = np.random.random()
         t1 = time.time_ns()
-        print("start bvh")
-        _, arr_x_ls, arr_y_ls, _, _, NodeList = process_particles(
-            c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
-            [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R,True, c_wafer.is_half,
-            type="bvh", NodeList=NodeList, num_one_side_points=5, seed=seed)
-        print("end bvh")
+        #print("start bvh")
+        _, arr_x_old, arr_y_old, _, _, _, _ = process_particles(
+            c_wafer.counter_arr, c_wafer.is_full, c_wafer.is_hard, c_wafer.add_segments, c_wafer.border_arr,
+            [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
+            type="cell by cell", num_one_side_points=5, seed=seed)
+        #print("end bvh")
         t2 = time.time_ns()
         Times1.append(t2-t1)
         t1 = time.time_ns()
-        print("start cbc")
-        _, arr_x_old, arr_y_old, _, _, _ = process_particles(
-            c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
+        #print("start cbc")
+        _, arr_x_cbc, arr_y_cbc, _, _, _, _ = process_particles(
+            c_wafer.counter_arr, c_wafer.is_full, c_wafer.is_hard, c_wafer.add_segments, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
             type="cell by cell", num_one_side_points=5, seed=seed)
-        print("end cbc")
-        arr_x_old, arr_y_old = prepare_segment_for_intersection_checking(arr_x_old, arr_y_old, None, None, None, None)
+        #print("end cbc")
+        arr_x_cbc, arr_y_cbc = prepare_segment_for_intersection_checking(arr_x_cbc, arr_y_cbc, None, None, None, None)
         t2 = time.time_ns()
         Times2.append(t2 - t1)
         t1 = time.time_ns()
         #print(c_wafer.nodelist is None)
         _, arr_x_bvh, arr_y_bvh, _, _, NodeList = process_particles(
-            c_wafer.counter_arr, c_wafer.is_full, c_wafer.border_arr,
+            c_wafer.counter_arr, c_wafer.is_full, c_wafer.is_hard, c_wafer.add_segments, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
             type="bvh", NodeList=NodeList, num_one_side_points=5, seed=seed)
         t2 = time.time_ns()
         Times3.append(t2 - t1)
         delta = 0
-        if len(arr_x_bvh)==len(arr_x_old):
-            delta = np.array(arr_x_bvh[1:-1])-np.array(arr_x_old[1:-1])
+        if len(arr_x_bvh)==len(arr_x_cbc):
+            delta = np.array(arr_x_bvh[1:-1])-np.array(arr_x_cbc[1:-1])
             if len(delta)>0:
                 delta = np.linalg.norm(delta,ord=np.inf)
             else:
@@ -116,14 +116,14 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             print(params_arr)
             print(seed)
         if do_plot and True:
-            if Times1[-1] > 9 * 10 ** 5 or True:
-                ax.plot(arr_x_ls, arr_y_ls,color="r")
-                ls+=1
+            #if Times1[-1] > 9 * 10 ** 5 or True:
+            #    ax.plot(arr_x_ls, arr_y_ls,color="r")
+            #    ls+=1
             if Times3[-1] > 9 * 10 ** 5 or True:
                 ax.plot(arr_x_bvh, arr_y_bvh, color=(0, 0, 1, 0.5))
                 bvh+=1
             if Times3[-1] > 9 * 10 ** 5 or True:
-                ax.plot(arr_x_old, arr_y_old, color=(0, 1, 0, 0.5))
+                ax.plot(arr_x_cbc, arr_y_cbc, color=(0, 1, 0, 0.5))
                 old += 1
     Times1 = np.array(Times1)[1:]
     Times2 = np.array(Times2)[1:]
@@ -172,7 +172,8 @@ def create_some_structure(c_wafer, num_crt = 100, seed=10):
 
         c_wafer.counter_arr[:, curr_x, curr_y] = np.array([0, 0, 0, 0])
         c_wafer.is_full[curr_x, curr_y] = 0
-        delete_point(c_wafer.border_arr, c_wafer.is_full, curr_x, curr_y)
+        c_wafer.add_segments = delete_point(c_wafer.border_arr, c_wafer.is_full, c_wafer.is_hard,
+                                            c_wafer.add_segments, curr_x, curr_y)
         X_del.append(curr_x)
         Y_del.append(curr_y)
     return X_del, Y_del
@@ -198,11 +199,11 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-#end_wafer = create_test_wafer(num_del=200)
+end_wafer = create_test_wafer(num_del=200)
 
 #end_wafer.load("../files/tmp_U200_2000_1.zip")
 
-end_wafer.load("../files/tmp_U200_1000_1.zip")
+#end_wafer.load("../files/tmp_U200_1000_1.zip")
 
 
 #end_wafer.load("../files/wafer_U40_Ar0.5_SiNum30.zip")

@@ -13,7 +13,7 @@ def run_Ar(y_ar, N, U):
             "U_i": U,
             "time": 30.0,
             "do_half": True,
-            "rt_type": "cell by cell",
+            "rt_type": "bvh",
             "num_one_side_points": 5
             }
 

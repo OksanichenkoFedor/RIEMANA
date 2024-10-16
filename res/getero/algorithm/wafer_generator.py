@@ -64,10 +64,12 @@ class WaferGenerator:
             else:
                 R = self.y_cl / self.y_cl_plus
 
-            res, _, _, _, _, NodeList = process_particles(self.wafer.counter_arr, self.wafer.is_full, self.wafer.border_arr,
-                                                params, self.wafer.Si_num, self.wafer.xsize, self.wafer.ysize,
-                                                R, test=False, do_half=self.wafer.is_half, max_value=-1,
-                                                NodeList=NodeList, type="cell by cell", num_one_side_points=config.num_one_side_points)
+            res, _, _, _, _, NodeList, self.wafer.add_segments = process_particles(self.wafer.counter_arr,
+                                                self.wafer.is_full, self.wafer.is_hard, self.wafer.add_segments,
+                                                self.wafer.border_arr, params, self.wafer.Si_num, self.wafer.xsize,
+                                                self.wafer.ysize, R, test=False, do_half=self.wafer.is_half,
+                                                max_value=-1, NodeList=NodeList, type="bvh",
+                                                num_one_side_points=config.num_one_side_points)
 
             if i % 200 == 0:
                 if is_half:

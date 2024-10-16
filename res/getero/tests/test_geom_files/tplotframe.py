@@ -238,7 +238,8 @@ class TestPlotFrame(Frame):
         elif event.key == "d":
             self.wafer.counter_arr[:, self.test_x, self.test_y] = np.array([0, 0, 0, 0])
             self.wafer.is_full[self.test_x, self.test_y] = 0
-            delete_point(self.wafer.border_arr, self.wafer.is_full, self.test_x, self.test_y)
+            self.wafer.add_segments = delete_point(self.wafer.border_arr, self.wafer.is_full, self.wafer.is_hard, self.wafer.add_segments,
+                         self.test_x, self.test_y)
         elif event.key == "c":
             if self.click_mode:
                 print("click mode off")
@@ -260,7 +261,9 @@ class TestPlotFrame(Frame):
                     y = int(line[2])
                     self.wafer.counter_arr[:, x, y] = np.array([0, 0, 0, 0])
                     self.wafer.is_full[x, y] = 0
-                    delete_point(self.wafer.border_arr, self.wafer.is_full, x, y)
+                    self.wafer.add_segments = delete_point(self.wafer.border_arr, self.wafer.is_full,
+                                                           self.wafer.is_hard, self.wafer.add_segments,
+                                                           self.test_x, self.test_y)
                     # time.sleep(0.05)
                     print("Delete: ", x, y)
                     # self.replot()

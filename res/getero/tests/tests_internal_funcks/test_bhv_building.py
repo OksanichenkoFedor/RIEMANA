@@ -41,7 +41,8 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
                 unfound = False
         c_wafer.counter_arr[:, curr_x, curr_y] = np.array([0, 0, 0, 0])
         c_wafer.is_full[curr_x, curr_y] = 0
-        delete_point(c_wafer.border_arr, c_wafer.is_full, curr_x, curr_y)
+        c_wafer.add_segments = delete_point(c_wafer.border_arr, c_wafer.is_full, c_wafer.is_hard,
+                                            c_wafer.add_segments, curr_x, curr_y)
         X_del.append(curr_x)
         Y_del.append(curr_y)
     return X_del, Y_del

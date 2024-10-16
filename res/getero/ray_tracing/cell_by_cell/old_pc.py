@@ -12,7 +12,7 @@ from res.getero.algorithm.utils import straight_reflection
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
+def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr,
                          returned_particles, arr_x, arr_y, rarr_x, rarr_y,
                          params, Si_num, xsize, ysize, R, test, do_half, max_value, num_one_side_points):
     curr_x = params[0]
@@ -87,7 +87,7 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 # 1 - граница
                 # -1 - снаружи
 
-                delete_point(border_layer_arr, is_full_arr, curr_att_x, curr_att_y)
+                add_segments = delete_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_att_x, curr_att_y)
                 #print("Delete: ", curr_att_x, curr_att_y)
                 if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
                     print("Удаление не произведено!")
@@ -97,7 +97,8 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             if flags[3]==1.0:
                 # восстановление частицы
                 print("Create: ", prev_att_x, prev_att_y, " from: ", curr_att_x, curr_att_y)
-                create_point(border_layer_arr, is_full_arr, prev_att_x, prev_att_y, curr_att_x, curr_att_y)
+                add_segments = create_point(border_layer_arr, is_full_arr, is_hard, add_segments, prev_att_x,
+                                            prev_att_y, curr_att_x, curr_att_y)
             curr_angle = new_angle
             curr_type = new_type
             curr_en = new_en
@@ -108,9 +109,9 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
                 redepo_params[2] = is_on_horiz
                 redepo_params[6] = prev_att_x
                 redepo_params[7] = prev_att_y
-                process_one_particle(counter_arr, is_full_arr, border_layer_arr, returned_particles,
-                                     rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R, test,
-                                     do_half, max_value, num_one_side_points)
+                add_segments = process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr,
+                                     returned_particles, rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize,
+                                     ysize, R, test, do_half, max_value, num_one_side_points)
                 if is_full_arr[prev_att_x, prev_att_y] == 1:
                     print("Ловушка джокера")
                     prev_att_x, prev_att_y, curr_x, curr_y = throw_particle_away(is_full_arr, prev_att_x, prev_att_y,
@@ -161,3 +162,4 @@ def process_one_particle(counter_arr, is_full_arr, border_layer_arr,
             prev_x, prev_y = None, None
 
             changed_angle = False
+    return add_segments
