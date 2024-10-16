@@ -61,166 +61,21 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
         if is_inside_cell:
             if (curr_att_x!=int(curr_vec[0])) or (curr_att_y!=int(curr_vec[1])):
                 print("cbc/pc  curr_att!=int(curr_vec) ", curr_vec ,curr_att_x, curr_att_y)
-            if is_full_arr[curr_att_x, curr_att_y] == 0:
-                new_vec, prev_att_x, prev_att_y = particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle)
-                curr_vec = new_vec.copy()
-                if int(curr_vec[0]) - curr_vec[0] == 0:
-                    is_on_horiz = 0
-                else:
-                    is_on_horiz = 1
-                changed_angle = True
-                is_inside_cell = False
-                curr_segment = np.zeros((2,2))
-            else:
-                is_collide, cross_vec, new_segment = check_cell_intersection(border_layer_arr, curr_att_x, curr_att_y,
-                                                                             curr_vec, curr_angle, curr_segment)
-                if np.abs(new_segment - curr_segment).sum() == 0 and is_collide:
-                    print("coninue: ", cross_vec, curr_angle / np.pi, curr_att_x, curr_att_y)
-                else:
-                    curr_segment = new_segment
-                if is_collide:
-                    is_bad_angle = check_if_part_inside(curr_angle, curr_segment)
-                    if is_bad_angle:
-                        unfound = False
-                    else:
-                        is_inside_cell = True
-                        curr_vec = cross_vec.copy()
-                        avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, curr_vec, curr_segment,
-                                                                            do_half,
-                                                                            num_one_side_points=num_one_side_points)
-                        tmp_att = count_curr_prev_att(cross_vec, curr_segment, curr_angle, border_layer_arr)
-                        tmp_curr_att_x, tmp_curr_att_y, tmp_prev_att_x, tmp_prev_att_y, _ = tmp_att
-                        if test:
-                            pass
-                            arr_x.append(curr_vec[0] - 0.5)
-                            arr_y.append(curr_vec[1] - 0.5)
-
-                        if is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 2.0:
-                            new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                        elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 1.0:
-                            if border_layer_arr[tmp_curr_att_x, tmp_curr_att_y, 0] != 1.0:
-                                print("We inside!!!")
-                                unfound = True
-                                new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                            else:
-                                curr_type, curr_en, unfound, new_angle, add_segments = silicon_cycle(counter_arr,
-                                                                                                     is_full_arr,
-                                                                                                     is_hard,
-                                                                                                     add_segments,
-                                                                                                     border_layer_arr,
-                                                                                                     returned_particles,
-                                                                                                     curr_angle,
-                                                                                                     avg_norm_angle,
-                                                                                                     tmp_curr_att_x,
-                                                                                                     tmp_curr_att_y,
-                                                                                                     tmp_prev_att_x,
-                                                                                                     tmp_prev_att_y,
-                                                                                                     curr_type, Si_num,
-                                                                                                     curr_en, R,
-                                                                                                     xsize, ysize, test,
-                                                                                                     curr_vec,
-                                                                                                     is_on_horiz,
-                                                                                                     rarr_x, rarr_y,
-                                                                                                     do_half, unfound,
-                                                                                                     max_value,
-                                                                                                     num_one_side_points,
-                                                                                                     seed, curr_segment)
-
-                        _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, curr_segment,
-                                                                              curr_vec, seed)
-                        if seed != -1:
-                            seed = (seed * 1.534534534) % 1
-                        curr_angle = new_angle
-                else:
-                    new_vec, prev_att_x, prev_att_y = particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle)
-                    curr_vec = new_vec.copy()
-                    if int(curr_vec[0]) - curr_vec[0] == 0:
-                        is_on_horiz = 0
-                    else:
-                        is_on_horiz = 1
-                    changed_angle = True
-                    is_inside_cell = False
-                    curr_segment = np.zeros((2, 2))
+            curr_segment, is_inside_cell, changed_angle, unfound, is_on_horiz, curr_type, curr_en, curr_angle, add_segments, curr_vec, prev_att_x, prev_att_y, seed, arr_x, arr_y = is_arr_cycle(
+                counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr, arr_x, arr_y, returned_particles,
+                curr_angle, curr_att_x, curr_att_y, prev_att_x, prev_att_y, curr_type, Si_num, curr_en, R, xsize, ysize,
+                test, curr_vec, is_on_horiz, rarr_x, rarr_y, do_half, max_value, num_one_side_points, seed,
+                curr_segment, unfound, changed_angle, is_inside_cell)
         else:
             curr_att_x, curr_att_y = find_next(curr_vec[0], curr_vec[1], prev_vec[0], prev_vec[1], prev_att_x,
                                                prev_att_y, empty_prev)
             empty_prev = False
 
-            if is_full_arr[curr_att_x, curr_att_y] == 0:
-                if curr_att_x != xsize - 1:
-                    print("Некорректный расчёт профиля! ", border_layer_arr[curr_att_x, curr_att_y, 0], curr_att_x,
-                          curr_att_y)
-                prev_vec = curr_vec.copy()
-                prev_att_x, prev_att_y = curr_att_x, curr_att_y
-                curr_vec[0], curr_vec[1], new_is_on_horiz = give_next_cell(prev_vec[0], prev_vec[1], curr_angle,
-                                                                           is_on_horiz)
-                if test:
-                    pass
-                    arr_x.append(curr_vec[0] - 0.5)
-                    arr_y.append(curr_vec[1] - 0.5)
-
-                is_on_horiz = new_is_on_horiz
-            else:
-                is_collide, cross_vec, new_segment = check_cell_intersection(border_layer_arr, curr_att_x, curr_att_y,
-                                                                             curr_vec, curr_angle, curr_segment)
-                if np.abs(new_segment - curr_segment).sum() == 0 and is_collide:
-                    print("coninue: ", cross_vec, curr_angle / np.pi, curr_att_x, curr_att_y)
-                else:
-                    curr_segment = new_segment
-                if is_collide:
-                    is_bad_angle = check_if_part_inside(curr_angle, curr_segment)
-                    if is_bad_angle:
-                        unfound = False
-                    else:
-                        is_inside_cell = True
-                        curr_vec = cross_vec.copy()
-                        avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, curr_vec, curr_segment,
-                                                                            do_half,
-                                                                            num_one_side_points=num_one_side_points)
-                        tmp_att = count_curr_prev_att(cross_vec, curr_segment, curr_angle, border_layer_arr)
-                        tmp_curr_att_x, tmp_curr_att_y, tmp_prev_att_x, tmp_prev_att_y, _ = tmp_att
-                        if test:
-                            pass
-                            arr_x.append(curr_vec[0] - 0.5)
-                            arr_y.append(curr_vec[1] - 0.5)
-
-                        if is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 2.0:
-                            new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                        elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 1.0:
-                            if border_layer_arr[tmp_curr_att_x, tmp_curr_att_y, 0] != 1.0:
-                                print("We inside!!!")
-                                unfound = True
-                                new_angle = straight_reflection(curr_angle, avg_norm_angle)
-                            else:
-                                curr_type, curr_en, unfound, new_angle, add_segments = silicon_cycle(counter_arr,
-                                                                                       is_full_arr, is_hard,
-                                                                                       add_segments, border_layer_arr,
-                                                                                       returned_particles,
-                                                                                       curr_angle, avg_norm_angle,
-                                                                                       tmp_curr_att_x, tmp_curr_att_y,
-                                                                                       tmp_prev_att_x, tmp_prev_att_y,
-                                                                                       curr_type, Si_num, curr_en, R,
-                                                                                       xsize, ysize, test, curr_vec,
-                                                                                       is_on_horiz, rarr_x, rarr_y,
-                                                                                       do_half, unfound,
-                                                                                       max_value, num_one_side_points,
-                                                                                       seed, curr_segment)
-
-                        _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, curr_segment,
-                                                                   curr_vec, seed)
-                        if seed != -1:
-                            seed = (seed * 1.534534534) % 1
-                        curr_angle = new_angle
-                else:
-                    new_vec, prev_att_x, prev_att_y = particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle)
-                    curr_vec = new_vec.copy()
-                    if int(curr_vec[0]) - curr_vec[0] == 0:
-                        is_on_horiz = 0
-                    else:
-                        is_on_horiz = 1
-                    changed_angle = True
-                    is_inside_cell = False
-                    curr_segment = np.zeros((2, 2))
+            curr_segment, is_inside_cell, changed_angle, unfound, is_on_horiz, curr_type, curr_en, curr_angle, add_segments, curr_vec, prev_att_x, prev_att_y, seed, arr_x, arr_y = is_arr_cycle(
+                counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr, arr_x, arr_y, returned_particles,
+                curr_angle, curr_att_x, curr_att_y, prev_att_x, prev_att_y, curr_type, Si_num, curr_en, R, xsize, ysize,
+                test, curr_vec, is_on_horiz, rarr_x, rarr_y, do_half, max_value, num_one_side_points, seed,
+                curr_segment, unfound, changed_angle, is_inside_cell)
 
         curr_angle, prev_att_x, prev_att_y, unfound, changed_angle = check_out(curr_vec, xsize, ysize, do_half,
                                                                                curr_att_x, curr_att_y, prev_att_x,
@@ -322,5 +177,93 @@ def silicon_cycle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_
     if flags[0] == 1.0:
         unfound = False
     return new_type, new_en, unfound, new_angle, add_segments
+
+
+def is_arr_cycle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr, arr_x, arr_y, returned_particles,
+                 curr_angle, curr_att_x, curr_att_y, prev_att_x, prev_att_y, curr_type, Si_num, curr_en, R, xsize, ysize, test, curr_vec,
+                 is_on_horiz, rarr_x, rarr_y, do_half, max_value, num_one_side_points, seed, curr_segment,
+                 unfound, changed_angle, is_inside_cell):
+    if is_full_arr[curr_att_x, curr_att_y] == 0:
+        new_vec, prev_att_x, prev_att_y = particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle)
+        curr_vec = new_vec.copy()
+        if int(curr_vec[0]) - curr_vec[0] == 0:
+            is_on_horiz = 0
+        else:
+            is_on_horiz = 1
+        changed_angle = True
+        is_inside_cell = False
+        curr_segment = np.zeros((2, 2))
+    else:
+        is_collide, cross_vec, new_segment = check_cell_intersection(border_layer_arr, curr_att_x, curr_att_y,
+                                                                     curr_vec, curr_angle, curr_segment)
+        if np.abs(new_segment - curr_segment).sum() == 0 and is_collide:
+            print("coninue: ", cross_vec, curr_angle / np.pi, curr_att_x, curr_att_y)
+        else:
+            curr_segment = new_segment
+        if is_collide:
+            is_bad_angle = check_if_part_inside(curr_angle, curr_segment)
+            if is_bad_angle:
+                unfound = False
+            else:
+                is_inside_cell = True
+                curr_vec = cross_vec.copy()
+                avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, curr_vec, curr_segment,
+                                                                    do_half,
+                                                                    num_one_side_points=num_one_side_points)
+                tmp_att = count_curr_prev_att(cross_vec, curr_segment, curr_angle, border_layer_arr)
+                tmp_curr_att_x, tmp_curr_att_y, tmp_prev_att_x, tmp_prev_att_y, _ = tmp_att
+                if test:
+                    pass
+                    arr_x.append(curr_vec[0] - 0.5)
+                    arr_y.append(curr_vec[1] - 0.5)
+
+                if is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 2.0:
+                    new_angle = straight_reflection(curr_angle, avg_norm_angle)
+                elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 1.0:
+                    if border_layer_arr[tmp_curr_att_x, tmp_curr_att_y, 0] != 1.0:
+                        print("We inside!!!")
+                        unfound = True
+                        new_angle = straight_reflection(curr_angle, avg_norm_angle)
+                    else:
+                        curr_type, curr_en, unfound, new_angle, add_segments = silicon_cycle(counter_arr,
+                                                                                             is_full_arr,
+                                                                                             is_hard,
+                                                                                             add_segments,
+                                                                                             border_layer_arr,
+                                                                                             returned_particles,
+                                                                                             curr_angle,
+                                                                                             avg_norm_angle,
+                                                                                             tmp_curr_att_x,
+                                                                                             tmp_curr_att_y,
+                                                                                             tmp_prev_att_x,
+                                                                                             tmp_prev_att_y,
+                                                                                             curr_type, Si_num,
+                                                                                             curr_en, R,
+                                                                                             xsize, ysize, test,
+                                                                                             curr_vec,
+                                                                                             is_on_horiz,
+                                                                                             rarr_x, rarr_y,
+                                                                                             do_half, unfound,
+                                                                                             max_value,
+                                                                                             num_one_side_points,
+                                                                                             seed, curr_segment)
+
+                _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, curr_segment,
+                                                           curr_vec, seed)
+                if seed != -1:
+                    seed = (seed * 1.534534534) % 1
+                curr_angle = new_angle
+        else:
+            new_vec, prev_att_x, prev_att_y = particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle)
+            curr_vec = new_vec.copy()
+            if int(curr_vec[0]) - curr_vec[0] == 0:
+                is_on_horiz = 0
+            else:
+                is_on_horiz = 1
+            changed_angle = True
+            is_inside_cell = False
+            curr_segment = np.zeros((2, 2))
+    return (curr_segment, is_inside_cell, changed_angle, unfound, is_on_horiz, curr_type, curr_en, curr_angle,
+            add_segments, curr_vec, prev_att_x, prev_att_y, seed, arr_x, arr_y)
 
 
