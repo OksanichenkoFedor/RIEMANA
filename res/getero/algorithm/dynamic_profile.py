@@ -358,6 +358,8 @@ def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, 
 def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard, add_segments, do_create, start_x, start_y, end_x, end_y):
     #print("start pvlp: ", curr_att_x, curr_att_y)
     #print(border_arr[curr_att_x, curr_att_y], is_full[curr_att_x, curr_att_y])
+    if border_arr[curr_att_x,curr_att_y,0]==0:
+        print("process_void_line_point inside border: ",curr_att_x,curr_att_y)
 
     curr_segm = np.zeros(6)
     curr_segm[0], curr_segm[1], curr_segm[2], curr_segm[3], curr_segm[4], curr_segm[

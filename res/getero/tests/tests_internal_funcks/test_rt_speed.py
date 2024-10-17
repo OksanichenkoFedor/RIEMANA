@@ -111,11 +111,25 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
                 print("Ошибка!!!")
                 print(params_arr)
                 print(seed)
+                if Times3[-1] > 9 * 10 ** 5 or True:
+                    ax.plot(arr_x_bvh, arr_y_bvh, color=(0, 0, 1, 0.5))
+                    bvh += 1
+                if Times3[-1] > 9 * 10 ** 5 or True:
+                    ax.plot(arr_x_cbc, arr_y_cbc, color=(0, 1, 0, 0.5))
+                    old += 1
         else:
-            print("Ошибка!!!")
+            print("Ошибка!!")
             print(params_arr)
             print(seed)
-        if do_plot and True:
+            if Times3[-1] > 9 * 10 ** 5 or True:
+                ax.plot(arr_x_bvh, arr_y_bvh, color=(0, 0, 1, 0.5))
+                bvh+=1
+            if Times3[-1] > 9 * 10 ** 5 or True:
+                ax.plot(arr_x_cbc, arr_y_cbc, color=(0, 1, 0, 0.5))
+                old += 1
+            print(arr_x_bvh, arr_y_bvh)
+            print(arr_x_cbc, arr_y_cbc)
+        if do_plot and False:
             #if Times1[-1] > 9 * 10 ** 5 or True:
             #    ax.plot(arr_x_ls, arr_y_ls,color="r")
             #    ls+=1
@@ -199,7 +213,7 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-end_wafer = create_test_wafer(num_del=20)
+end_wafer = create_test_wafer(num_del=200)
 
 #end_wafer.load("../files/tmp_U200_2000_1.zip")
 
@@ -213,7 +227,7 @@ f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 plt.show()
 defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=100, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=200, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()

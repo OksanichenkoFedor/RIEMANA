@@ -61,7 +61,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
         if is_inside_cell:
             if (curr_att_x!=int(curr_vec[0])) or (curr_att_y!=int(curr_vec[1])):
                 print("cbc/pc  curr_att!=int(curr_vec) ", curr_vec ,curr_att_x, curr_att_y)
-            if is_full_arr[curr_att_x, curr_att_y] == 0:
+            if is_full_arr[curr_att_x, curr_att_y] == 0 and is_hard[curr_att_x, curr_att_y]==False:
                 new_vec, prev_att_x, prev_att_y = particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle)
                 curr_vec = new_vec.copy()
                 if int(curr_vec[0]) - curr_vec[0] == 0:
@@ -72,8 +72,9 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                 is_inside_cell = False
                 curr_segment = np.zeros((2,2))
             else:
-                is_collide, cross_vec, new_segment = check_cell_intersection(border_layer_arr, curr_att_x, curr_att_y,
-                                                                             curr_vec, curr_angle, curr_segment)
+                is_collide, cross_vec, new_segment = check_cell_intersection(border_layer_arr, is_hard, add_segments,
+                                                                             curr_att_x, curr_att_y, curr_vec,
+                                                                             curr_angle, curr_segment)
                 if np.abs(new_segment - curr_segment).sum() == 0 and is_collide:
                     print("coninue: ", cross_vec, curr_angle / np.pi, curr_att_x, curr_att_y)
                 else:
@@ -146,7 +147,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                                                prev_att_y, empty_prev)
             empty_prev = False
 
-            if is_full_arr[curr_att_x, curr_att_y] == 0:
+            if is_full_arr[curr_att_x, curr_att_y] == 0 and is_hard[curr_att_x, curr_att_y]==False:
                 if border_layer_arr[curr_att_x, curr_att_y, 0] != -1 and curr_att_x != xsize - 1:
                     print("Некорректный расчёт профиля! ", border_layer_arr[curr_att_x, curr_att_y, 0], curr_att_x,
                           curr_att_y, is_hard[curr_att_x, curr_att_y])
@@ -161,8 +162,9 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
 
                 is_on_horiz = new_is_on_horiz
             else:
-                is_collide, cross_vec, new_segment = check_cell_intersection(border_layer_arr, curr_att_x, curr_att_y,
-                                                                             curr_vec, curr_angle, curr_segment)
+                is_collide, cross_vec, new_segment = check_cell_intersection(border_layer_arr, is_hard, add_segments,
+                                                                             curr_att_x, curr_att_y, curr_vec,
+                                                                             curr_angle, curr_segment)
                 if np.abs(new_segment - curr_segment).sum() == 0 and is_collide:
                     print("coninue: ", cross_vec, curr_angle / np.pi, curr_att_x, curr_att_y)
                 else:
@@ -234,6 +236,10 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
             empty_prev = True
 
             changed_angle = False
+    if test:
+        pass
+        arr_x.append(curr_vec[0] - 0.5 + np.sin(curr_angle) * 500)
+        arr_y.append(curr_vec[1] - 0.5 + np.cos(curr_angle) * 500)
     return add_segments
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -294,7 +300,7 @@ def silicon_cycle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_
         # 1 - граница
         # -1 - снаружи
         add_segments = delete_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_att_x, curr_att_y)
-        print("Delete: ", curr_att_x, curr_att_y)
+        #print("Delete: ", curr_att_x, curr_att_y)
         if border_layer_arr[curr_att_x, curr_att_y, 0] == 1:
             print("Удаление не произведено!")
         if is_full_arr[curr_att_x, curr_att_y]:
@@ -307,7 +313,7 @@ def silicon_cycle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_
                                     prev_att_y, curr_att_x, curr_att_y)
 
     if flags[1] == 1.0:
-        print("start redepo")
+        #print("start redepo")
         _, _, _, redepo_params[4] = check_angle_collision(curr_angle, redepo_params[4], curr_segment,
                                                           curr_vec, seed)
         redepo_params[0] = curr_vec[0]
@@ -318,7 +324,7 @@ def silicon_cycle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_
         add_segments = process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr,
                              returned_particles, rarr_x, rarr_y, rarr_x, rarr_y, redepo_params, Si_num, xsize, ysize, R,
                              test, do_half, max_value, num_one_side_points, seed, curr_segment)
-        print("end redepo")
+        #print("end redepo")
     if flags[0] == 1.0:
         unfound = False
     return new_type, new_en, unfound, new_angle, add_segments

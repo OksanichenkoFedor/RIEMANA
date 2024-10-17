@@ -29,6 +29,8 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
             tmp_ba = deepcopy(c_wafer.border_arr)
             tmp_ca = deepcopy(c_wafer.counter_arr)
             tmp_i = deepcopy(c_wafer.is_full)
+            tmp_ih = deepcopy(c_wafer.is_hard)
+            tmp_as = deepcopy(c_wafer.add_segments)
             c_wafer.counter_arr[:, curr_x, curr_y] = np.array([0, 0, 0, 0])
             c_wafer.is_full[curr_x, curr_y] = 0
             c_wafer.add_segments = delete_point(c_wafer.border_arr, c_wafer.is_full, c_wafer.is_hard,
@@ -38,6 +40,8 @@ def del_some_structure(c_wafer, num_del = 100, seed=10):
                 c_wafer.border_arr = tmp_ba
                 c_wafer.counter_arr = tmp_ca
                 c_wafer.is_full = tmp_i
+                c_wafer.is_hard = tmp_ih
+                c_wafer.add_segments = tmp_as
             else:
                 incorrect_del = False
             incorrect_del = False
