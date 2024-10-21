@@ -1,0 +1,38 @@
+Si(s) SiCl(s) SiCl2(s) SiCl3(s)
+1.0 0.0 0.0 0.0
+
+Ar Cl Cl2 Ar_plus Cl_plus Cl2_plus Si SiCl SiCl2 SiCl3 SiCl4
+
+Reaction K E_th dE en_power A B C D E D F
+
+Si(s)+Ar_plus=Si+Ar 0.035 31.8 31.8 1 0 7.48 -25.88 58.8 -82.4 58.92 -15.96
+SiCl(s)+Ar_plus=SiCl+Ar 0.08 20.6 20.6 1 0 7.48 -25.88 58.8 -82.4 58.92 -15.96
+SiCl2(s)+Ar_plus=SiCl2+Ar 0.114 16.9 16.9 1 0 7.48 -25.88 58.8 -82.4 58.92 -15.96
+SiCl3(s)+Ar_plus=SiCl3+Ar 0.142 15.3 15.3 1 0 7.48 -25.88 58.8 -82.4 58.92 -15.96
+
+Si(s)+Cl_plus=Si+Cl 0.036 29.7 29.7 1 0 7.48 -25.88 58.8 -82.4 58.92 -15.96
+SiCl(s)+Cl_plus=SiCl+Cl 0.08 19.4 19.4 1 0 7.48 -25.88 58.8 -82.4 58.92 -15.96
+SiCl2(s)+Cl_plus=SiCl2+Cl 0.113 16.2 16.2 1 0 7.48 -25.88 58.8 -82.4 58.92 -15.96
+SiCl3(s)+Cl_plus=SiCl3+Cl 0.14 14.9 14.9 1 0 7.48 -25.88 58.8 -82.4 58.92 -15.96
+
+SiCl(s)+Cl_plus=SiCl2+Cl 0.22 12 12 1 фурье_ионная_стимуляция
+SiCl2(s)+Si(s)+Cl_plus=SiCl2+SiCl(s)+Cl 0.27 12 12 1 фурье_ионная_стимуляция
+SiCl3(s)+Cl_plus=SiCl4+Cl 0.32 12 12 1 фурье_ионная_стимуляция
+
+Si(s)+Cl=SiCl(s) 0.99 0 0 0 0 0 0 0 0 0 0
+SiCl(s)+Cl=SiCl2(s) 0.20 0 0 0 0 0 0 0 0 0 0
+SiCl2(s)+Cl=SiCl3(s) 0.15 0 0 0 0 0 0 0 0 0 0
+SiCl3(s)+Cl=SiCl4 0.001 0 0 0 0 0 0 0 0 0 0
+
+Si=Si(s) 0.6 0 0 0 0 0 0 0 0 0 0
+
+Si(s)+SiCl=Si(s)+SiCl(s) 0.3 0 0 0 0 0 0 0 0 0 0
+SiCl(s)+SiCl=SiCl(s)+SiCl(s) 0.11 0 0 0 0 0 0 0 0 0 0
+SiCl2(s)+SiCl=SiCl2(s)+SiCl(s) 0.04 0 0 0 0 0 0 0 0 0 0
+SiCl3(s)+SiCl=SiCl3(s)+SiCl(s) 0.013 0 0 0 0 0 0 0 0 0 0
+
+Si(s)+SiCl2=Si(s)+SiCl2(s) 0.2 0 0 0 0 0 0 0 0 0 0
+SiCl(s)+SiCl2=SiCl(s)+SiCl2(s) 0.08 0 0 0 0 0 0 0 0 0 0
+SiCl2(s)+SiCl2=SiCl2(s)+SiCl2(s) 0.03 0 0 0 0 0 0 0 0 0 0
+SiCl3(s)+SiCl2=SiCl3(s)+SiCl2(s) 0.01 0 0 0 0 0 0 0 0 0 0
+

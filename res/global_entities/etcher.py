@@ -2,7 +2,7 @@ from res.global_entities.getero import Getero
 from res.global_entities.plasmer import Plasmer
 from res.global_entities.wafer import Wafer
 class Etcher:
-    def __init__(self, multiplier, Si_num=84, consts_filename="data/data.csv"):
+    def __init__(self, multiplier, Si_num=84, consts_filename="data/plasma_cl2_ar_data.csv"):
         self.const_params = {
             "a_0": ((1839 * 28 * 9.1 * 10 ** (-31)) / 2330) ** (1.0 / 3.0),
             "cell_size": 2.5 * (10.0 ** (-9)),

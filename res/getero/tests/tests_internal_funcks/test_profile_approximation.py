@@ -4,7 +4,7 @@ from res.getero.algorithm.dynamic_profile import give_line_arrays
 from res.getero.ray_tracing.bvh.algorithm import bvh_count_collision_point, build_BVH
 from res.getero.ray_tracing.bvh.collision_functions import count_curr_prev_att
 from res.getero.ray_tracing.utils import check_angle_collision
-from res.getero.silicon_reactions.silicon_reactions import silicon_reaction
+from res.getero.reactions.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.utils import straight_reflection, isotropic_reflection
 from res.global_entities.plotter import generate_figure
 from res.global_entities.wafer import Wafer, prepare_segment_for_intersection_checking

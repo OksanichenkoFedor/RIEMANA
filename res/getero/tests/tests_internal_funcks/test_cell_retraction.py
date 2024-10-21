@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-from res.getero.silicon_reactions.cell_retraction import retract_cell
+from res.getero.reactions.silicon_reactions.cell_retraction import retract_cell
 from res.getero.algorithm.dynamic_profile import give_coords_from_num
 
 def test_one(axis=None, size=10):

@@ -3,11 +3,11 @@ from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 
-from res.getero.reaction_consts.ion_etching_clorine import E_th_Cl_ie
+from res.getero.reactions.reaction_consts.ion_etching_clorine import E_th_Cl_ie
 
-from res.getero.silicon_reactions.chlorine import clorine_etching, clorine_ion_etching
-from res.getero.silicon_reactions.argon import argon_sputtering
-from res.getero.silicon_reactions.silicon_redepo import Si_redepo, SiCl_redepo, SiCl2_redepo
+from res.getero.reactions.silicon_reactions.chlorine import clorine_etching, clorine_ion_etching
+from res.getero.reactions.silicon_reactions.argon import argon_sputtering
+from res.getero.reactions.silicon_reactions.silicon_redepo import Si_redepo, SiCl_redepo, SiCl2_redepo
 
 from res.getero.algorithm.utils import isotropic_reflection
 

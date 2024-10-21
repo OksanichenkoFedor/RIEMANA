@@ -9,7 +9,7 @@ from res.getero.algorithm.utils import straight_reflection
 from res.getero.ray_tracing.bvh.algorithm import bvh_count_collision_point, build_BVH
 from res.getero.ray_tracing.line_search.algorithm import simple_count_collision_point
 from res.getero.ray_tracing.bvh.collision_functions import count_curr_prev_att
-from res.getero.silicon_reactions.silicon_reactions import silicon_reaction
+from res.getero.reactions.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point, find_close_void
 
 

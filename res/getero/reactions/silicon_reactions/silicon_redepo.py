@@ -4,7 +4,7 @@ import numpy as np
 
 from res.getero.algorithm.utils import custom_choise, isotropic_reflection
 
-from res.getero.reaction_consts.redepo_silicon import gamma_Si_redepo, gamma_Si_SiCl_redepo, gamma_SiCl2_SiCl_redepo, \
+from res.getero.reactions.reaction_consts.redepo_silicon import gamma_Si_redepo, gamma_Si_SiCl_redepo, gamma_SiCl2_SiCl_redepo, \
     gamma_SiCl_SiCl_redepo, gamma_SiCl3_SiCl_redepo, gamma_Si_SiCl2_redepo, \
     gamma_SiCl_SiCl2_redepo, gamma_SiCl2_SiCl2_redepo, gamma_SiCl3_SiCl2_redepo
 

@@ -2,7 +2,7 @@ from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
-from res.getero.reaction_consts.angular_dependences import ion_enh_etch_an_dep, sput_an_dep
+from res.getero.reactions.reaction_consts.angular_dependences import sput_an_dep
 
 from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection
 

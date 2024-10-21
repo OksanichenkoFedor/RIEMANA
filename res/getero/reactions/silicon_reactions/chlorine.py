@@ -1,18 +1,18 @@
-from res.getero.silicon_reactions.cell_retraction import retract_cell
+from res.getero.reactions.silicon_reactions.cell_retraction import retract_cell
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
-from res.getero.reaction_consts.sputtering_clorine import E_th_cl_sicl0_sp, E_th_cl_sicl1_sp, \
+from res.getero.reactions.reaction_consts.sputtering_clorine import E_th_cl_sicl0_sp, E_th_cl_sicl1_sp, \
     E_th_cl_sicl2_sp, E_th_cl_sicl3_sp, \
     K_sp_cl_sicl0, K_sp_cl_sicl1, K_sp_cl_sicl2, K_sp_cl_sicl3
-from res.getero.reaction_consts.ion_etching_clorine import E_th_Cl_ie, K_ie_cl_sicl, K_ie_cl_sicl2, K_ie_cl_sicl3, \
+from res.getero.reactions.reaction_consts.ion_etching_clorine import E_th_Cl_ie, K_ie_cl_sicl, K_ie_cl_sicl2, K_ie_cl_sicl3, \
                                                            otn_const
-from res.getero.reaction_consts.etching_clorine import gamma_Cl_A, gamma_Cl_B, gamma_Cl_C, gamma_Cl_D
+from res.getero.reactions.reaction_consts.etching_clorine import gamma_Cl_A, gamma_Cl_B, gamma_Cl_C, gamma_Cl_D
 
 from res.getero.algorithm.utils import custom_choise, straight_reflection, isotropic_reflection, count_falling_angle
 
-from res.getero.reaction_consts.angular_dependences import ion_enh_etch_an_dep, sput_an_dep
+from res.getero.reactions.reaction_consts.angular_dependences import ion_enh_etch_an_dep, sput_an_dep
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

@@ -7,7 +7,7 @@ from res.global_entities.etcher import Etcher
 
 class MainFrame(Frame):
 
-    def __init__(self, multiplier, consts_filename="data/data.csv"):
+    def __init__(self, multiplier, consts_filename="data/plasma_cl2_ar_data.csv"):
         super().__init__()
         self.num_iter = 3010
         self.wafer_curr_type = "is_cell"

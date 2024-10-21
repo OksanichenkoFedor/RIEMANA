@@ -17,7 +17,7 @@ def run_Ar(y_ar, N, U):
             "num_one_side_points": 5
             }
 
-    etch = Etcher(0.2, consts_filename="../data/data.csv", Si_num=int(N))
+    etch = Etcher(0.2, consts_filename="../data/plasma_cl2_ar_data.csv", Si_num=int(N))
 
     etch.init()
     etch.run(params, start_filename="../")

@@ -3,7 +3,7 @@ import numpy as np
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
-from res.getero.silicon_reactions.silicon_reactions import silicon_reaction
+from res.getero.reactions.silicon_reactions.silicon_reactions import silicon_reaction
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def surface_cycle(counter_arr,  is_full_arr, curr_angle, normal_angle, curr_att_x, curr_att_y, prev_att_x, prev_att_y, curr_type, Si_num, curr_en, R):

@@ -12,7 +12,7 @@ from res.utils.config import do_njit, cache, parallel
 
 from res.getero.ray_tracing.cell_by_cell.space_orientation import find_next, give_next_cell
 
-from res.getero.silicon_reactions.silicon_reactions import silicon_reaction
+from res.getero.reactions.silicon_reactions.silicon_reactions import silicon_reaction
 from res.getero.algorithm.dynamic_profile import delete_point, create_point
 from res.getero.ray_tracing.profile_approximation import count_norm_angle
 from res.getero.algorithm.utils import straight_reflection

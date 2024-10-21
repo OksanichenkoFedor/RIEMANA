@@ -7,7 +7,7 @@ types = {
     5: "SiCl",
     6: "SiCl2",
     7: "SiCl3",
-    8: "SiCl3",
+    8: "SiCl4",
     9: "Ar",
     10: "Cl2"
 }

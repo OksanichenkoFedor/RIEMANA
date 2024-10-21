@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter.ttk import Frame
 from tkinter import Entry, Label
 
-from res.getero.reaction_consts.types_of_particle import types
+from res.getero.reactions.reaction_consts.types_of_particle import types
 
 
 class TestControlPanel(Frame):

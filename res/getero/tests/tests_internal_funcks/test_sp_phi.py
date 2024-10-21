@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from res.getero.reaction_consts.angular_dependences import sput_an_dep, ion_enh_etch_an_dep
+from res.getero.reactions.reaction_consts.angular_dependences import sput_an_dep, ion_enh_etch_an_dep
 
 Theta = np.arange(0, 1, 0.001) * np.pi * 0.5
 
