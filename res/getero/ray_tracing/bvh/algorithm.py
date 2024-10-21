@@ -4,7 +4,7 @@ import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_start
 from res.getero.ray_tracing.bvh.collision_functions import check_rect_collision
-from res.getero.ray_tracing.utils import check_collision
+from res.getero.ray_tracing.utils import check_collision, check_if_part_inside
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -128,10 +128,7 @@ def find_split_index(curr_edges, do_split_x, split_coord):
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def bvh_count_collision_point(NodeList, ray_vec, curr_angle, start_segment):
-    #print("---")
-
     found, cross_vec, norm_angle, new_segment, num = check_one_node(NodeList, 0, ray_vec, curr_angle, start_segment)
-    #   print(num, int(0.5*(NodeList.shape[0]+1.0)))
     return found, cross_vec, norm_angle, new_segment, num
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_one_node(NodeList, curr_node, ray_vec, curr_angle, start_segment):
@@ -174,8 +171,8 @@ def check_one_node(NodeList, curr_node, ray_vec, curr_angle, start_segment):
 
         is_cross, cross_vec, norm_angle = check_collision(ray_vec, curr_angle, curr_segment)
         #print("end_num: ", x_start, x_end, y_start, y_end, is_cross)
-
-        if is_cross and np.sum(np.abs(start_segment-curr_segment))>0:
+        is_correct_collision = not check_if_part_inside(curr_angle, curr_segment)
+        if (is_correct_collision and is_cross) and np.sum(np.abs(start_segment-curr_segment))>0:
             return True, cross_vec, norm_angle, curr_segment, 1
         else:
             return False, np.ones(2), 0.0, np.ones((2, 2))*(-1.0), 0

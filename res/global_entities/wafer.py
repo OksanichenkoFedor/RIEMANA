@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
@@ -200,7 +202,7 @@ class Wafer:
         # print(25*self.silicon_size)
         self.is_full = np.fromfunction(lambda i, j: j >= self.border, (self.xsize, self.ysize), dtype=int).astype(
             int)
-        self.counter_arr = self.is_full.copy() * self.Si_num
+
         self.mask = np.ones((self.xsize, self.ysize))
         self.mask[:, :self.border] = self.mask[:, :self.border] * 0
         self.mask[:,
@@ -210,19 +212,12 @@ class Wafer:
         self.mask[self.left_area:self.right_area, :self.border + self.mask_height + self.silicon_size] = \
             self.mask[self.left_area:self.right_area, :self.border + self.mask_height + self.silicon_size] * 0
         self.is_full = self.mask + self.is_full
-        self.counter_arr = np.repeat(
-            self.counter_arr.reshape(1, self.counter_arr.shape[0], self.counter_arr.shape[1]),
-            4, axis=0)
+
         self.is_hard = np.zeros(self.is_full.shape).astype(np.bool)
         self.add_segments = np.array([[-1.0,-1.0,0.0,0.0,0.0,0.0]])
-        self.counter_arr[1] = self.counter_arr[1] * 0
-        self.counter_arr[2] = self.counter_arr[2] * 0
-        ind = 3
-        if fill_sicl3:
-            ind = 0
-        self.counter_arr[ind] = self.counter_arr[ind] * 0
+        self.init_counter_arr(fill_sicl3)
 
-        self.counter_arr[0] = self.counter_arr[0] - self.mask * self.Si_num
+
         self.border_arr = np.ones((self.xsize, self.ysize, 5)) * 0.5
         for i in range(self.xsize):
             self.border_arr[i, self.border, 0] = 1.0
@@ -243,6 +238,20 @@ class Wafer:
 
         X, Y = give_line_arrays(self.border_arr, self.is_half)  # 1.5, 1.5)
         self.profiles.append([X, Y])
+
+    def init_counter_arr(self, fill_sicl3):
+        self.num_repeats = 4
+        self.counter_arr = deepcopy(self.is_full) * self.Si_num
+        self.counter_arr = np.repeat(
+            self.counter_arr.reshape(1, self.counter_arr.shape[0], self.counter_arr.shape[1]),
+            self.num_repeats, axis=0)
+        self.counter_arr[1] = self.counter_arr[1] * 0
+        self.counter_arr[2] = self.counter_arr[2] * 0
+        ind = 3
+        if fill_sicl3:
+            ind = 0
+        self.counter_arr[ind] = self.counter_arr[ind] * 0
+        self.counter_arr[0] = self.counter_arr[0] - self.mask * self.Si_num
 
     def clear_between_mask(self):
         for i in range(self.right_area - self.left_area):

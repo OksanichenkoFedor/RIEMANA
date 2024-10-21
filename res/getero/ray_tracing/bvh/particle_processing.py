@@ -55,6 +55,11 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
         if is_collide:
             is_bad_angle = check_if_part_inside(curr_angle, start_segment)
             if is_bad_angle:
+                left_angle = count_angle(start_segment[0, 1] - start_segment[1, 1],
+                                         start_segment[0, 0] - start_segment[1, 0])
+                right_angle = count_angle(start_segment[1, 1] - start_segment[0, 1],
+                                          start_segment[1, 0] - start_segment[0, 0])
+                print("check_angle_collision inside angle: ", curr_angle / np.pi, left_angle / np.pi, right_angle / np.pi)
                 unfound = False
             else:
                 if test:

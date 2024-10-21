@@ -60,11 +60,6 @@ class Getero:
                 R = 1000.0
             else:
                 R = float(self.y_cl / self.y_cl_plus)
-            #co_arr = wafer.counter_arr.copy()
-            #w_if = wafer.is_full.copy()
-            #w_ba = wafer.border_arr.copy()
-            #res = process_particles(co_arr, w_if, w_ba, params,
-            #                        wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False)
             res, _, _, _, _, NodeList, wafer.add_segments = process_particles(wafer.counter_arr, wafer.is_full,
                                    wafer.is_hard, wafer.add_segments, wafer.border_arr, params,
                                    wafer.Si_num, wafer.xsize, wafer.ysize, R, test=False, do_half=wafer.is_half,
