@@ -165,7 +165,7 @@ def give_coefs_line(X, Y):
     B = np.sin(phi)
     return B, A
 
-
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_coincidention(first_segment, second_segment):
     simple_same = np.abs(first_segment - second_segment).sum() == 0
     check_not_zero = np.abs(first_segment).sum()!=0 and np.abs(second_segment).sum()!=0

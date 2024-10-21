@@ -37,7 +37,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
     while unfound and not_max_value:
         num+=1
         if num>1000:
-            print("Strange: ", curr_type)
+            print("Strange segment: ", curr_type)
             print([curr_vec[0], curr_vec[1], curr_en, curr_angle, curr_type])
             unfound = False
         #print("start bvh")

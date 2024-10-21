@@ -236,7 +236,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
             empty_prev = True
 
             changed_angle = False
-    if test:
+    if test and unfound_test:
         pass
         arr_x.append(curr_vec[0] - 0.5 + np.sin(curr_angle) * 500)
         arr_y.append(curr_vec[1] - 0.5 + np.cos(curr_angle) * 500)

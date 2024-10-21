@@ -218,7 +218,7 @@ end_wafer = Wafer()
 #end_wafer = Wafer()
 #end_wafer = create_test_wafer(num_del=5000, multiplier=0.2)
 #end_wafer.save("../files/5000_del_02_mult.zip")
-end_wafer.load("../files/1000_del_02_mult.zip")
+end_wafer.load("../files/5000_del_02_mult.zip")
 
 #end_wafer.load("../files/tmp_U200_1000_1.zip")
 
@@ -227,10 +227,10 @@ end_wafer.load("../files/1000_del_02_mult.zip")
 
 #end_wafer.load("../files/tmp_U200_2000_2.zip")
 f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
-#plt.show()
+plt.show()
 defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=400, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=1000, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()
