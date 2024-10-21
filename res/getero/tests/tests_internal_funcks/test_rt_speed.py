@@ -78,7 +78,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
         _, arr_x_old, arr_y_old, _, _, _, _ = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.is_hard, c_wafer.add_segments, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
-            type="cell by cell", num_one_side_points=5, seed=seed)
+            type="cell by cell", num_one_side_points=config.num_one_side_points, seed=seed)
         #print("end bvh")
         t2 = time.time_ns()
         Times1.append(t2-t1)
@@ -87,7 +87,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
         _, arr_x_cbc, arr_y_cbc, _, _, _, _ = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.is_hard, c_wafer.add_segments, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
-            type="cell by cell", num_one_side_points=5, seed=seed)
+            type="cell by cell", num_one_side_points=config.num_one_side_points, seed=seed)
         #print("end cbc")
         arr_x_cbc, arr_y_cbc = prepare_segment_for_intersection_checking(arr_x_cbc, arr_y_cbc, None, None, None, None)
         t2 = time.time_ns()
@@ -97,7 +97,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
         _, arr_x_bvh, arr_y_bvh, _, _, NodeList, c_wafer.add_segments = process_particles(
             c_wafer.counter_arr, c_wafer.is_full, c_wafer.is_hard, c_wafer.add_segments, c_wafer.border_arr,
             [params_arr], c_wafer.Si_num, c_wafer.xsize, c_wafer.ysize, R, True, c_wafer.is_half,
-            type="bvh", NodeList=NodeList, num_one_side_points=5, seed=seed)
+            type="bvh", NodeList=NodeList, num_one_side_points=config.num_one_side_points, seed=seed)
         t2 = time.time_ns()
         Times3.append(t2 - t1)
         delta = 0
@@ -127,8 +127,8 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             if Times3[-1] > 9 * 10 ** 5 or True:
                 ax.plot(arr_x_cbc, arr_y_cbc, color=(0, 1, 0, 0.5))
                 old += 1
-            print(arr_x_bvh, arr_y_bvh)
-            print(arr_x_cbc, arr_y_cbc)
+            #print(arr_x_bvh, arr_y_bvh)
+            #print(arr_x_cbc, arr_y_cbc)
         if do_plot and False:
             #if Times1[-1] > 9 * 10 ** 5 or True:
             #    ax.plot(arr_x_ls, arr_y_ls,color="r")
@@ -213,9 +213,12 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-end_wafer = create_test_wafer(num_del=200)
-
-#end_wafer.load("../files/tmp_U200_2000_1.zip")
+#end_wafer = create_test_wafer(num_del=1000, multiplier=0.2)
+#end_wafer.save("../files/1000_del_02_mult.zip")
+#end_wafer = Wafer()
+#end_wafer = create_test_wafer(num_del=5000, multiplier=0.2)
+#end_wafer.save("../files/5000_del_02_mult.zip")
+end_wafer.load("../files/1000_del_02_mult.zip")
 
 #end_wafer.load("../files/tmp_U200_1000_1.zip")
 
@@ -224,10 +227,10 @@ end_wafer = create_test_wafer(num_del=200)
 
 #end_wafer.load("../files/tmp_U200_2000_2.zip")
 f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
-plt.show()
+#plt.show()
 defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=200, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=400, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()

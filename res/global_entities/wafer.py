@@ -133,6 +133,8 @@ class Wafer:
         np.save("counter_arr.npy", self.counter_arr)
         np.save("mask.npy", self.mask)
         np.save("border_arr.npy", self.border_arr)
+        np.save("is_hard.npy", self.is_hard)
+        np.save("add_segments.npy", self.add_segments)
         # np.save("profiles.npy", np.array(self.profiles))
 
         with ZipFile(filename, 'w') as myzip:
@@ -140,6 +142,8 @@ class Wafer:
             myzip.write("counter_arr.npy")
             myzip.write("mask.npy")
             myzip.write("border_arr.npy")
+            myzip.write("is_hard.npy")
+            myzip.write("add_segments.npy")
             # myzip.write("profiles.npy")
             myzip.write("cdict.yaml")
 
@@ -147,6 +151,8 @@ class Wafer:
         os.remove("counter_arr.npy")
         os.remove("mask.npy")
         os.remove("border_arr.npy")
+        os.remove("is_hard.npy")
+        os.remove("add_segments.npy")
         # os.remove("profiles.npy")
         os.remove("cdict.yaml")
 
@@ -162,6 +168,10 @@ class Wafer:
                 self.mask = np.load(myfile)
             with myzip.open("border_arr.npy") as myfile:
                 self.border_arr = np.load(myfile)
+            with myzip.open("is_hard.npy") as myfile:
+                self.is_hard = np.load(myfile)
+            with myzip.open("add_segments.npy") as myfile:
+                self.add_segments = np.load(myfile)
             with myzip.open("cdict.yaml") as myfile:
                 conf = OmegaConf.load(myfile)
         self.multiplier = float(conf.multiplier)

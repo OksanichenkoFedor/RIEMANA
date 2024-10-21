@@ -1,11 +1,13 @@
 import numpy as np
 
-from res.getero.ray_tracing.utils import check_collision, check_if_part_inside
+from res.getero.ray_tracing.utils import check_collision, check_if_part_inside, check_coincidention
 from res.utils.config import do_njit, cache, parallel
 from res.utils.wrapper import clever_njit
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_cell_intersection(border_arr, is_hard, add_segments, curr_att_x, curr_att_y, curr_vec, curr_angle, start_segment):
+    if curr_att_x==158 and curr_att_y==143:
+        print()
     is_collide, cross_vec, segment, dist = False, np.zeros(2), np.zeros((2, 2)), 0
     if border_arr[curr_att_x,curr_att_y, 0]==1:
         is_collide, cross_vec, segment, dist = check_border_cell_intersection(border_arr, curr_att_x, curr_att_y, curr_vec, curr_angle, start_segment)
@@ -18,7 +20,8 @@ def check_cell_intersection(border_arr, is_hard, add_segments, curr_att_x, curr_
         #print("dist: ", dist)
         for i in range(add_segments.shape[0]):
             if add_segments[i][0]==curr_att_x and add_segments[i][1]==curr_att_y:
-                #print(add_segments[i])
+                #if curr_att_x == 158 and curr_att_y == 143:
+                #    print(add_segments[i])
                 new_segment = np.zeros((2, 2))
                 new_segment[0, 0], new_segment[0, 1] = add_segments[i][2]+0.5, add_segments[i][3]+0.5
                 new_segment[1, 0], new_segment[1, 1] = add_segments[i][4]+0.5, add_segments[i][5]+0.5
@@ -26,14 +29,18 @@ def check_cell_intersection(border_arr, is_hard, add_segments, curr_att_x, curr_
                 new_dist = np.sqrt(np.pow(curr_vec - new_cross_vec, 2).sum())
                 is_inside = (curr_att_x <= new_cross_vec[0] < curr_att_x + 1) and (
                             curr_att_y <= new_cross_vec[1] < curr_att_y + 1)
+                is_correct_angle = not check_if_part_inside(curr_angle, new_segment)
 
-                if start_segment is None:
-                    pass
-                else:
-                    is_bad_angle = check_if_part_inside(curr_angle, start_segment)
-                    new_collide = np.abs(start_segment - new_segment).sum() != 0 and new_collide
-                    #new_collide = new_collide and is_bad_angle
+                is_not_start_segment = True
+                if not (start_segment is None):
+                    is_not_start_segment = not check_coincidention(start_segment, new_segment)
 
+                #if (curr_att_x == 158 and curr_att_y == 143) or (curr_att_x == 217 and curr_att_y == 144):
+                #    print("fff: ",add_segments[i], curr_angle/np.pi, new_collide, is_not_start_segment, is_correct_angle)
+                new_collide = new_collide and is_not_start_segment
+                new_collide = new_collide and is_correct_angle
+                if new_collide and ((curr_att_x == 158 and curr_att_y == 143) or (curr_att_x == 217 and curr_att_y == 144)):
+                    print("fff: ", add_segments[i], curr_angle/np.pi, curr_vec)
                 if new_collide and is_inside:
                     if is_collide == False:
                         #print("fffffff")
@@ -73,14 +80,19 @@ def check_border_cell_intersection(border_arr, curr_att_x, curr_att_y, curr_vec,
     left_collide, left_cross_vec, left_norm_angle = check_collision(curr_vec, curr_angle, left_segment)
     right_collide, right_cross_vec, right_norm_angle = check_collision(curr_vec, curr_angle, right_segment)
 
+    is_left_correct_angle = not check_if_part_inside(curr_angle, left_segment)
+    is_right_correct_angle = not check_if_part_inside(curr_angle, right_segment)
+    left_collide = left_collide and is_left_correct_angle
+    right_collide = right_collide and is_right_correct_angle
+
     left_dist = np.sqrt(np.pow(curr_vec - left_cross_vec, 2).sum())
     right_dist = np.sqrt(np.pow(curr_vec - right_cross_vec, 2).sum())
 
     if start_segment is None:
         pass
     else:
-        left_collide = np.abs(start_segment - left_segment).sum() != 0 and left_collide
-        right_collide = np.abs(start_segment - right_segment).sum() != 0 and right_collide
+        left_collide = (not check_coincidention(start_segment, left_segment)) and left_collide
+        right_collide = (not check_coincidention(start_segment, right_segment)) and right_collide
 
     if left_collide and right_collide:
         if np.pow(curr_vec - left_cross_vec, 2).sum() < np.pow(curr_vec - right_cross_vec, 2).sum():

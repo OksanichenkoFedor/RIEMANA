@@ -2,7 +2,7 @@ import numpy as np
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
-from res.getero.ray_tracing.utils import count_angle
+from res.getero.ray_tracing.utils import count_angle, give_coefs_line
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -86,29 +86,6 @@ def give_part_of_border(border_arr, curr_segment, is_half, num_one_side_points):
     if int(2 * curr_segment[0, 0]) % 2 == 0 and int(2 * curr_segment[1, 0]) % 2 == 0:
         print("Incorrect end: ", curr_segment[0, 0], curr_segment[0, 1])
     return X, Y, num_one_side_points, reach_left_side
-
-
-@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def give_coefs_line(X, Y):
-    #print(X.shape, Y.shape)
-    X = X - X.mean()
-    Y = Y - Y.mean()
-    xy, x2, y2 = (X*Y).mean(), (X*X).mean(), (Y*Y).mean()
-    if x2-y2!=0:
-        tg = (2.0 * xy) / (x2 - y2)
-        phi = np.atan(tg)*0.5
-    else:
-        phi = np.pi*0.25
-    #print("phi: ",phi/np.pi)
-    val1 = np.cos(phi) * np.cos(phi) * x2 + np.sin(2 * phi) * xy + np.sin(phi) * np.sin(phi) * y2
-    val2 = np.cos(phi + np.pi * 0.5) * np.cos(phi + np.pi * 0.5) * x2 + np.sin(2 * phi + np.pi) * xy + np.sin(
-        phi + np.pi * 0.5) * np.sin(phi + np.pi * 0.5) * y2
-    if val2<val1:
-        phi = phi+np.pi*0.5
-
-    A = np.cos(phi)
-    B = np.sin(phi)
-    return B, A
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

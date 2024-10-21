@@ -63,8 +63,8 @@ def defend_wafer(c_wafer):
             c_wafer.is_full[x, y] = 2.0
 
 
-def create_test_wafer(num_del=2000, seed=12):
-    multiplier, Si_num = 0.1, 84
+def create_test_wafer(num_del=2000, seed=12, multiplier=0.1):
+    multiplier, Si_num = multiplier, 84
     test_ray_tracing_params = {
         "mask_height": 200,
         "hole_size": 200,

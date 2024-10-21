@@ -141,3 +141,47 @@ def check_collision(vec1, angle, curr_segment):
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def count_vec_mult(delta_x1, delta_y1, delta_x2, delta_y2):
     return delta_x1*delta_y2-delta_x2*delta_y1
+
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def give_coefs_line(X, Y):
+    #print(X.shape, Y.shape)
+    X = X - X.mean()
+    Y = Y - Y.mean()
+    xy, x2, y2 = (X*Y).mean(), (X*X).mean(), (Y*Y).mean()
+    if x2-y2!=0:
+        tg = (2.0 * xy) / (x2 - y2)
+        phi = np.atan(tg)*0.5
+    else:
+        phi = np.pi*0.25
+    #print("phi: ",phi/np.pi)
+    val1 = np.cos(phi) * np.cos(phi) * x2 + np.sin(2 * phi) * xy + np.sin(phi) * np.sin(phi) * y2
+    val2 = np.cos(phi + np.pi * 0.5) * np.cos(phi + np.pi * 0.5) * x2 + np.sin(2 * phi + np.pi) * xy + np.sin(
+        phi + np.pi * 0.5) * np.sin(phi + np.pi * 0.5) * y2
+    if val2<val1:
+        phi = phi+np.pi*0.5
+
+    A = np.cos(phi)
+    B = np.sin(phi)
+    return B, A
+
+
+def check_coincidention(first_segment, second_segment):
+    simple_same = np.abs(first_segment - second_segment).sum() == 0
+    check_not_zero = np.abs(first_segment).sum()!=0 and np.abs(second_segment).sum()!=0
+    check_not_min_one = np.abs(first_segment + np.ones(first_segment.shape)).sum() != 0 and np.abs(
+        second_segment + np.ones(second_segment.shape)).sum() != 0
+    x1, y1 = first_segment[0]
+    x2, y2 = first_segment[1]
+    x3, y3 = second_segment[0]
+    x4, y4 = second_segment[1]
+    inside_third = np.abs((x3 - x1) * (y2 - y1) - (x2 - x1) * (y3 - y1)) == 0
+    inside_forth = np.abs((x4 - x1) * (y2 - y1) - (x2 - x1) * (y4 - y1)) == 0
+    res = (inside_third and inside_forth) and (check_not_zero and check_not_min_one)
+    if res==False and simple_same==True:
+        print("Same not coincidente: ", first_segment, second_segment)
+    elif res==True and simple_same==False:
+        pass
+        #print("Not same but coincidate: ", first_segment, second_segment)
+    return res
+
