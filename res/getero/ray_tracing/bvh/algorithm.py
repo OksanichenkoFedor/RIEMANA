@@ -4,7 +4,7 @@ import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_start
 from res.getero.ray_tracing.bvh.collision_functions import check_rect_collision
-from res.getero.ray_tracing.utils import check_collision, check_if_part_inside, check_coincidention
+from res.getero.ray_tracing.utils import check_ray_collision, check_if_part_inside, check_coincidention
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -169,7 +169,7 @@ def check_one_node(NodeList, curr_node, ray_vec, curr_angle, start_segment):
         curr_segment[0, 0], curr_segment[0, 1] = x_start + 0.5, y_start + 0.5
         curr_segment[1, 0], curr_segment[1, 1] = x_end + 0.5, y_end + 0.5
 
-        is_cross, cross_vec, norm_angle = check_collision(ray_vec, curr_angle, curr_segment)
+        is_cross, cross_vec, norm_angle = check_ray_collision(ray_vec, curr_angle, curr_segment)
         #print("end_num: ", x_start, x_end, y_start, y_end, is_cross)
         is_correct_collision = not check_if_part_inside(curr_angle, curr_segment)
         #not check_coincidention(start_segment, curr_segment)

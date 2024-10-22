@@ -1,6 +1,6 @@
 import numpy as np
 
-from res.getero.ray_tracing.utils import check_collision, check_if_part_inside, check_coincidention
+from res.getero.ray_tracing.utils import check_ray_collision, check_if_part_inside, check_coincidention
 from res.utils.config import do_njit, cache, parallel
 from res.utils.wrapper import clever_njit
 
@@ -23,7 +23,7 @@ def check_cell_intersection(border_arr, is_hard, add_segments, curr_att_x, curr_
                 new_segment = np.zeros((2, 2))
                 new_segment[0, 0], new_segment[0, 1] = add_segments[i][2]+0.5, add_segments[i][3]+0.5
                 new_segment[1, 0], new_segment[1, 1] = add_segments[i][4]+0.5, add_segments[i][5]+0.5
-                new_collide, new_cross_vec, new_norm_angle = check_collision(curr_vec, curr_angle, new_segment)
+                new_collide, new_cross_vec, new_norm_angle = check_ray_collision(curr_vec, curr_angle, new_segment)
                 new_dist = np.sqrt(np.pow(curr_vec - new_cross_vec, 2).sum())
                 is_inside = (curr_att_x <= new_cross_vec[0] < curr_att_x + 1) and (
                             curr_att_y <= new_cross_vec[1] < curr_att_y + 1)
@@ -75,8 +75,8 @@ def check_border_cell_intersection(border_arr, curr_att_x, curr_att_y, curr_vec,
     cross_vec = np.zeros(2)
     dist = 0
 
-    left_collide, left_cross_vec, left_norm_angle = check_collision(curr_vec, curr_angle, left_segment)
-    right_collide, right_cross_vec, right_norm_angle = check_collision(curr_vec, curr_angle, right_segment)
+    left_collide, left_cross_vec, left_norm_angle = check_ray_collision(curr_vec, curr_angle, left_segment)
+    right_collide, right_cross_vec, right_norm_angle = check_ray_collision(curr_vec, curr_angle, right_segment)
 
     is_left_correct_angle = not check_if_part_inside(curr_angle, left_segment)
     is_right_correct_angle = not check_if_part_inside(curr_angle, right_segment)
@@ -157,8 +157,8 @@ def particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle):
         first_delta_x, first_delta_y = -1, 0
         second_delta_x, second_delta_y = 0, 1
 
-    first_collide, first_cross_vec, first_norm_angle = check_collision(curr_vec, curr_angle, first_segment)
-    second_collide, second_cross_vec, second_norm_angle = check_collision(curr_vec, curr_angle, second_segment)
+    first_collide, first_cross_vec, first_norm_angle = check_ray_collision(curr_vec, curr_angle, first_segment)
+    second_collide, second_cross_vec, second_norm_angle = check_ray_collision(curr_vec, curr_angle, second_segment)
 
     if first_collide and second_collide:
         #print("Both intersect  -> incorrect cell_by_cell/collision_functions particle_on_wall")

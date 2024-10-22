@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 
 from res.getero.algorithm.dynamic_profile import give_start, delete_point, give_line_arrays, give_coords_from_num, \
     create_point
+from res.getero.ray_tracing.utils import count_angle
 from res.global_entities.plotter import generate_figure
 from res.global_entities.wafer import Wafer
 
@@ -65,13 +66,26 @@ def create_some_structure(c_wafer, num_create = 100, seed=10):
                 curr_x = X[j]
                 curr_y = Y[j]
                 if c_wafer.is_full[curr_x, curr_y] == 1:
-                    unfound = False
-                unfound_1 = True
-                while unfound_1:
-                    j1 = np.random.randint(0,8)
-                    new_x, new_y = give_coords_from_num(j1, curr_x, curr_y)
-                    if c_wafer.border_arr[new_x,new_y, 0]==-1 and c_wafer.is_hard[new_x,new_y]==False:
-                        unfound_1=False
+                    pass
+                    unfound_1 = True
+                    print(curr_x, curr_y)
+                    js = np.arange(0, 8, 1)
+                    np.random.shuffle(js)
+                    for i in range(8):
+                        if unfound_1:
+                            j1 = js[i]
+                            new_x, new_y = give_coords_from_num(j1, curr_x, curr_y)
+                            if c_wafer.border_arr[new_x, new_y, 0] == -1 and (
+                                    possible_to_reach(c_wafer.border_arr, curr_x, curr_y, new_x, new_y) or (
+                                    not c_wafer.is_hard[new_x, new_y])):
+                                # if (new_x==221 and new_y==141) and (curr_x==222 and curr_y==141):
+                                #    print("possible_to_reach: ",possible_to_reach(c_wafer.border_arr, curr_x, curr_y, new_x, new_y))
+                                unfound_1 = False
+                    if not unfound_1:
+                        unfound = False
+
+
+
                     #print(c_wafer.is_hard[new_x, new_y])
             tmp_ba = deepcopy(c_wafer.border_arr)
             tmp_ca = deepcopy(c_wafer.counter_arr)
@@ -79,7 +93,8 @@ def create_some_structure(c_wafer, num_create = 100, seed=10):
             tmp_ih = deepcopy(c_wafer.is_hard)
             tmp_as = deepcopy(c_wafer.add_segments)
             #c_wafer.counter_arr[:, curr_x, curr_y] = np.array([0, 0, 0, 0])
-            #c_wafer.is_full[curr_x, curr_y] = 0
+            c_wafer.is_full[new_x, new_y] = 1
+            print("Create: ",new_x, new_y, curr_x, curr_y)
             c_wafer.add_segments = create_point(c_wafer.border_arr, c_wafer.is_full, c_wafer.is_hard,
                                                 c_wafer.add_segments, new_x, new_y, curr_x, curr_y)
             #c_wafer.add_segments = delete_point(c_wafer.border_arr, c_wafer.is_full, c_wafer.is_hard,
@@ -98,6 +113,26 @@ def create_some_structure(c_wafer, num_create = 100, seed=10):
         X_crt.append(new_x)
         Y_crt.append(new_y)
     return X_crt, Y_crt
+
+def possible_to_reach(border_arr,curr_x, curr_y, new_x, new_y):
+    if border_arr[curr_x, curr_y, 1] == -1 and border_arr[curr_x, curr_y, 2] == -1:
+        prev_x, prev_y = curr_x + 0.0, curr_y + 0.5
+    else:
+        prev_x, prev_y = border_arr[curr_x, curr_y, 1] + 0.5, border_arr[curr_x, curr_y, 2] + 0.5
+
+    if border_arr[curr_x, curr_y, 3] == -1 and border_arr[curr_x, curr_y, 4] == -1:
+        next_x, next_y = curr_x + 1.0, curr_y + 0.5
+    else:
+        next_x, next_y = border_arr[curr_x, curr_y, 3] + 0.5, border_arr[curr_x, curr_y, 4] + 0.5
+    curr_x, curr_y, new_x, new_y = curr_x + 0.5, curr_y + 0.5, new_x + 0.5, new_y + 0.5
+    left_angle = count_angle(prev_y - curr_y, prev_x - curr_x)
+    right_angle = count_angle(next_y - curr_y, next_x - curr_x)
+    new_angle = count_angle(new_y - curr_y, new_x - curr_x)
+    #print(left_angle/np.pi, right_angle/np.pi, new_angle/np.pi)
+    if (new_angle/np.pi-right_angle/np.pi)%2+(left_angle/np.pi-new_angle/np.pi)%2==(left_angle/np.pi-right_angle/np.pi)%2:
+        return True
+    else:
+        return False
 
 def defend_wafer(c_wafer):
     x, y = give_start(c_wafer.border_arr)

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from res.getero.ray_tracing.bvh.algorithm import build_BVH
 from res.getero.tests.tests_internal_funcks.help_test_funks import defend_wafer
 from res.global_entities.plotter import generate_figure
@@ -53,6 +55,67 @@ def process_str_particle(curr_str):
     print(res)
     return np.array(res)
 
+def compare_arrays(x1, y1, x2, y2):
+    if len(x1) == len(x2):
+        delta = np.array(x1[1:-1]) - np.array(x2[1:-1])
+        if len(delta) > 0:
+            delta = np.linalg.norm(delta, ord=np.inf)
+        else:
+            delta = 0
+        if delta > 10 ** (-5):
+
+            num = 0
+            while num < len(x1):
+                if y1[num] < 0.5:
+                    x1.pop(num)
+                    y1.pop(num)
+                else:
+                    num += 1
+
+            num = 0
+            while num < len(x2):
+                if y2[num] < 0.5:
+                    x2.pop(num)
+                    y2.pop(num)
+                else:
+                    num += 1
+            delta1 = np.array(x1[1:-1]) - np.array(x2[1:-1])
+            delta2 = np.array(y1[1:-1]) - np.array(y2[1:-1])
+            if len(delta1) > 0:
+                delta = np.linalg.norm(delta1, ord=np.inf)+np.linalg.norm(delta2, ord=np.inf)
+            else:
+                delta = 0
+    else:
+        num = 0
+        while num < len(x1):
+            if y1[num] < 0.5:
+                x1.pop(num)
+                y1.pop(num)
+            else:
+                num += 1
+
+        num = 0
+        while num < len(x2):
+            if y2[num] < 0.5:
+                x2.pop(num)
+                y2.pop(num)
+            else:
+                num += 1
+        x1, y1 = prepare_segment_for_intersection_checking(x1, y1, None, None, None, None)
+        x2, y2 = prepare_segment_for_intersection_checking(x2, y2, None, None, None, None)
+
+    if len(x1) == len(x2):
+        delta1 = np.array(x1[1:-1]) - np.array(x2[1:-1])
+        delta2 = np.array(y1[1:-1]) - np.array(y2[1:-1])
+        if len(delta1) > 0:
+            delta = np.linalg.norm(delta1, ord=np.inf) + np.linalg.norm(delta2, ord=np.inf)
+        else:
+            delta = 0
+        if delta > 10 ** (-5):
+            return True
+    else:
+        return True
+    return False
 
 def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
     params = generate_particles(num_particles, c_wafer.xsize,y_ar_plus=y_ar_plus, y_cl=y_cl, y_cl_plus=y_cl_plus, T_i=T_i, T_e=U_i, y0=c_wafer.y0)
@@ -101,71 +164,11 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             type="bvh", NodeList=NodeList, num_one_side_points=config.num_one_side_points, seed=seed)
         t2 = time.time_ns()
         Times3.append(t2 - t1)
-        if len(arr_x_bvh) == len(arr_x_cbc):
-            delta = np.array(arr_x_bvh[1:-1]) - np.array(arr_x_cbc[1:-1])
-            if len(delta) > 0:
-                delta = np.linalg.norm(delta, ord=np.inf)
-            else:
-                delta = 0
-            if delta > 10 ** (-5):
-
-                num = 0
-                while num < len(arr_x_cbc):
-                    if arr_y_cbc[num] < 0.5:
-                        arr_x_cbc.pop(num)
-                        arr_y_cbc.pop(num)
-                    else:
-                        num += 1
-
-                num = 0
-                while num < len(arr_x_bvh):
-                    if arr_y_bvh[num] < 0.5:
-                        arr_x_bvh.pop(num)
-                        arr_y_bvh.pop(num)
-                    else:
-                        num += 1
-                delta = np.array(arr_x_bvh[1:-1]) - np.array(arr_x_cbc[1:-1])
-                if len(delta) > 0:
-                    delta = np.linalg.norm(delta, ord=np.inf)
-                else:
-                    delta = 0
-        else:
-            num = 0
-            while num < len(arr_x_cbc):
-                if arr_y_cbc[num] < 0.5:
-                    arr_x_cbc.pop(num)
-                    arr_y_cbc.pop(num)
-                else:
-                    num += 1
-
-            num = 0
-            while num < len(arr_x_bvh):
-                if arr_y_bvh[num] < 0.5:
-                    arr_x_bvh.pop(num)
-                    arr_y_bvh.pop(num)
-                else:
-                    num += 1
-            arr_x_cbc, arr_y_cbc = prepare_segment_for_intersection_checking(arr_x_cbc, arr_y_cbc, None, None, None,
-                                                                             None)
-
-        if len(arr_x_bvh) == len(arr_x_cbc):
-            delta = np.array(arr_x_bvh[1:-1]) - np.array(arr_x_cbc[1:-1])
-            if len(delta) > 0:
-                delta = np.linalg.norm(delta, ord=np.inf)
-            else:
-                delta = 0
-            if delta > 10 ** (-5):
-                print("Ошибка!!!")
-                print(params_arr)
-                print(seed)
-                if Times3[-1] > 9 * 10 ** 5 or True:
-                    ax.plot(arr_x_bvh, arr_y_bvh, color=(0, 0, 1, 0.5))
-                    bvh += 1
-                if Times3[-1] > 9 * 10 ** 5 or True:
-                    ax.plot(arr_x_cbc, arr_y_cbc, color=(0, 1, 0, 0.5))
-                    old += 1
-        else:
-            print("Ошибка!!")
+        #print(type(list(arr_x_old)))
+        arr_x_bvh1, arr_y_bvh1, arr_x_cbc1, arr_y_cbc1 = deepcopy(list(arr_x_bvh)), deepcopy(list(arr_y_bvh)), deepcopy(list(arr_x_cbc)), deepcopy(list(arr_y_cbc))
+        is_bad = compare_arrays(arr_x_bvh1, arr_y_bvh1, arr_x_cbc1, arr_y_cbc1)
+        if is_bad:
+            print("Ошибка!!!")
             print(params_arr)
             print(seed)
             if Times3[-1] > 9 * 10 ** 5 or True:
@@ -174,6 +177,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             if Times3[-1] > 9 * 10 ** 5 or True:
                 ax.plot(arr_x_cbc, arr_y_cbc, color=(0, 1, 0, 0.5))
                 old += 1
+
         if do_plot and False:
             #if Times1[-1] > 9 * 10 ** 5 or True:
             #    ax.plot(arr_x_ls, arr_y_ls,color="r")
@@ -258,12 +262,12 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-#end_wafer = create_test_wafer(num_del=100, num_create=0, multiplier=0.2)
+end_wafer = create_test_wafer(num_del=500, num_create=500, multiplier=0.2)
 #end_wafer.save("../files/1000_del_02_mult.zip")
 #end_wafer = Wafer()
 #end_wafer = create_test_wafer(num_del=5000, multiplier=0.2)
 #end_wafer.save("../files/5000_del_02_mult.zip")
-end_wafer.load("../files/5000_del_02_mult.zip")
+#end_wafer.load("../files/5000_del_02_mult.zip")
 #end_wafer.make_half()
 
 #end_wafer.load("../files/tmp_U200_1000_1.zip")
@@ -276,7 +280,7 @@ f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 plt.show()
 defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=2000, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=5000, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()

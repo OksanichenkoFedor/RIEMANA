@@ -3,7 +3,7 @@ from res.utils.config import do_njit, cache, parallel
 import numpy as np
 
 from res.getero.algorithm.dynamic_profile import give_start
-from res.getero.ray_tracing.utils import check_collision
+from res.getero.ray_tracing.utils import check_ray_collision
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -23,7 +23,7 @@ def simple_count_collision_point(border_layer_arr, ray_vec, curr_angle, start_se
         curr_segment[0, 0], curr_segment[0, 1] = x_start+0.5, y_start+0.5
         curr_segment[1, 0], curr_segment[1, 1] = x_end+0.5, y_end+0.5
 
-        is_cross, curr_cross_vec, c_na  = check_collision(ray_vec, curr_angle, curr_segment)
+        is_cross, curr_cross_vec, c_na  = check_ray_collision(ray_vec, curr_angle, curr_segment)
 
         if is_cross:
             if found:

@@ -1,7 +1,7 @@
 #from numba import njit
 from res.getero.ray_tracing.cell_by_cell.collision_functions import particle_on_wall
 from res.getero.ray_tracing.cell_by_cell.space_orientation import give_next_cell
-from res.getero.ray_tracing.utils import count_angle
+from res.getero.ray_tracing.utils import count_angle, check_collision
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 import numpy as np
@@ -138,18 +138,23 @@ def give_coords_from_num(num, start_x, start_y):
 def create_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, curr_y, next_x, next_y):
     border_layer_arr[curr_x, curr_y, 0] = 1
     if not check_if_inside(border_layer_arr, next_x, next_y):
+        #print("ddd")
         # проверка на то, что мы не закрываем более старую клетку границы
         if curr_x > 0:
             if check_if_inside(border_layer_arr, curr_x - 1, curr_y):
+                #print("ffffff1")
                 next_x, next_y = curr_x - 1, curr_y
         if curr_x < border_layer_arr.shape[0] - 1:
             if check_if_inside(border_layer_arr, curr_x + 1, curr_y):
+                #print("ffffff2")
                 next_x, next_y = curr_x + 1, curr_y
         if curr_y > 0:
             if check_if_inside(border_layer_arr, curr_x, curr_y - 1):
+                #print("ffffff3")
                 next_x, next_y = curr_x, curr_y - 1
         if curr_y < border_layer_arr.shape[1] - 1:
             if check_if_inside(border_layer_arr, curr_x, curr_y + 1):
+                #print("ffffff4")
                 next_x, next_y = curr_x, curr_y + 1
     #print("next: ",next_x,next_y)
     old_prev_x, old_prev_y = border_layer_arr[next_x, next_y, 1], border_layer_arr[next_x, next_y, 2]
@@ -168,30 +173,39 @@ def create_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, c
                                              old_prev_y, curr_x, curr_y)
 
 
-
     # производим удаление внутренних клеток границы
 
     # назад
+    #print("prev")
     prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
+    #print(border_layer_arr[201,142])
     while check_if_inside(border_layer_arr, prev_x, prev_y):
         add_segments = simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y, 0)
         prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     # вперёд
+    #print(border_layer_arr[201,142])
+    #print("next")
     next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
     while check_if_inside(border_layer_arr, next_x, next_y):
         add_segments = simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, next_x, next_y, 0)
         next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
+    #print(border_layer_arr[201, 142])
+    #prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
+    #check_and_push(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y , False)
+    #check_and_push(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, curr_y, True)
+
     return add_segments
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, curr_y, type):
-    print("start simple_delition")
+    #print("start simple_delition: ",curr_x, curr_y)
     prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
+    #print(prev_x, prev_y, next_x, next_y, type)
     add_segments = connection(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y, curr_x, curr_y, next_x, next_y)
     border_layer_arr[curr_x, curr_y] = [type, -1, -1, -1, -1]
-    print("end simple_delition")
+    #print("end simple_delition")
     return add_segments
 
 
@@ -210,7 +224,7 @@ def connection(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, pre
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def simple_addition_after(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y, curr_x, curr_y):
-    print("start simple_addition_after")
+    #print("start simple_addition_after")
     next_x, next_y = border_layer_arr[prev_x, prev_y, 3], border_layer_arr[prev_x, prev_y, 4]
     border_layer_arr[curr_x, curr_y, 0] = 1
 
@@ -226,13 +240,14 @@ def simple_addition_after(border_layer_arr, is_full_arr, is_hard, add_segments, 
                                           add_segments, True)
     add_segments = check_void_line_points(curr_x, curr_y, next_x, next_y, border_layer_arr, is_full_arr, is_hard,
                                           add_segments, True)
-    print("end simple_addition_after")
+    #print("end simple_addition_after")
 
     return add_segments
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_if_inside(border_layer_arr, curr_x, curr_y):
+
     is_inside = True
     if border_layer_arr[curr_x, curr_y, 0]==-1:
         return False
@@ -250,18 +265,43 @@ def check_if_inside(border_layer_arr, curr_x, curr_y):
             is_inside = False
 
     if is_inside:
-        return True
+        #return True
+        return check_if_correct_delete(border_layer_arr, curr_x, curr_y)
     else:
         return False
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_if_correct_delete(border_layer_arr, curr_x, curr_y):
+    #print("start: ", curr_x, curr_y)
+    if border_layer_arr[curr_x, curr_y, 1]==-1 and border_layer_arr[curr_x, curr_y, 2]==-1:
+        prev_x, prev_y = curr_x + 0.0, curr_y + 0.5
+    else:
+        prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1] + 0.5, border_layer_arr[curr_x, curr_y, 2] + 0.5
+
+    if border_layer_arr[curr_x, curr_y, 3] == -1 and border_layer_arr[curr_x, curr_y, 4] == -1:
+        next_x, next_y = curr_x + 1.0, curr_y + 0.5
+    else:
+        next_x, next_y = border_layer_arr[curr_x, curr_y, 3] + 0.5, border_layer_arr[curr_x, curr_y, 4] + 0.5
+    is_left = check_collision(prev_x, prev_y, next_x, next_y, curr_x + 1.0, curr_y - 0.0, curr_x + 1.0, curr_y + 1.0, False)[0]
+    is_right = check_collision(prev_x, prev_y, next_x, next_y, curr_x - 0.0, curr_y - 0.0, curr_x - 0.0, curr_y + 1.0, False)[0]
+    is_up = check_collision(prev_x, prev_y, next_x, next_y, curr_x - 0.0, curr_y - 0.0, curr_x + 1.0, curr_y - 0.0, False)[0]
+    is_bottom = check_collision(prev_x, prev_y, next_x, next_y, curr_x - 0.0, curr_y + 1.0, curr_x + 1.0, curr_y + 1.0, False)[0]
+    is_through_centre_1 = np.abs((curr_x + 0.5 - prev_x) * (next_y - prev_y) - (next_x - prev_x) * (curr_y + 0.5 - prev_y)) == 0
+    is_through_centre_2 = (curr_x + 0.5 - prev_x)*(next_x - curr_x - 0.5)>0 or (curr_y + 0.5 - prev_y)*(next_y - curr_y - 0.5)>0
+    is_through_centre = is_through_centre_1 and is_through_centre_2
+
+    #print("fff: ", prev_x, prev_y, next_x, next_y, curr_x, curr_y, is_left, is_right, is_up, is_bottom, is_through_centre)
+    if ((is_left or is_right) or (is_up or is_bottom)) or is_through_centre:
+        return False
+    else:
+        return True
 
 
 def give_line_arrays(border_layer, plot_refl_wall):
     X = []
     Y = []
     x, y = give_start(border_layer)
-    #print("fff3gla")
     unfound = True
-    #print(border_layer.shape)
     while unfound:
         X.append(int(x))
         Y.append(int(y))
@@ -328,8 +368,6 @@ def find_close_void(border_layer_arr, curr_x, curr_y):
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, is_hard, add_segments, do_create):
-    #print("start cvlp")
-    #print("start: ", start_x, start_y, end_x, end_y)
     if (start_x==-1 or start_y==-1) or (end_x==-1 or end_y==-1):
         print("Incorrect connection dynamic_profile/check_void_line_points: ", start_x, start_y, end_x, end_y)
     inc_x, inc_y = np.sign(end_x - start_x), np.sign(end_y - start_y)
@@ -341,15 +379,10 @@ def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, 
     else:
         angle = count_angle(end_y - start_y, end_x - start_x)
 
-        #print(angle/np.pi)
-        #add_segments = process_void_line_point(start_x, start_y, border_arr, is_full, is_hard, add_segments,
-        #                                       do_create, start_x, start_y, end_x, end_y)
         curr_vec = np.zeros(2)
         curr_vec[0], curr_vec[1] = start_x+0.5, start_y+0.5
         new_vec, curr_att_x, curr_att_y = particle_on_wall(start_x, start_y, curr_vec, angle)
         curr_x, curr_y = new_vec[0], new_vec[1]
-
-        #print(curr_att_x, curr_att_y)
         if (curr_att_x!=start_x or curr_att_y!=start_y) and (curr_att_x!=end_x or curr_att_y!=end_y):
             add_segments = process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard, add_segments,
                                                do_create, start_x, start_y, end_x, end_y)
@@ -358,13 +391,11 @@ def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, 
         else:
             is_on_horiz = 1
         while (curr_att_x - end_x != 0) or (curr_att_y - end_y != 0):
-            # print("---")
             curr_x, curr_y, is_on_horiz = give_next_cell(curr_x, curr_y, angle, is_on_horiz)
             if is_on_horiz:
                 curr_att_y += inc_y
             else:
                 curr_att_x += inc_x
-            #print(curr_att_x, curr_att_y)
             if (curr_att_x != start_x or curr_att_y != start_y) and (curr_att_x != end_x or curr_att_y != end_y):
                 add_segments = process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard,
                                                        add_segments,
@@ -379,8 +410,6 @@ def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard
     curr_segm = np.zeros(6)
     curr_segm[0], curr_segm[1], curr_segm[2], curr_segm[3], curr_segm[4], curr_segm[
         5] = curr_att_x, curr_att_y, start_x, start_y, end_x, end_y
-    #if curr_att_x==101 and curr_att_y==71:
-        #print("! ",do_create, curr_segm)
     if is_hard[curr_att_x, curr_att_y]:
         if do_create:
             unfound = True
@@ -407,10 +436,7 @@ def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard
                 for i in range(add_segments.shape[0]):
                     if add_segments[i, 0] - curr_att_x == 0.0 and add_segments[i, 1] - curr_att_y == 0.0:
                         unfound = False
-                #if curr_att_x == 101 and curr_att_y == 71:
-                #    print(unfound, add_segments)
                 if unfound:
-                    #print("fffff")
                     is_hard[curr_att_x, curr_att_y] = False
     else:
         if do_create:
@@ -419,5 +445,31 @@ def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard
             nadd_segments[:-1, :] = add_segments
             nadd_segments[-1, :] = curr_segm
             add_segments = nadd_segments
-    #print(add_segments.shape)
+    return add_segments
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_and_push(border_arr, is_full_arr, is_hard, add_segments, curr_x, curr_y, is_forward):
+    #print("check_and_push: ", curr_x, curr_y)
+    is_inside = True
+    if curr_x>0:
+        if border_arr[curr_x-1, curr_y, 0]==-1:
+            is_inside=False
+    if curr_x<border_arr.shape[0]-1:
+        if border_arr[curr_x+1, curr_y, 0]==-1:
+            is_inside=False
+
+    if curr_y>0:
+        if border_arr[curr_x, curr_y-1, 0]==-1:
+            is_inside=False
+    if curr_y<border_arr.shape[1]-1:
+        if border_arr[curr_x, curr_y+1, 0]==-1:
+            is_inside=False
+    if is_inside:
+        if is_forward:
+            new_x, new_y = border_arr[curr_x, curr_y, 3], border_arr[curr_x, curr_y, 4]
+        else:
+            new_x, new_y = border_arr[curr_x, curr_y, 1], border_arr[curr_x, curr_y, 2]
+        add_segments = simple_delition(border_arr, is_full_arr, is_hard, add_segments, curr_x, curr_y, 0)
+        if new_x!=-1 and new_y!=-1:
+            add_segments = check_and_push(border_arr, is_full_arr, is_hard, add_segments, new_x, new_y, is_forward)
     return add_segments
