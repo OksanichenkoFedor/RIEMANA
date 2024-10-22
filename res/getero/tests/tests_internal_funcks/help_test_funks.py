@@ -97,6 +97,7 @@ def create_some_structure(c_wafer, num_create = 100, seed=10):
             print("Create: ",new_x, new_y, curr_x, curr_y)
             c_wafer.add_segments = create_point(c_wafer.border_arr, c_wafer.is_full, c_wafer.is_hard,
                                                 c_wafer.add_segments, new_x, new_y, curr_x, curr_y)
+            c_wafer.check_correction()
             #c_wafer.add_segments = delete_point(c_wafer.border_arr, c_wafer.is_full, c_wafer.is_hard,
             #                                    c_wafer.add_segments, curr_x, curr_y)
             intersect = c_wafer.check_self_intersection()

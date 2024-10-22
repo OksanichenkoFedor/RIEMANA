@@ -2,7 +2,7 @@ import numpy as np
 import numba as nb
 from numba.experimental import jitclass
 
-do_njit = False
+do_njit = True
 cache = False
 parallel = False
 

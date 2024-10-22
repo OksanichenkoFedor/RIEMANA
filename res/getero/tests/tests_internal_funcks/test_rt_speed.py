@@ -262,11 +262,11 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-end_wafer = create_test_wafer(num_del=500, num_create=500, multiplier=0.2)
+end_wafer = create_test_wafer(num_del=500, num_create=53, multiplier=0.2)
 #end_wafer.save("../files/1000_del_02_mult.zip")
 #end_wafer = Wafer()
 #end_wafer = create_test_wafer(num_del=5000, multiplier=0.2)
-#end_wafer.save("../files/5000_del_02_mult.zip")
+end_wafer.save("../files/test_create_intersection.zip")
 #end_wafer.load("../files/5000_del_02_mult.zip")
 #end_wafer.make_half()
 

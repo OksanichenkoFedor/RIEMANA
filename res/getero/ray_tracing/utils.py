@@ -121,7 +121,7 @@ def check_ray_collision(vec1, angle, curr_segment):
     return check_collision(x1, y1, x2, y2, x3, y3, x4, y4, True)
 
 
-
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_collision(x1, y1, x2, y2, x3, y3, x4, y4, include_ends):
     div = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
     if div == 0:
