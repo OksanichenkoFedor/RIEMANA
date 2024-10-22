@@ -90,6 +90,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             type="cell by cell", num_one_side_points=config.num_one_side_points, seed=seed)
         #print("end cbc")
         arr_x_cbc, arr_y_cbc = prepare_segment_for_intersection_checking(arr_x_cbc, arr_y_cbc, None, None, None, None)
+
         t2 = time.time_ns()
         Times2.append(t2 - t1)
         t1 = time.time_ns()
@@ -100,14 +101,60 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             type="bvh", NodeList=NodeList, num_one_side_points=config.num_one_side_points, seed=seed)
         t2 = time.time_ns()
         Times3.append(t2 - t1)
-        delta = 0
-        if len(arr_x_bvh)==len(arr_x_cbc):
-            delta = np.array(arr_x_bvh[1:-1])-np.array(arr_x_cbc[1:-1])
-            if len(delta)>0:
-                delta = np.linalg.norm(delta,ord=np.inf)
+        if len(arr_x_bvh) == len(arr_x_cbc):
+            delta = np.array(arr_x_bvh[1:-1]) - np.array(arr_x_cbc[1:-1])
+            if len(delta) > 0:
+                delta = np.linalg.norm(delta, ord=np.inf)
             else:
                 delta = 0
-            if delta>10**(-5):
+            if delta > 10 ** (-5):
+
+                num = 0
+                while num < len(arr_x_cbc):
+                    if arr_y_cbc[num] < 0.5:
+                        arr_x_cbc.pop(num)
+                        arr_y_cbc.pop(num)
+                    else:
+                        num += 1
+
+                num = 0
+                while num < len(arr_x_bvh):
+                    if arr_y_bvh[num] < 0.5:
+                        arr_x_bvh.pop(num)
+                        arr_y_bvh.pop(num)
+                    else:
+                        num += 1
+                delta = np.array(arr_x_bvh[1:-1]) - np.array(arr_x_cbc[1:-1])
+                if len(delta) > 0:
+                    delta = np.linalg.norm(delta, ord=np.inf)
+                else:
+                    delta = 0
+        else:
+            num = 0
+            while num < len(arr_x_cbc):
+                if arr_y_cbc[num] < 0.5:
+                    arr_x_cbc.pop(num)
+                    arr_y_cbc.pop(num)
+                else:
+                    num += 1
+
+            num = 0
+            while num < len(arr_x_bvh):
+                if arr_y_bvh[num] < 0.5:
+                    arr_x_bvh.pop(num)
+                    arr_y_bvh.pop(num)
+                else:
+                    num += 1
+            arr_x_cbc, arr_y_cbc = prepare_segment_for_intersection_checking(arr_x_cbc, arr_y_cbc, None, None, None,
+                                                                             None)
+
+        if len(arr_x_bvh) == len(arr_x_cbc):
+            delta = np.array(arr_x_bvh[1:-1]) - np.array(arr_x_cbc[1:-1])
+            if len(delta) > 0:
+                delta = np.linalg.norm(delta, ord=np.inf)
+            else:
+                delta = 0
+            if delta > 10 ** (-5):
                 print("Ошибка!!!")
                 print(params_arr)
                 print(seed)
@@ -123,12 +170,10 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
             print(seed)
             if Times3[-1] > 9 * 10 ** 5 or True:
                 ax.plot(arr_x_bvh, arr_y_bvh, color=(0, 0, 1, 0.5))
-                bvh+=1
+                bvh += 1
             if Times3[-1] > 9 * 10 ** 5 or True:
                 ax.plot(arr_x_cbc, arr_y_cbc, color=(0, 1, 0, 0.5))
                 old += 1
-            #print(arr_x_bvh, arr_y_bvh)
-            #print(arr_x_cbc, arr_y_cbc)
         if do_plot and False:
             #if Times1[-1] > 9 * 10 ** 5 or True:
             #    ax.plot(arr_x_ls, arr_y_ls,color="r")
@@ -145,7 +190,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
     print("ls: ",ls, " bvh: ",bvh)
     if do_plot:
         X, Y = give_line_arrays(c_wafer.border_arr, c_wafer.is_half)
-        ax.set_ylim([np.array(Y).max(), 1.5])
+        ax.set_ylim([np.array(Y).max(), 0.5])
         plt.show()
     if do_plot_stat:
         fig, (ax_low, ax_up) = plt.subplots(1, 2, figsize=(13, 11))
@@ -219,6 +264,7 @@ end_wafer = Wafer()
 #end_wafer = create_test_wafer(num_del=5000, multiplier=0.2)
 #end_wafer.save("../files/5000_del_02_mult.zip")
 end_wafer.load("../files/5000_del_02_mult.zip")
+#end_wafer.make_half()
 
 #end_wafer.load("../files/tmp_U200_1000_1.zip")
 

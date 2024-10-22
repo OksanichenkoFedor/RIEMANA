@@ -6,8 +6,6 @@ from res.utils.wrapper import clever_njit
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_cell_intersection(border_arr, is_hard, add_segments, curr_att_x, curr_att_y, curr_vec, curr_angle, start_segment):
-    if curr_att_x==158 and curr_att_y==143:
-        print()
     is_collide, cross_vec, segment, dist = False, np.zeros(2), np.zeros((2, 2)), 0
     if border_arr[curr_att_x,curr_att_y, 0]==1:
         is_collide, cross_vec, segment, dist = check_border_cell_intersection(border_arr, curr_att_x, curr_att_y, curr_vec, curr_angle, start_segment)

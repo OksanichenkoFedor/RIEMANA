@@ -43,6 +43,11 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
     empty_prev = True
     is_inside_cell = False
 
+    if test:
+        pass
+        arr_x.append(curr_vec[0] - 0.5)
+        arr_y.append(curr_vec[1] - 0.5)
+
     if curr_vec[0] - int(curr_vec[0]) != 0 and curr_vec[1] - int(curr_vec[1]) != 0:
         is_inside_cell = True
 
@@ -142,6 +147,10 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                     changed_angle = True
                     is_inside_cell = False
                     curr_segment = np.zeros((2, 2))
+                    if do_half:
+                        if (curr_vec[0] >= xsize and 0<curr_angle<np.pi) and test:
+                            arr_x.append(curr_vec[0] - 0.5)
+                            arr_y.append(curr_vec[1] - 0.5)
         else:
             curr_att_x, curr_att_y = find_next(curr_vec[0], curr_vec[1], prev_vec[0], prev_vec[1], prev_att_x,
                                                prev_att_y, empty_prev)
@@ -223,12 +232,16 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                     changed_angle = True
                     is_inside_cell = False
                     curr_segment = np.zeros((2, 2))
+                    if do_half:
+                        if (curr_vec[0] >= xsize and 0<curr_angle<np.pi) and test:
+                            arr_x.append(curr_vec[0] - 0.5)
+                            arr_y.append(curr_vec[1] - 0.5)
 
         curr_angle, prev_att_x, prev_att_y, unfound, changed_angle = check_out(curr_vec, xsize, ysize, do_half,
                                                                                curr_att_x, curr_att_y, prev_att_x,
                                                                                prev_att_y, is_on_horiz, curr_angle,
-                                                                               returned_particles, curr_type,
-                                                                               unfound, changed_angle)
+                                                                               returned_particles, curr_type, unfound,
+                                                                               changed_angle, arr_x, arr_y, test)
 
         if changed_angle:
             # print("changed angle")
@@ -244,7 +257,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_out(curr_vec, xsize, ysize, do_half, curr_att_x, curr_att_y, prev_att_x, prev_att_y, is_on_horiz, curr_angle,
-              returned_particles, curr_type, unfound, changed_angle):
+              returned_particles, curr_type, unfound, changed_angle, arr_x, arr_y, test):
     new_angle = curr_angle
     new_prev_att_x, new_prev_att_y = prev_att_x, prev_att_y
     if curr_vec[0] >= xsize:
@@ -253,6 +266,10 @@ def check_out(curr_vec, xsize, ysize, do_half, curr_att_x, curr_att_y, prev_att_
             if is_on_horiz != 0:
                 print("Incorrect is_on_horiz: ", is_on_horiz)
             new_angle = straight_reflection(curr_angle, np.pi * 0.5)
+            if test:
+                pass
+                #arr_x.append(curr_vec[0] - 0.5)
+                #arr_y.append(curr_vec[1] - 0.5)
             changed_angle = True
         else:
             unfound = False
