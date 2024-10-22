@@ -11,15 +11,14 @@ class ReactProcessor:
         file = open(filename,"r")
         Lines = file.readlines()
         self.define_surface_particles(Lines[0])
-        self.define_gas_particles(Lines[3])
+        self.define_gas_particles(Lines[4])
         print(self.surface_name_to_num)
-        #print(self.surface_num_to_name)
-
         print(self.gas_name_to_num)
-        #print(self.gas_num_to_name)
-        for i in range(7,len(Lines)):
+        for i in range(8,len(Lines)):
             if Lines[i]!="\n":
-                self.process_reaction(Lines[i])
+                self.reactions.append(Reaction(Lines[i], self))
+        for reaction in self.reactions:
+            print(reaction)
 
 
 
@@ -40,8 +39,7 @@ class ReactProcessor:
             self.gas_name_to_num[curr_str[i]] = i
             self.gas_num_to_name[i] = curr_str[i]
 
-    def process_reaction(self, curr_str):
-        self.reactions.append(Reaction(curr_str, self))
+
 
 class Reaction:
     def __init__(self, curr_str, master: ReactProcessor):
@@ -56,7 +54,6 @@ class Reaction:
         self.start_particle = None
         self.process_reaction(self.curr_str[0])
 
-        print("Sp: ",self.start_particle," reacts: ", self.reacts, " gas_products: ", self.gas_products, " surface_products: ", self.surface_products)
 
     def process_reaction(self, str_reaction):
         #print(str_reaction)
@@ -80,7 +77,18 @@ class Reaction:
                 self.surface_products.append(self.master.surface_name_to_num[product])
             else:
                 raise Exception("Unknown particle: ",product)
+    def __str__(self):
+        old_curr_str = "Sp: "+str(self.start_particle)
+        old_curr_str+=" reacts: "+str(self.reacts)
+        old_curr_str+=" gas_products: "+str(self.gas_products)
+        old_curr_str+=" surface_products: "+str(self.surface_products)
 
+        curr_str = "Sp: {sp:7} reacts: {r:16} gas_products: {g:10} surface products: {s:6}"
+        curr_str = curr_str.format(sp=str(self.master.gas_num_to_name[self.start_particle]),
+                                   r=" ".join([self.master.surface_num_to_name[x] for x in self.reacts]),
+                                   g=" ".join([self.master.gas_num_to_name[x] for x in self.gas_products]),
+                                   s=" ".join([self.master.surface_num_to_name[x] for x in self.surface_products]))
+        return curr_str
 
 
 A = ReactProcessor()

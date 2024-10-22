@@ -213,7 +213,7 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-#end_wafer = create_test_wafer(num_del=1000, multiplier=0.2)
+#end_wafer = create_test_wafer(num_del=100, num_create=0, multiplier=0.2)
 #end_wafer.save("../files/1000_del_02_mult.zip")
 #end_wafer = Wafer()
 #end_wafer = create_test_wafer(num_del=5000, multiplier=0.2)
@@ -230,7 +230,7 @@ f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 plt.show()
 defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=1000, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=2000, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()

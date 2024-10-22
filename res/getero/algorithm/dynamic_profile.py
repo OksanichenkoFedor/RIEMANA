@@ -83,11 +83,12 @@ def delete_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, c
         while i != next_num:
             #print(i)
             x, y = give_coords_from_num(i, curr_x, curr_y)
-            if  (i % 2 == 0 and border_layer_arr[x, y, 0] == 0) and ( (x>=0 and y>=0) and (x<border_layer_arr.shape[0] and y<border_layer_arr.shape[1]) ):
-                #print("->")
-                border_layer_arr[x, y, 0] = 1
-                add_segments = connection(border_layer_arr, is_full_arr, is_hard, add_segments, tmp_prev_x, tmp_prev_y, curr_x, curr_y, x, y)
-                tmp_prev_x, tmp_prev_y = x, y
+            if (x >= 0 and y >= 0) and (x < border_layer_arr.shape[0] and y < border_layer_arr.shape[1]):
+                if (i % 2 == 0 and border_layer_arr[x, y, 0] == 0):
+                    border_layer_arr[x, y, 0] = 1
+                    add_segments = connection(border_layer_arr, is_full_arr, is_hard, add_segments, tmp_prev_x,
+                                              tmp_prev_y, curr_x, curr_y, x, y)
+                    tmp_prev_x, tmp_prev_y = x, y
             i = (i + add) % 8
 
     add_segments = connection(border_layer_arr, is_full_arr, is_hard, add_segments, tmp_prev_x, tmp_prev_y, curr_x, curr_y, next_x, next_y)
@@ -159,13 +160,12 @@ def create_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, c
     if delta_prev > delta_next:
         #print("a")
         # цепляем новую за текущий
-        simple_addition_after(border_layer_arr, next_x, next_y, curr_x, curr_y)
+        add_segments = simple_addition_after(border_layer_arr, is_full_arr, is_hard, add_segments, next_x, next_y,
+                                             curr_x, curr_y)
     else:
-        #print("b")
-        #print(old_prev_x, old_prev_y)
-        #print(curr_x, curr_y)
         # цепляем новую за предыдущий
-        simple_addition_after(border_layer_arr, old_prev_x, old_prev_y, curr_x, curr_y)
+        add_segments = simple_addition_after(border_layer_arr, is_full_arr, is_hard, add_segments, old_prev_x,
+                                             old_prev_y, curr_x, curr_y)
 
 
 
@@ -186,10 +186,12 @@ def create_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, c
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, curr_y, type):
+    print("start simple_delition")
     prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
     add_segments = connection(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y, curr_x, curr_y, next_x, next_y)
     border_layer_arr[curr_x, curr_y] = [type, -1, -1, -1, -1]
+    print("end simple_delition")
     return add_segments
 
 
@@ -207,7 +209,8 @@ def connection(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, pre
     return add_segments
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def simple_addition_after(border_layer_arr, prev_x, prev_y, curr_x, curr_y):
+def simple_addition_after(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y, curr_x, curr_y):
+    print("start simple_addition_after")
     next_x, next_y = border_layer_arr[prev_x, prev_y, 3], border_layer_arr[prev_x, prev_y, 4]
     border_layer_arr[curr_x, curr_y, 0] = 1
 
@@ -216,6 +219,16 @@ def simple_addition_after(border_layer_arr, prev_x, prev_y, curr_x, curr_y):
 
     border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4] = next_x, next_y
     border_layer_arr[next_x, next_y, 1], border_layer_arr[next_x, next_y, 2] = curr_x, curr_y
+
+    add_segments = check_void_line_points(prev_x, prev_y, next_x, next_y, border_layer_arr, is_full_arr, is_hard,
+                                          add_segments, False)
+    add_segments = check_void_line_points(prev_x, prev_y, curr_x, curr_y, border_layer_arr, is_full_arr, is_hard,
+                                          add_segments, True)
+    add_segments = check_void_line_points(curr_x, curr_y, next_x, next_y, border_layer_arr, is_full_arr, is_hard,
+                                          add_segments, True)
+    print("end simple_addition_after")
+
+    return add_segments
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
@@ -235,7 +248,11 @@ def check_if_inside(border_layer_arr, curr_x, curr_y):
     if curr_y < border_layer_arr.shape[1] - 1:
         if border_layer_arr[curr_x, curr_y + 1, 0] == -1:
             is_inside = False
-    return is_inside
+
+    if is_inside:
+        return True
+    else:
+        return False
 
 
 def give_line_arrays(border_layer, plot_refl_wall):
@@ -356,10 +373,8 @@ def check_void_line_points(start_x, start_y, end_x, end_y, border_arr, is_full, 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def process_void_line_point(curr_att_x, curr_att_y, border_arr, is_full, is_hard, add_segments, do_create, start_x, start_y, end_x, end_y):
-    #print("start pvlp: ", curr_att_x, curr_att_y)
-    #print(border_arr[curr_att_x, curr_att_y], is_full[curr_att_x, curr_att_y])
     if border_arr[curr_att_x,curr_att_y,0]==0:
-        print("process_void_line_point inside border: ",curr_att_x,curr_att_y)
+        print("process_void_line_point inside border: ", curr_att_x, curr_att_y)
 
     curr_segm = np.zeros(6)
     curr_segm[0], curr_segm[1], curr_segm[2], curr_segm[3], curr_segm[4], curr_segm[

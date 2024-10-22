@@ -36,7 +36,8 @@ def retract_cell(curr_x, curr_y, counter_arr, is_full_arr, angle, isotropic_retr
         num_adds = integer_ratio(koeffs, counter_arr[i, curr_x, curr_y])
         for j in range(8):
             new_x, new_y = give_coords_from_num(j, curr_x, curr_y)
-            counter_arr[i, new_x, new_y]+=num_adds[j]
+            if -1<new_x<counter_arr.shape[1] and -1<new_y<counter_arr.shape[2]:
+                counter_arr[i, new_x, new_y]+=num_adds[j]
 
     is_full_arr[curr_x, curr_y] = 0
     counter_arr[0, curr_x, curr_y] = 0
