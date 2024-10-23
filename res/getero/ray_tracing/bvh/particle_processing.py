@@ -141,11 +141,11 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                                                     prev_att_y, curr_att_x, curr_att_y)
                         if type == "bvh":
                             NodeList = build_BVH(border_layer_arr, do_half)
-                        new_x, new_y = find_close_void(border_layer_arr, prev_att_x, prev_att_y)
-                        coll_vec[0], coll_vec[1] = (prev_att_x + 0.5 + 0.1 * (new_x - prev_att_x),
-                                                    prev_att_y + 0.5 + 0.1 * (new_y - prev_att_y))
-                        start_segment[0, 0], start_segment[0, 1] = -1, -1
-                        start_segment[1, 0], start_segment[1, 1] = -1, -1
+                        #new_x, new_y = find_close_void(border_layer_arr, prev_att_x, prev_att_y)
+                        #coll_vec[0], coll_vec[1] = (prev_att_x + 0.5 + 0.1 * (new_x - prev_att_x),
+                        #                            prev_att_y + 0.5 + 0.1 * (new_y - prev_att_y))
+                        #start_segment[0, 0], start_segment[0, 1] = -1, -1
+                        #start_segment[1, 0], start_segment[1, 1] = -1, -1
 
                     if flags[1] == 1.0:
                         _, _, _, redepo_params[4]= check_angle_collision(curr_angle, redepo_params[4], start_segment,

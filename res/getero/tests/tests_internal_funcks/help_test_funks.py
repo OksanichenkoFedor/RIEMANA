@@ -68,7 +68,7 @@ def create_some_structure(c_wafer, num_create = 100, seed=10):
                 if c_wafer.is_full[curr_x, curr_y] == 1:
                     pass
                     unfound_1 = True
-                    print(curr_x, curr_y)
+                    #print(curr_x, curr_y)
                     js = np.arange(0, 8, 1)
                     np.random.shuffle(js)
                     for i in range(8):
@@ -148,23 +148,26 @@ def defend_wafer(c_wafer):
             c_wafer.is_full[x, y] = 2.0
 
 
-def create_test_wafer(num_del=2000, num_create=100, seed=12, multiplier=0.1):
-    multiplier, Si_num = multiplier, 84
-    test_ray_tracing_params = {
-        "mask_height": 200,
-        "hole_size": 200,
-        "border": 500,
-        "xsize": 1000,
-        "ysize": 1200,
-        "silicon_size": 1600
-    }
-    t1 = time.time()
-    rt_wafer = Wafer()
-    rt_wafer.generate_pure_wafer(multiplier, Si_num, params=test_ray_tracing_params)
-    t2 = time.time()
+def create_test_wafer(num_del=2000, num_create=100, seed=12, multiplier=0.1, start_wafer=None):
+    if start_wafer is None:
+        multiplier, Si_num = multiplier, 84
+        test_ray_tracing_params = {
+            "mask_height": 200,
+            "hole_size": 200,
+            "border": 500,
+            "xsize": 1000,
+            "ysize": 1200,
+            "silicon_size": 1600
+        }
+        t1 = time.time()
+        rt_wafer = Wafer()
+        rt_wafer.generate_pure_wafer(multiplier, Si_num, params=test_ray_tracing_params)
+        t2 = time.time()
+    else:
+        rt_wafer = start_wafer
     del_some_structure(rt_wafer, num_del=num_del, seed=seed)
     create_some_structure(rt_wafer, num_create=num_create, seed=seed)
-    defend_wafer(rt_wafer)
+    #defend_wafer(rt_wafer)
     rt_wafer.check_correction()
     t3 = time.time()
     # X, Y = give_line_arrays(rt_wafer.border_arr)

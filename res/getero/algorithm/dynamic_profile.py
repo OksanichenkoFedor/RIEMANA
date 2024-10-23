@@ -137,23 +137,23 @@ def give_coords_from_num(num, start_x, start_y):
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def create_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, curr_y, next_x, next_y):
     border_layer_arr[curr_x, curr_y, 0] = 1
-    if not check_if_inside(border_layer_arr, next_x, next_y):
+    if not check_if_inside(border_layer_arr, is_hard, next_x, next_y):
         #print("ddd")
         # проверка на то, что мы не закрываем более старую клетку границы
         if curr_x > 0:
-            if check_if_inside(border_layer_arr, curr_x - 1, curr_y):
+            if check_if_inside(border_layer_arr, is_hard, curr_x - 1, curr_y):
                 #print("ffffff1")
                 next_x, next_y = curr_x - 1, curr_y
         if curr_x < border_layer_arr.shape[0] - 1:
-            if check_if_inside(border_layer_arr, curr_x + 1, curr_y):
+            if check_if_inside(border_layer_arr, is_hard, curr_x + 1, curr_y):
                 #print("ffffff2")
                 next_x, next_y = curr_x + 1, curr_y
         if curr_y > 0:
-            if check_if_inside(border_layer_arr, curr_x, curr_y - 1):
+            if check_if_inside(border_layer_arr, is_hard, curr_x, curr_y - 1):
                 #print("ffffff3")
                 next_x, next_y = curr_x, curr_y - 1
         if curr_y < border_layer_arr.shape[1] - 1:
-            if check_if_inside(border_layer_arr, curr_x, curr_y + 1):
+            if check_if_inside(border_layer_arr, is_hard, curr_x, curr_y + 1):
                 #print("ffffff4")
                 next_x, next_y = curr_x, curr_y + 1
     #print("next: ",next_x,next_y)
@@ -179,14 +179,14 @@ def create_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, c
     #print("prev")
     prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     #print(border_layer_arr[201,142])
-    while check_if_inside(border_layer_arr, prev_x, prev_y):
+    while check_if_inside(border_layer_arr, is_hard, prev_x, prev_y):
         add_segments = simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y, 0)
         prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     # вперёд
     #print(border_layer_arr[201,142])
     #print("next")
     next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
-    while check_if_inside(border_layer_arr, next_x, next_y):
+    while check_if_inside(border_layer_arr, is_hard, next_x, next_y):
         add_segments = simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, next_x, next_y, 0)
         next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
     #print(border_layer_arr[201, 142])
@@ -246,7 +246,7 @@ def simple_addition_after(border_layer_arr, is_full_arr, is_hard, add_segments, 
 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
-def check_if_inside(border_layer_arr, curr_x, curr_y):
+def check_if_inside(border_layer_arr, is_hard, curr_x, curr_y):
 
     is_inside = True
     if border_layer_arr[curr_x, curr_y, 0]==-1:
@@ -266,7 +266,7 @@ def check_if_inside(border_layer_arr, curr_x, curr_y):
 
     if is_inside:
         #return True
-        return check_if_correct_delete(border_layer_arr, curr_x, curr_y)
+        return check_if_correct_delete(border_layer_arr, curr_x, curr_y) and (not is_hard[curr_x, curr_y])
     else:
         return False
 

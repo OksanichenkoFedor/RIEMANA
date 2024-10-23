@@ -1,6 +1,8 @@
 from copy import deepcopy
 
 import numpy as np
+
+from res.getero.ray_tracing.utils import count_angle, check_collision
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
@@ -92,9 +94,8 @@ class Wafer:
                         print("This cell (" + str(curr_x) + " " + str(
                             curr_y) + ") is located on the border, but is not included in it")
                     if self.border_arr[curr_x, curr_y, 0] == 0 and self.is_hard[curr_x, curr_y]:
-                        pass
-                        #raise Exception("This cell (" + str(curr_x) + " " + str(
-                        #    curr_y) + ") is inside the border, but there is a segment in it")
+                        raise Exception("This cell (" + str(curr_x) + " " + str(
+                            curr_y) + ") is inside the border, but there is a segment in it")
                    # if (not self.is_near_void(curr_x, curr_y)) and self.border_arr[curr_x, curr_y, 0] == 1:
                    #     print("This cell (" + str(curr_x) + " " + str(curr_y) + ") is inside wafer, but is included in border")
 
@@ -410,20 +411,123 @@ def check_inter(cX, cY):
     intersect = False
     for i in range(len(cX) - 1):
         for j in range(len(cX) - 1):
-            first_vec1, first_vec2 = [cX[i], cY[i]], [cX[i + 1], cY[i + 1]]
-            second_vec1, second_vec2 = [cX[j], cY[j]], [cX[j + 1], cY[j + 1]]
-            o1 = orientation(first_vec1, first_vec2, second_vec1)
-            o2 = orientation(first_vec1, first_vec2, second_vec2)
-            o3 = orientation(second_vec1, second_vec2, first_vec1)
-            o4 = orientation(second_vec1, second_vec2, first_vec2)
-            if o1 * o2 * o3 * o4 != 0 and (o1 != o2 and o3 != o4):
+            is_curr_simple_inter = check_one_simple_inter(cX, cY, i, j, i+1, j+1)
+            if is_curr_simple_inter and i!=j:
                 intersect = True
+            elif i!=j:
+                pass
+                first_vec1, first_vec2 = [cX[i], cY[i]], [cX[i + 1], cY[i + 1]]
+                second_vec1, second_vec2 = [cX[j], cY[j]], [cX[j + 1], cY[j + 1]]
+                ib11, ib12 = is_between(second_vec1, second_vec2, first_vec1), is_between(second_vec1, second_vec2,
+                                                                                          first_vec2)
+                ib21, ib22 = is_between(first_vec1, first_vec2, second_vec1), is_between(first_vec1, first_vec2,
+                                                                                         second_vec2)
+                if ib11==1 and i>0:
+                    is_intersect_next = check_intersection_of_four_segments(cX[j], cY[j], cX[j + 1], cY[j + 1],
+                                                                            cX[i - 1], cY[i - 1], cX[i + 1], cY[i + 1],
+                                                                            cX[i], cY[i])
+                    if is_intersect_next:
+                        intersect = True
+                elif ib12==1 and i<len(cX)-2:
+                    is_intersect_next = check_intersection_of_four_segments(cX[j], cY[j], cX[j + 1], cY[j + 1],
+                                                                            cX[i], cY[i], cX[i + 2], cY[i + 2],
+                                                                            cX[i + 1], cY[i + 1])
+                    if is_intersect_next:
+                        intersect = True
+                elif ib21==1 and j>0:
+                    is_intersect_next = check_intersection_of_four_segments(cX[i], cY[i], cX[i + 1], cY[i + 1],
+                                                                            cX[j - 1], cY[j - 1], cX[j + 1], cY[j + 1],
+                                                                            cX[j], cY[j])
+                    if is_intersect_next:
+                        intersect = True
+                elif ib22==1 and j<len(cX)-2:
+                    is_intersect_next = check_intersection_of_four_segments(cX[i], cY[i], cX[i + 1], cY[i + 1],
+                                                                            cX[j], cY[j], cX[j + 2], cY[j + 2],
+                                                                            cX[j + 1], cY[j + 1])
+                    if is_intersect_next:
+                        intersect = True
+                else:
+                    arr = np.zeros(4)
+                    arr[0], arr[1], arr[2], arr[3] = int(ib11==0), int(ib12==0), int(ib21==0), int(ib22==0)
+
+                    if np.sum(arr)>=2:
+                        if np.sum(arr)>2:
+                            print("Two equal lines: ", first_vec1, first_vec2, second_vec1, second_vec2, ib11, ib12, ib21, ib22)
+                        if (ib11 == 0 and i > 0) and (ib21 == 0 and j > 0):
+                            is_curr_inter = check_intersection_of_four_segments(*give_coords_for_ciofs(cX, cY, i, j))
+                            if is_curr_inter:
+                                intersect = True
+                        elif (ib11 == 0 and i > 0) and (ib22 == 1 and j < len(cX) - 2):
+                            is_curr_inter = check_intersection_of_four_segments(*give_coords_for_ciofs(cX, cY, i, j+1))
+                            if is_curr_inter:
+                                intersect = True
+                        elif (ib12 == 0 and i < len(cX) - 2) and (ib21 == 0 and j > 0):
+                            is_curr_inter = check_intersection_of_four_segments(*give_coords_for_ciofs(cX, cY, i+1, j))
+                            if is_curr_inter:
+                                intersect = True
+                        elif (ib12 == 0 and i < len(cX) - 2) and (ib22 == 1 and j < len(cX) - 2):
+                            is_curr_inter = check_intersection_of_four_segments(*give_coords_for_ciofs(cX, cY, i+1, j+1))
+                            if is_curr_inter:
+                                intersect = True
     return intersect
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_one_simple_inter(cX, cY, i1, j1, i2, j2):
+    first_vec1, first_vec2 = [cX[i1], cY[i1]], [cX[i2], cY[i2]]
+    second_vec1, second_vec2 = [cX[j1], cY[j1]], [cX[j2], cY[j2]]
+    o1 = orientation(first_vec1, first_vec2, second_vec1)
+    o2 = orientation(first_vec1, first_vec2, second_vec2)
+    o3 = orientation(second_vec1, second_vec2, first_vec1)
+    o4 = orientation(second_vec1, second_vec2, first_vec2)
+    return o1 * o2 * o3 * o4 != 0 and (o1 != o2 and o3 != o4)
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def give_coords_for_ciofs(cX, cY, i, j):
+    return cX[i-1], cY[i-1], cX[i+1], cY[i+1], cX[j-1], cY[j-1], cX[j+1], cY[j+1], cX[i], cX[j]
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_intersection_of_four_segments(x1,y1,x2,y2,x3,y3,x4,y4,x_m,y_m):
+    angle11 = count_angle(x1 - x_m, y1 - y_m)/(2*np.pi)
+    angle12 = count_angle(x2 - x_m, y2 - y_m)/(2*np.pi)
+    angle21 = count_angle(x3 - x_m, y3 - y_m)/(2*np.pi)
+    angle22 = count_angle(x4 - x_m, y4 - y_m)/(2*np.pi)
+
+    delta1 = (angle21 - angle11) % 1 + (angle12 - angle21) % 1 - (angle12 - angle11) % 1
+    delta2 = (angle22 - angle11) % 1 + (angle12 - angle22) % 1 - (angle12 - angle11) % 1
+
+    if delta1==0:
+        if delta2==0:
+            return False
+        else:
+            return True
+    else:
+        if delta2==0:
+            return True
+        else:
+            return False
+
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def orientation(p1, p2, p3):
     val = (p2[1] - p1[1])*(p3[0] - p2[0]) - (p2[0] - p1[0])*(p3[1] - p2[1])
     return np.sign(val)
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def is_between(start_point, end_point, middle_point):
+    res = (end_point[1] - start_point[1]) * (middle_point[0] - end_point[0]) - (end_point[0] - start_point[0]) * (
+                middle_point[1] - end_point[1])
+    if res==0:
+        if (middle_point[0] - end_point[0]) * (start_point[0] - middle_point[0]) > 0 or (
+                    middle_point[1] - end_point[1]) * (start_point[1] - middle_point[1]) > 0:
+            return 1
+        elif (middle_point[0] - end_point[0]) * (start_point[0] - middle_point[0]) == 0 and (
+                    middle_point[1] - end_point[1]) * (start_point[1] - middle_point[1]) == 0:
+            return 0
+        else:
+            return -1
+    else:
+        return -1
+
 
 def prepare_segment_for_intersection_checking(cX, cY, curr_x, curr_y, do_cut, range_cut):
     ind = 0

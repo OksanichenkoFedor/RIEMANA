@@ -178,7 +178,7 @@ def test_speed_rt(c_wafer,num_particles=100, do_plot=False, do_plot_stat=False):
                 ax.plot(arr_x_cbc, arr_y_cbc, color=(0, 1, 0, 0.5))
                 old += 1
 
-        if do_plot and False:
+        if do_plot and True:
             #if Times1[-1] > 9 * 10 ** 5 or True:
             #    ax.plot(arr_x_ls, arr_y_ls,color="r")
             #    ls+=1
@@ -262,14 +262,16 @@ if False:
     f = generate_figure(rt_wafer, wafer_curr_type="is_cell", do_plot_line=True)
     plt.show()
 end_wafer = Wafer()
-end_wafer = create_test_wafer(num_del=500, num_create=53, multiplier=0.2)
+end_wafer.load("../files/test_just_delete.zip")
+end_wafer = create_test_wafer(num_del=0, num_create=500, multiplier=0.2, start_wafer=end_wafer)
 #end_wafer.save("../files/1000_del_02_mult.zip")
 #end_wafer = Wafer()
 #end_wafer = create_test_wafer(num_del=5000, multiplier=0.2)
 end_wafer.save("../files/test_create_intersection.zip")
+#end_wafer.save("../files/test_just_delete.zip")
 #end_wafer.load("../files/5000_del_02_mult.zip")
 #end_wafer.make_half()
-
+defend_wafer(end_wafer)
 #end_wafer.load("../files/tmp_U200_1000_1.zip")
 
 
@@ -278,9 +280,8 @@ end_wafer.save("../files/test_create_intersection.zip")
 #end_wafer.load("../files/tmp_U200_2000_2.zip")
 f = generate_figure(end_wafer, wafer_curr_type="is_cell", do_plot_line=True)
 plt.show()
-defend_wafer(end_wafer)
 #end_wafer.make_half()
-test_speed_rt(end_wafer,num_particles=5000, do_plot=True, do_plot_stat=False)
+test_speed_rt(end_wafer,num_particles=500, do_plot=True, do_plot_stat=False)
 
 
 #plt.show()
