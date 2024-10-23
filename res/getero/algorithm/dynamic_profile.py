@@ -69,11 +69,12 @@ def delete_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, c
     while i != next_num:
         #print(i)
         x, y = give_coords_from_num(i, curr_x, curr_y)
-        if (i % 2 == 0 and border_layer_arr[x, y, 0] == 0) and ( (x>=0 and y>=0) and (x<border_layer_arr.shape[0] and y<border_layer_arr.shape[1]) ):
-            unfound_connector = False
-            border_layer_arr[x, y, 0] = 1
-            add_segments = connection(border_layer_arr, is_full_arr, is_hard, add_segments, tmp_prev_x, tmp_prev_y, curr_x, curr_y, x, y)
-            tmp_prev_x, tmp_prev_y = x, y
+        if (x>=0 and y>=0) and (x<border_layer_arr.shape[0] and y<border_layer_arr.shape[1]):
+            if i % 2 == 0 and border_layer_arr[x, y, 0] == 0:
+                unfound_connector = False
+                border_layer_arr[x, y, 0] = 1
+                add_segments = connection(border_layer_arr, is_full_arr, is_hard, add_segments, tmp_prev_x, tmp_prev_y, curr_x, curr_y, x, y)
+                tmp_prev_x, tmp_prev_y = x, y
         i = (i + add) % 8
     if unfound_connector:
         #print("проверяем другие возможности")

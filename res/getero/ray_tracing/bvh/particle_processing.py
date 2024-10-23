@@ -202,7 +202,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                         seed = (seed * 1.534534534) % 1
                     curr_angle = new_angle
                 elif is_full_arr[curr_att_x, curr_att_y] == 0.0:
-                    reserve_pax, reserve_pay = is_full_arr[curr_att_x, curr_att_y]
+                    reserve_pax, reserve_pay = curr_att_x, curr_att_y
                     # print("Мы ударились о пустоту! ", is_full_arr[curr_att_x, curr_att_y])
                     new_angle = straight_reflection(curr_angle, avg_norm_angle)
                     _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
