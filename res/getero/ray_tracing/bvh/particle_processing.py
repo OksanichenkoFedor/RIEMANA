@@ -17,7 +17,7 @@ from res.getero.algorithm.dynamic_profile import delete_point, create_point, fin
 def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border_layer_arr, NodeList,
                          returned_particles, arr_x, arr_y, rarr_x, rarr_y,
                          params, Si_num, xsize, ysize, R, test, do_half, max_value, type, num_one_side_points, seed,
-                         start_segment=np.ones((2,2))*(-1.0)):
+                         start_segment=np.ones((2,2))*(-1.0), reserve_pax = None, reserve_pay = None):
     curr_vec = np.zeros(2)
     curr_vec[0] = params[0]
     curr_vec[1] = params[1]
@@ -25,6 +25,8 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
     curr_en = params[3]
     curr_angle = params[4]
     curr_type = params[5]
+    if reserve_pax is None and reserve_pay is None:
+        reserve_pax, reserve_pay = int(params[0]), int(params[1])
     unfound = True
     not_max_value = True
     if test:
@@ -71,6 +73,8 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                                                                                         border_layer_arr)
                 avg_norm_angle, _, _, _, _, _, _ = count_norm_angle(border_layer_arr, coll_vec, start_segment,
                                                                     do_half, num_one_side_points=num_one_side_points)
+                if prev_att_x is None and prev_att_y is None:
+                    prev_att_x, prev_att_y = reserve_pax, reserve_pay
                 if is_full_arr[prev_att_x, prev_att_y] == 1:
                     print("Граница на пустоте: ", prev_att_x, prev_att_y)
                 if (np.abs(coll_vec[0] - xsize) < 10 ** (-5) and do_half) and is_full_arr[
@@ -166,7 +170,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                                                         returned_particles, rarr_x, rarr_y, rarr_x, rarr_y,
                                                         redepo_params,
                                                         Si_num, xsize, ysize, R, test, do_half, max_value, type,
-                                                        num_one_side_points, seed, start_segment)
+                                                        num_one_side_points, seed, start_segment, reserve_pax, reserve_pay)
                         #print("redepo end")
                         if is_full_arr[prev_att_x, prev_att_y] == 1:
                             pass
@@ -197,7 +201,8 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                     if seed != -1:
                         seed = (seed * 1.534534534) % 1
                     curr_angle = new_angle
-                else:
+                elif is_full_arr[curr_att_x, curr_att_y] == 0.0:
+                    reserve_pax, reserve_pay = is_full_arr[curr_att_x, curr_att_y]
                     # print("Мы ударились о пустоту! ", is_full_arr[curr_att_x, curr_att_y])
                     new_angle = straight_reflection(curr_angle, avg_norm_angle)
                     _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,

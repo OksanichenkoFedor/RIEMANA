@@ -34,6 +34,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
     prev_att_y = int(params[7])
     curr_att_x, curr_att_y = prev_att_x, prev_att_y
     prev_vec = np.zeros(2)
+    reserve_pax, reserve_pay = prev_att_x, prev_att_y
     prev_vec[0], prev_vec[1] = -10, -10
     unfound = True
     changed_angle = False
@@ -42,7 +43,6 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
     not_max_value = True
     empty_prev = True
     is_inside_cell = False
-
     if test:
         pass
         arr_x.append(curr_vec[0] - 0.5)
@@ -68,6 +68,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                 print("cbc/pc  curr_att!=int(curr_vec) ", curr_vec ,curr_att_x, curr_att_y)
             if is_full_arr[curr_att_x, curr_att_y] == 0 and is_hard[curr_att_x, curr_att_y]==False:
                 new_vec, prev_att_x, prev_att_y = particle_on_wall(curr_att_x, curr_att_y, curr_vec, curr_angle)
+                reserve_pax, reserve_pay = curr_att_x, curr_att_y
                 curr_vec = new_vec.copy()
                 if int(curr_vec[0]) - curr_vec[0] == 0:
                     is_on_horiz = 0
@@ -96,6 +97,8 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                                                                             num_one_side_points=num_one_side_points)
                         tmp_att = count_curr_prev_att(cross_vec, curr_segment, curr_angle, border_layer_arr)
                         tmp_curr_att_x, tmp_curr_att_y, tmp_prev_att_x, tmp_prev_att_y, _ = tmp_att
+                        if tmp_prev_att_x is None and tmp_prev_att_y is None:
+                            tmp_prev_att_x, tmp_prev_att_y = reserve_pax, reserve_pay
                         if test:
                             pass
                             arr_x.append(curr_vec[0] - 0.5)
@@ -131,6 +134,8 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                                                                                                      max_value,
                                                                                                      num_one_side_points,
                                                                                                      seed, curr_segment)
+                        elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 0.0:
+                            reserve_pax, reserve_pay = tmp_curr_att_x, tmp_curr_att_y
 
                         _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, curr_segment,
                                                                               curr_vec, seed)
@@ -160,6 +165,7 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                 if border_layer_arr[curr_att_x, curr_att_y, 0] != -1 and curr_att_x != xsize - 1:
                     print("Некорректный расчёт профиля! ", border_layer_arr[curr_att_x, curr_att_y, 0], curr_att_x,
                           curr_att_y, is_hard[curr_att_x, curr_att_y])
+                reserve_pax, reserve_pay = curr_att_x, curr_att_y
                 prev_vec = curr_vec.copy()
                 prev_att_x, prev_att_y = curr_att_x, curr_att_y
                 curr_vec[0], curr_vec[1], new_is_on_horiz = give_next_cell(prev_vec[0], prev_vec[1], curr_angle,
@@ -190,11 +196,12 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                                                                             num_one_side_points=num_one_side_points)
                         tmp_att = count_curr_prev_att(cross_vec, curr_segment, curr_angle, border_layer_arr)
                         tmp_curr_att_x, tmp_curr_att_y, tmp_prev_att_x, tmp_prev_att_y, _ = tmp_att
+                        if tmp_prev_att_x is None and tmp_prev_att_y is None:
+                            tmp_prev_att_x, tmp_prev_att_y = reserve_pax, reserve_pay
                         if test:
                             pass
                             arr_x.append(curr_vec[0] - 0.5)
                             arr_y.append(curr_vec[1] - 0.5)
-
                         if is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 2.0:
                             new_angle = straight_reflection(curr_angle, avg_norm_angle)
                         elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 1.0:
@@ -216,6 +223,8 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                                                                                        do_half, unfound,
                                                                                        max_value, num_one_side_points,
                                                                                        seed, curr_segment)
+                        elif is_full_arr[tmp_curr_att_x, tmp_curr_att_y] == 0.0:
+                            reserve_pax, reserve_pay = tmp_curr_att_x, tmp_curr_att_y
 
                         _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, curr_segment,
                                                                    curr_vec, seed)

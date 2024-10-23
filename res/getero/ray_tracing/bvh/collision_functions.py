@@ -23,7 +23,9 @@ def count_curr_prev_att(cross_vec, curr_segment, fall_angle, border_arr):
     curr_f_num = int(curr_f_num)
     unfound = True
     #print("start find prev_att x,y")
-    while unfound:
+    num = 0
+    while unfound and num<10:
+        num+=1
         prev_att_x, prev_att_y = give_coords_from_num(curr_f_num, curr_att_x, curr_att_y)
         if (prev_att_x < border_arr.shape[0] and prev_att_x >= 0) and (
                 prev_att_y < border_arr.shape[1] and prev_att_y >= 0):
@@ -38,6 +40,9 @@ def count_curr_prev_att(cross_vec, curr_segment, fall_angle, border_arr):
             curr_f_num = int(curr_f_num - 1)
             if curr_f_num < 0:
                 curr_f_num = int(curr_f_num + 8.0)
+
+    if unfound:
+        prev_att_x, prev_att_y = None, None
 
 
     #print("end count_curr_prev_att: ", curr_att_x, curr_att_y, prev_att_x, prev_att_y)

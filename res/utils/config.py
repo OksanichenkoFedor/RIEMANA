@@ -2,7 +2,7 @@ import numpy as np
 import numba as nb
 from numba.experimental import jitclass
 
-do_njit = True
+do_njit = False
 cache = False
 parallel = False
 
@@ -28,7 +28,7 @@ plasma_params = {
     "U_i": 40,
     "j_ar_plus": 1*2.041839429440525e+19,
     "j_cl_plus": 1*1.4431736576424567e+20,
-    "j_cl": 0*2.6629180745936804e+22,
+    "j_cl": 1*2.6629180745936804e+22,
     "cell_size": cell_size*(10.0**(-9)),
     "time": 1,
     "a_0": (((1839*28*9.1*10**(-31))/2330)**(1.0/3.0)) #размер одного слоя Si

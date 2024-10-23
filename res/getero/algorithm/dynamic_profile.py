@@ -178,17 +178,23 @@ def create_point(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, c
     # назад
     #print("prev")
     prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
+    #prev_x, prev_y = curr_x, curr_y
     #print(border_layer_arr[201,142])
     while check_if_inside(border_layer_arr, is_hard, prev_x, prev_y):
         add_segments = simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y, 0)
         prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
+        #print('fffff')
     # вперёд
     #print(border_layer_arr[201,142])
     #print("next")
     next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
+    #next_x, next_y = curr_x, curr_y
     while check_if_inside(border_layer_arr, is_hard, next_x, next_y):
         add_segments = simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, next_x, next_y, 0)
         next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
+        #print('fffff')
+    if check_if_inside(border_layer_arr, is_hard, curr_x, curr_y):
+        add_segments = simple_delition(border_layer_arr, is_full_arr, is_hard, add_segments, curr_x, curr_y, 0)
     #print(border_layer_arr[201, 142])
     #prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
     #check_and_push(border_layer_arr, is_full_arr, is_hard, add_segments, prev_x, prev_y , False)
@@ -247,6 +253,11 @@ def simple_addition_after(border_layer_arr, is_full_arr, is_hard, add_segments, 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_if_inside(border_layer_arr, is_hard, curr_x, curr_y):
+    return check_if_inside_only_prev_next(border_layer_arr, curr_x, curr_y) or ((check_if_inside_rotate_check(border_layer_arr, curr_x, curr_y) and check_if_correct_delete(border_layer_arr, curr_x, curr_y)) and (not is_hard[curr_x, curr_y]))
+    #return check_if_inside_only_prev_next(border_layer_arr, curr_x, curr_y)
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_if_inside_compl(border_layer_arr, is_hard, curr_x, curr_y):
 
     is_inside = True
     if border_layer_arr[curr_x, curr_y, 0]==-1:
@@ -269,6 +280,88 @@ def check_if_inside(border_layer_arr, is_hard, curr_x, curr_y):
         return check_if_correct_delete(border_layer_arr, curr_x, curr_y) and (not is_hard[curr_x, curr_y])
     else:
         return False
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_if_inside_only_prev_next(border_layer_arr, curr_x, curr_y):
+    prev_x, prev_y = border_layer_arr[curr_x, curr_y, 1], border_layer_arr[curr_x, curr_y, 2]
+    next_x, next_y = border_layer_arr[curr_x, curr_y, 3], border_layer_arr[curr_x, curr_y, 4]
+    is_inside = True
+    if border_layer_arr[curr_x, curr_y, 0]==-1:
+        return False
+    if curr_x > 0:
+        if border_layer_arr[curr_x - 1, curr_y, 0] == 0:
+            pass
+        elif border_layer_arr[curr_x - 1, curr_y, 0] == 1:
+            if (curr_x - 1 == prev_x and curr_y == prev_y) or (curr_x - 1 == next_x and curr_y == next_y):
+                pass
+            else:
+                is_inside = False
+        else:
+            is_inside = False
+    if curr_x < border_layer_arr.shape[0] - 1:
+        if border_layer_arr[curr_x + 1, curr_y, 0] == 0:
+            pass
+        elif border_layer_arr[curr_x + 1, curr_y, 0] == 1:
+            if (curr_x + 1 == prev_x and curr_y == prev_y) or (curr_x + 1 == next_x and curr_y == next_y):
+                pass
+            else:
+                is_inside = False
+        else:
+            is_inside = False
+    if curr_y > 0:
+        if border_layer_arr[curr_x, curr_y - 1, 0] == 0:
+            pass
+        elif border_layer_arr[curr_x, curr_y - 1, 0] == 1:
+            if (curr_x == prev_x and curr_y - 1 == prev_y) or (curr_x == next_x and curr_y - 1 == next_y):
+                pass
+            else:
+                is_inside = False
+        else:
+            is_inside = False
+    if curr_y < border_layer_arr.shape[1] - 1:
+        if border_layer_arr[curr_x, curr_y + 1, 0] == 0:
+            pass
+        elif border_layer_arr[curr_x, curr_y + 1, 0] == 1:
+            if (curr_x == prev_x and curr_y + 1 == prev_y) or (curr_x == next_x and curr_y + 1 == next_y):
+                pass
+            else:
+                is_inside = False
+        else:
+            is_inside = False
+
+    return is_inside
+
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_if_inside_rotate_check(border_layer_arr, curr_x, curr_y):
+    is_inside = True
+    if border_layer_arr[curr_x, curr_y, 0] == -1:
+        return False
+    if curr_x > 0:
+        if border_layer_arr[curr_x - 1, curr_y, 0] == -1:
+            is_inside = False
+    if curr_x < border_layer_arr.shape[0] - 1:
+        if border_layer_arr[curr_x + 1, curr_y, 0] == -1:
+            is_inside = False
+    if curr_y > 0:
+        if border_layer_arr[curr_x, curr_y - 1, 0] == -1:
+            is_inside = False
+    if curr_y < border_layer_arr.shape[1] - 1:
+        if border_layer_arr[curr_x, curr_y + 1, 0] == -1:
+            is_inside = False
+    if curr_x > 0 and curr_y > 0:
+        if border_layer_arr[curr_x - 1, curr_y - 1, 0] == -1:
+            is_inside = False
+    if curr_x > 0 and curr_y < border_layer_arr.shape[1] - 1:
+        if border_layer_arr[curr_x - 1, curr_y + 1, 0] == -1:
+            is_inside = False
+    if curr_x < border_layer_arr.shape[0] - 1 and curr_y > 0:
+        if border_layer_arr[curr_x + 1, curr_y - 1, 0] == -1:
+            is_inside = False
+    if curr_x < border_layer_arr.shape[0] - 1 and curr_y < border_layer_arr.shape[1] - 1:
+        if border_layer_arr[curr_x + 1, curr_y + 1, 0] == -1:
+            is_inside = False
+
+    return is_inside
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_if_correct_delete(border_layer_arr, curr_x, curr_y):

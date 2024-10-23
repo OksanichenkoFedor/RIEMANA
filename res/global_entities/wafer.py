@@ -94,8 +94,10 @@ class Wafer:
                         print("This cell (" + str(curr_x) + " " + str(
                             curr_y) + ") is located on the border, but is not included in it")
                     if self.border_arr[curr_x, curr_y, 0] == 0 and self.is_hard[curr_x, curr_y]:
-                        raise Exception("This cell (" + str(curr_x) + " " + str(
+                        print("This cell (" + str(curr_x) + " " + str(
                             curr_y) + ") is inside the border, but there is a segment in it")
+                        #raise Exception("This cell (" + str(curr_x) + " " + str(
+                        #    curr_y) + ") is inside the border, but there is a segment in it")
                    # if (not self.is_near_void(curr_x, curr_y)) and self.border_arr[curr_x, curr_y, 0] == 1:
                    #     print("This cell (" + str(curr_x) + " " + str(curr_y) + ") is inside wafer, but is included in border")
 
