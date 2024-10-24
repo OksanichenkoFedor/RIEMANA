@@ -254,8 +254,8 @@ def simple_addition_after(border_layer_arr, is_full_arr, is_hard, add_segments, 
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_if_inside(border_layer_arr, is_hard, curr_x, curr_y):
-    return check_if_inside_only_prev_next(border_layer_arr, curr_x, curr_y) or ((check_if_inside_rotate_check(border_layer_arr, curr_x, curr_y) and check_if_correct_delete(border_layer_arr, curr_x, curr_y)) and (not is_hard[curr_x, curr_y]))
-    #return check_if_inside_only_prev_next(border_layer_arr, curr_x, curr_y)
+    #return check_if_inside_only_prev_next(border_layer_arr, curr_x, curr_y) or ((check_if_inside_rotate_check(border_layer_arr, curr_x, curr_y) and check_if_correct_delete(border_layer_arr, curr_x, curr_y)) and (not is_hard[curr_x, curr_y]))
+    return check_if_inside_only_prev_next(border_layer_arr, curr_x, curr_y)
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
 def check_if_inside_compl(border_layer_arr, is_hard, curr_x, curr_y):
