@@ -12,7 +12,7 @@ def check_cell_intersection(border_arr, is_hard, add_segments, curr_att_x, curr_
 
     else:
         if not is_hard[curr_att_x, curr_att_y]:
-            print("Incorrect check collision cbc/collision_functions/check_cell_intersection ")
+            print("Incorrect check collision cbc/collision_functions/check_cell_intersection: ", curr_att_x, curr_att_y)
     if is_hard[curr_att_x, curr_att_y]:
         #print("ddddddfff ", curr_vec, curr_att_x, curr_att_y)
         #print("dist: ", dist)
@@ -37,8 +37,6 @@ def check_cell_intersection(border_arr, is_hard, add_segments, curr_att_x, curr_
                 #    print("fff: ",add_segments[i], curr_angle/np.pi, new_collide, is_not_start_segment, is_correct_angle)
                 new_collide = new_collide and is_not_start_segment
                 new_collide = new_collide and is_correct_angle
-                if new_collide and ((curr_att_x == 158 and curr_att_y == 143) or (curr_att_x == 217 and curr_att_y == 144)):
-                    print("fff: ", add_segments[i], curr_angle/np.pi, curr_vec)
                 if new_collide and is_inside:
                     if is_collide == False:
                         #print("fffffff")

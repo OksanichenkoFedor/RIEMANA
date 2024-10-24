@@ -2,7 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 
-from res.getero.ray_tracing.utils import count_angle, check_collision
+from res.getero.ray_tracing.utils import count_angle, check_collision, check_coincidention, check_part_coincidention
 from res.utils.wrapper import clever_njit
 from res.utils.config import do_njit, cache, parallel
 
@@ -471,6 +471,16 @@ def check_inter(cX, cY):
                             is_curr_inter = check_intersection_of_four_segments(*give_coords_for_ciofs(cX, cY, i+1, j+1))
                             if is_curr_inter:
                                 intersect = True
+
+            first_vec1, first_vec2 = [cX[i], cY[i]], [cX[i + 1], cY[i + 1]]
+            second_vec1, second_vec2 = [cX[j], cY[j]], [cX[j + 1], cY[j + 1]]
+            first_segment = np.array([first_vec1, first_vec2])
+            second_segment = np.array([second_vec1, second_vec2])
+            if check_part_coincidention(first_segment, second_segment) and np.abs(i - j) > 1:
+                intersect = True
+                print("fff: ", cX[i], cY[i], cX[i + 1], cY[i + 1], cX[j], cY[j], cX[j + 1], cY[j + 1])
+                print(first_segment, second_segment)
+
     return intersect
 
 @clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)

@@ -191,3 +191,20 @@ def check_coincidention(first_segment, second_segment):
         #print("Not same but coincidate: ", first_segment, second_segment)
     return res
 
+@clever_njit(do_njit=do_njit, cache=cache, parallel=parallel)
+def check_part_coincidention(first_segment, second_segment):
+    x1, y1 = first_segment[0]
+    x2, y2 = first_segment[1]
+    x3, y3 = second_segment[0]
+    x4, y4 = second_segment[1]
+
+    div = (y2 - y1) * (x3 - x2) - (x2 - x1) * (y3 - y2)==0 and (y2 - y1) * (x4 - x2) - (x2 - x1) * (y4 - y2)==0
+    if div:
+        is_third_inside = (x1 - x3) * (x3 - x2) > 0 or (y1 - y3) * (y3 - y2) > 0
+        is_forth_inside = (x1 - x4) * (x4 - x2) > 0 or (y1 - y4) * (y4 - y2) > 0
+        return is_third_inside or is_forth_inside
+    else:
+        return False
+
+
+

@@ -10,9 +10,9 @@ def plot_wafer(c_wafer):
     X, Y = prepare_segment_for_intersection_checking(X, Y, None, None, False, 0)
     #print(X[110],Y[110])
     #print(X[114], Y[114])
-    X, Y = X[217:222], Y[217:222]
+    #X, Y = X[217:222], Y[217:222]
 
-    print(X,Y)
+    #print(X,Y)
     fig, ax = plt.subplots(figsize=(15, 10))
     ax.set_aspect(1)
     ax.set_ylim([0.5*(np.array(Y).max()-np.array(Y).min())+np.array(Y).max(), np.array(Y).min()-0.5*(np.array(Y).max()-np.array(Y).min())])

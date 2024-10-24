@@ -168,9 +168,9 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                         NodeList, add_segments = process_one_particle(counter_arr, is_full_arr, is_hard,
                                                         add_segments, border_layer_arr, NodeList,
                                                         returned_particles, rarr_x, rarr_y, rarr_x, rarr_y,
-                                                        redepo_params,
-                                                        Si_num, xsize, ysize, R, test, do_half, max_value, type,
-                                                        num_one_side_points, seed, start_segment, reserve_pax, reserve_pay)
+                                                        redepo_params, Si_num, xsize, ysize, R, test, do_half,
+                                                        max_value, type, num_one_side_points, seed, start_segment,
+                                                        reserve_pax, reserve_pay)
                         #print("redepo end")
                         if is_full_arr[prev_att_x, prev_att_y] == 1:
                             pass
@@ -201,9 +201,9 @@ def process_one_particle(counter_arr, is_full_arr, is_hard, add_segments, border
                     if seed != -1:
                         seed = (seed * 1.534534534) % 1
                     curr_angle = new_angle
-                elif is_full_arr[curr_att_x, curr_att_y] == 0.0:
-                    reserve_pax, reserve_pay = curr_att_x, curr_att_y
+                else:
                     # print("Мы ударились о пустоту! ", is_full_arr[curr_att_x, curr_att_y])
+                    reserve_pax, reserve_pay = curr_att_x, curr_att_y
                     new_angle = straight_reflection(curr_angle, avg_norm_angle)
                     _, _, _, new_angle = check_angle_collision(curr_angle, new_angle, start_segment,
                                                                coll_vec, seed)
